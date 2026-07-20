@@ -1,2 +1,2 @@
 # vevak-website
-Privacy-first personal safety application for Android.
+Official website for VeVak, a privacy-first personal safety application.
