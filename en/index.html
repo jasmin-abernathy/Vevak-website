@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17332c">
+  <meta name="description" content="VeVak is an open-source Android app that lets a trusted contact request your location by SMS without requiring a mandatory cloud account.">
+  <meta name="color-scheme" content="light">
+  <title>VeVak — Location by SMS, under your control</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="alternate" hreflang="fr" href="../">
+  <link rel="alternate" hreflang="en" href="./">
+  <script defer src="../assets/site.js"></script>
+</head>
+<body data-lang="en">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./" aria-label="VeVak home">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>VeVak</span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#how">How it works</a>
+        <a href="#principles">Principles</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#contribute">Contribute</a>
+        <a class="lang-link" data-lang-choice="fr" href="../" lang="fr">FR</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="status-dot"></span> Android prototype · real-world testing</p>
+          <h1>Request a location by SMS.<br><span>No mandatory cloud account.</span></h1>
+          <p class="lead">VeVak lets a previously authorised trusted contact request your approximate location by SMS. Processing stays local on the phone and the current core does not continuously track your location.</p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/jasmin-abernathy/vevak">View the code on GitHub</a>
+            <a class="button secondary" href="#how">Understand it in 1 minute</a>
+          </div>
+          <ul class="chips" aria-label="Key principles">
+            <li>Open source</li>
+            <li>Local-first</li>
+            <li>No advertising</li>
+            <li>No telemetry</li>
+          </ul>
+        </div>
+
+        <div class="hero-demo" aria-label="Illustration of how VeVak works">
+          <div class="paper-note note-a">Authorised contact</div>
+          <div class="phone">
+            <div class="phone-top" aria-hidden="true"></div>
+            <div class="phone-screen">
+              <p class="screen-label">SMS received</p>
+              <div class="message incoming">Where are you?</div>
+              <div class="flow-step"><span>1</span> Sender verified</div>
+              <div class="flow-step"><span>2</span> Phrase verified</div>
+              <div class="flow-step"><span>3</span> Location requested</div>
+              <div class="message outgoing">Location available<br><small>map link</small></div>
+            </div>
+          </div>
+          <div class="paper-note note-b">No continuous tracking</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="wrap statement">
+        <p class="kicker">The idea</p>
+        <h2>A digital fallback that does less, but makes its limits understandable.</h2>
+        <p>Many location-sharing tools depend on Internet access, remote accounts and tracking infrastructure. VeVak explores a different route: use SMS and capabilities already present in Android, with a deliberately limited scope.</p>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="kicker">How it works</p>
+          <h2>Four steps. No magic.</h2>
+          <p>The current VeVak core follows a small, bounded path.</p>
+        </div>
+        <ol class="steps">
+          <li>
+            <span class="step-number">01</span>
+            <h3>You choose the contact</h3>
+            <p>A trusted phone number and an exact request phrase are configured directly on your phone.</p>
+          </li>
+          <li>
+            <span class="step-number">02</span>
+            <h3>The SMS arrives</h3>
+            <p>VeVak locally checks the sender, phrase and request rate before taking action.</p>
+          </li>
+          <li>
+            <span class="step-number">03</span>
+            <h3>A location is requested</h3>
+            <p>A sufficiently recent cached location is preferred. Otherwise, a bounded one-time lookup may be attempted.</p>
+          </li>
+          <li>
+            <span class="step-number">04</span>
+            <h3>A reply is sent</h3>
+            <p>If Android, the mobile network and location availability allow it, VeVak replies to the authorised contact by SMS.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section tinted" id="principles">
+      <div class="wrap split">
+        <div>
+          <p class="kicker">Principles</p>
+          <h2>Privacy is not an option buried in settings.</h2>
+          <p class="lead-small">The project starts from a simple idea: the best sensitive data is often the data you never collect.</p>
+        </div>
+        <div class="principle-grid">
+          <article class="card">
+            <h3>Local by default</h3>
+            <p>The core does not require a VeVak account, VeVak server or permanent Internet connection.</p>
+          </article>
+          <article class="card">
+            <h3>No permanent tracking</h3>
+            <p>Location is requested on demand. The current core does not perform periodic location tracking.</p>
+          </article>
+          <article class="card">
+            <h3>No ads, no trackers</h3>
+            <p>No advertising SDKs, telemetry or user profiling.</p>
+          </article>
+          <article class="card">
+            <h3>FOSS first</h3>
+            <p>The free/open-source variant remains canonical. Google components are isolated in the dedicated Play flavor.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section warning-section">
+      <div class="wrap warning-box">
+        <div class="warning-icon" aria-hidden="true">!</div>
+        <div>
+          <p class="kicker">Important limitations</p>
+          <h2>VeVak is not an emergency service.</h2>
+          <p>The core does not require Internet access, but it still depends on mobile-network/SMS availability, Android permissions, location availability and the phone's background restrictions. It cannot guarantee that an SMS will arrive or that a location will be obtained.</p>
+          <p><strong>In an emergency, use official emergency services and your phone's built-in emergency features.</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="kicker">Project status</p>
+          <h2>Make it reliable before making it bigger.</h2>
+          <p>The SMS/location engine already exists. The current priority is real-world robustness.</p>
+        </div>
+        <div class="roadmap-grid">
+          <article class="roadmap-card current">
+            <p class="roadmap-label">Now · P0</p>
+            <h3>Stabilisation</h3>
+            <ul>
+              <li>installable and reproducible builds;</li>
+              <li>real SMS → location → reply testing;</li>
+              <li>dual-SIM / eSIM behaviour;</li>
+              <li>screen-off and battery restrictions;</li>
+              <li>accessibility and actionable diagnostics.</li>
+            </ul>
+          </article>
+          <article class="roadmap-card">
+            <p class="roadmap-label">Next</p>
+            <h3>Manual outgoing SOS</h3>
+            <p>An explicit, cancellable alert to a trusted contact, without automatic emergency calls or a mandatory central server.</p>
+          </article>
+          <article class="roadmap-card">
+            <p class="roadmap-label">Research</p>
+            <h3>Device recovery</h3>
+            <p>Ring the device, report battery state, return a last-known location or display a message — only with explicit consent and a dedicated threat model.</p>
+          </article>
+        </div>
+        <p class="roadmap-link"><a href="https://github.com/jasmin-abernathy/vevak/blob/main/ROADMAP.md">Read the full roadmap →</a></p>
+      </div>
+    </section>
+
+    <section class="section tinted" id="contribute">
+      <div class="wrap participate-grid">
+        <div>
+          <p class="kicker">Contribute</p>
+          <h2>What VeVak needs most right now is real phones and real feedback.</h2>
+          <p>The most useful contributions today involve Android testing, SMS behaviour, dual-SIM devices, accessibility, manufacturer restrictions, security and documentation.</p>
+        </div>
+        <div class="participate-actions">
+          <a class="button primary" href="https://github.com/jasmin-abernathy/vevak/issues">Browse open tasks</a>
+          <a class="button secondary" href="https://github.com/jasmin-abernathy/vevak/blob/main/CONTRIBUTING.md">Contribution guide</a>
+          <a class="text-link" href="https://github.com/jasmin-abernathy/vevak/blob/main/PRIVACY.md">Read the privacy principles →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section final-cta">
+      <div class="wrap final-card">
+        <p class="kicker">Current version</p>
+        <h2>The project is public. The stable product is not here yet.</h2>
+        <p>VeVak is under active development and real-world testing. There is not yet a stable release that should be relied on as someone's only safety mechanism.</p>
+        <a class="button primary" href="https://github.com/jasmin-abernathy/vevak">Explore the project</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <a class="brand footer-brand" href="./"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a>
+        <p>Open-source project developed in France by Le Potager des Apps.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/jasmin-abernathy/vevak">Code</a>
+        <a href="https://github.com/jasmin-abernathy/vevak-docs">Documentation</a>
+        <a href="https://github.com/jasmin-abernathy/vevak/blob/main/LICENSE">GPL-3.0</a>
+        <a class="lang-link" data-lang-choice="fr" href="../" lang="fr">Français</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
