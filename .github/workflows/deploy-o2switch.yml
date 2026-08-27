@@ -34,22 +34,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate deployment configuration
+      - name: Check deployment configuration
+        id: config
         shell: bash
         run: |
           set -euo pipefail
 
-          missing=0
+          configured=true
           for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_KEY DEPLOY_KNOWN_HOSTS; do
             if [ -z "${!name:-}" ]; then
-              echo "Missing required GitHub secret for ${name}."
-              missing=1
+              echo "Missing configuration for ${name}."
+              configured=false
             fi
           done
 
-          if [ "$missing" -ne 0 ]; then
-            echo "Deployment is not configured yet. See DEPLOYMENT.md."
-            exit 1
+          echo "configured=$configured" >> "$GITHUB_OUTPUT"
+
+          if [ "$configured" = "false" ]; then
+            echo "o2switch deployment is ready but intentionally inactive until the GitHub secrets are configured."
+            echo "See DEPLOYMENT.md."
+            exit 0
           fi
 
           if [ "$DEPLOY_PATH" = "/" ] || [ ${#DEPLOY_PATH} -lt 5 ]; then
@@ -58,6 +62,7 @@ jobs:
           fi
 
       - name: Prepare static site
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -78,6 +83,7 @@ jobs:
           test -f .deploy/en/index.html
 
       - name: Configure SSH
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -91,6 +97,7 @@ jobs:
           chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Deploy to o2switch
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -106,7 +113,15 @@ jobs:
             "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
 
       - name: Deployment summary
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           echo "VeVak website deployed successfully."
           echo "Target: vevak.lepotager.org"
+
+      - name: Setup reminder
+        if: steps.config.outputs.configured != 'true'
+        shell: bash
+        run: |
+          echo "No deployment was attempted."
+          echo "Add the o2switch repository secrets described in DEPLOYMENT.md, then run this workflow manually once."
