@@ -19,7 +19,7 @@ The public website should explain, in plain language:
 - why the project is local-first and open source;
 - privacy and consent boundaries;
 - current prototype / testing status;
-- FOSS-first distribution and the planned Android variants;
+- FOSS-first distribution and the Android variants;
 - accessibility, ecodesign and real-device testing;
 - how to contribute, test or partner with the project.
 
@@ -56,17 +56,11 @@ Later extensions under study include an explicit outgoing SOS to a trusted conta
 
 ## Related repositories
 
-- `jasmin-abernathy/vevak` — current public Android reference implementation and roadmap.
+- `jasmin-abernathy/vevak` — Android application and roadmap. The FOSS and Play builds live together as Gradle product flavors so they share the same core and tests.
 - `jasmin-abernathy/vevak-docs` — project and technical documentation.
 - `jasmin-abernathy/vevak-brand` — brand/design resources and communication rules.
 
-The longer-term Android repository split discussed for the project is:
-
-- `VeVaK-android-FOSS` — canonical free/open-source build;
-- `VeVaK-android-PlayStore` — Play-specific distribution and proprietary platform integration when justified;
-- `VeVaK-android-Custom` — explicitly separated custom/integration work.
-
-Until that migration is completed, the public `vevak` repository remains the reference for implemented behaviour.
+No separate FOSS/Play repositories are currently needed. A separate integration repository would only be created later if a concrete use case genuinely requires a distinct codebase.
 
 ## Licence
 
