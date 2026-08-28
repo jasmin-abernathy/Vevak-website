@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#17332c">
-  <meta name="description" content="VeVak is an open-source Android app that lets a trusted contact request your location by SMS without requiring a mandatory cloud account.">
+  <meta name="description" content="VeVak is an open-source Android app for on-demand location by SMS: multiple authorised contacts, manual sharing and encrypted backup without a mandatory cloud account.">
   <meta name="color-scheme" content="light">
   <title>VeVak — Location by SMS, under your control</title>
+  <link rel="canonical" href="https://vevak.lepotager.org/en/">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
-  <link rel="alternate" hreflang="fr" href="../">
-  <link rel="alternate" hreflang="en" href="./">
+  <link rel="alternate" hreflang="fr" href="https://vevak.lepotager.org/">
+  <link rel="alternate" hreflang="en" href="https://vevak.lepotager.org/en/">
   <script defer src="../assets/site.js"></script>
 </head>
 <body data-lang="en">
@@ -24,6 +25,7 @@
       </a>
       <nav class="nav" aria-label="Main navigation">
         <a href="#how">How it works</a>
+        <a href="#included">Already included</a>
         <a href="#principles">Principles</a>
         <a href="#roadmap">Roadmap</a>
         <a href="#contribute">Contribute</a>
@@ -36,9 +38,9 @@
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="status-dot"></span> Android prototype · real-world testing</p>
+          <p class="eyebrow"><span class="status-dot"></span> Android prototype · first real-device validation ahead</p>
           <h1>Request a location by SMS.<br><span>No mandatory cloud account.</span></h1>
-          <p class="lead">VeVak lets a previously authorised trusted contact request your approximate location by SMS. Processing stays local on the phone and the current core does not continuously track your location.</p>
+          <p class="lead">VeVak lets several trusted contacts, each explicitly authorised for a limited period, request your location by SMS. You can also share a one-time location yourself. Processing stays local on the phone and VeVak does not continuously track your movements.</p>
           <div class="actions">
             <a class="button primary" href="https://github.com/jasmin-abernathy/vevak">View the code on GitHub</a>
             <a class="button secondary" href="#how">Understand it in 1 minute</a>
@@ -52,15 +54,15 @@
         </div>
 
         <div class="hero-demo" aria-label="Illustration of how VeVak works">
-          <div class="paper-note note-a">Authorised contact</div>
+          <div class="paper-note note-a">Authorised contacts</div>
           <div class="phone">
             <div class="phone-top" aria-hidden="true"></div>
             <div class="phone-screen">
               <p class="screen-label">SMS received</p>
               <div class="message incoming">Where are you?</div>
-              <div class="flow-step"><span>1</span> Sender verified</div>
+              <div class="flow-step"><span>1</span> Contact verified</div>
               <div class="flow-step"><span>2</span> Phrase verified</div>
-              <div class="flow-step"><span>3</span> Location requested</div>
+              <div class="flow-step"><span>3</span> Authorisation verified</div>
               <div class="message outgoing">Location available<br><small>map link</small></div>
             </div>
           </div>
@@ -72,8 +74,8 @@
     <section class="section compact">
       <div class="wrap statement">
         <p class="kicker">The idea</p>
-        <h2>A digital fallback that does less, but makes its limits understandable.</h2>
-        <p>Many location-sharing tools depend on Internet access, remote accounts and tracking infrastructure. VeVak explores a different route: use SMS and capabilities already present in Android, with a deliberately limited scope.</p>
+        <h2>A digital fallback that does less, while keeping its rules understandable.</h2>
+        <p>Many location-sharing tools depend on permanent Internet access, remote accounts and tracking infrastructure. VeVak explores a different route: use SMS and capabilities already present in Android, with local, time-limited and revocable authorisations.</p>
       </div>
     </section>
 
@@ -87,29 +89,57 @@
         <ol class="steps">
           <li>
             <span class="step-number">01</span>
-            <h3>You choose the contact</h3>
-            <p>A trusted phone number and an exact request phrase are configured directly on your phone.</p>
+            <h3>You choose the contacts</h3>
+            <p>The current prototype accepts up to five locally configured contacts. Each has its own number, normal request phrase and 24-hour, 7-day or 30-day authorisation.</p>
           </li>
           <li>
             <span class="step-number">02</span>
             <h3>The SMS arrives</h3>
-            <p>VeVak locally checks the sender, phrase and request rate before taking action.</p>
+            <p>VeVak locally checks the contact, their phrase, their authorisation and anti-tracking limits before taking action.</p>
           </li>
           <li>
             <span class="step-number">03</span>
             <h3>A location is requested</h3>
-            <p>A sufficiently recent cached location is preferred. Otherwise, a bounded one-time lookup may be attempted.</p>
+            <p>A sufficiently recent cached location is preferred. Otherwise, a bounded one-time lookup may be attempted. A trusted Wi-Fi place can avoid waking GPS.</p>
           </li>
           <li>
             <span class="step-number">04</span>
             <h3>A reply is sent</h3>
-            <p>If Android, the mobile network and location availability allow it, VeVak replies to the authorised contact by SMS.</p>
+            <p>If Android, the mobile network and location availability allow it, VeVak replies by SMS. The request remains locally visible and automatic replies are globally capped.</p>
           </li>
         </ol>
       </div>
     </section>
 
-    <section class="section tinted" id="principles">
+    <section class="section tinted" id="included">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="kicker">Already in the free prototype</p>
+          <h2>The safety baseline does not depend on a subscription.</h2>
+          <p>These capabilities belong to the open-source build currently being validated, not to a future premium tier.</p>
+        </div>
+        <div class="principle-grid">
+          <article class="card">
+            <h3>Multiple contacts</h3>
+            <p>Up to five contacts in the current prototype, each with an independent authorisation duration, revocation control and normal request phrase.</p>
+          </article>
+          <article class="card">
+            <h3>Manual sharing</h3>
+            <p>You can voluntarily send a one-time location to the selected contact after local confirmation, without waiting for an incoming request.</p>
+          </article>
+          <article class="card">
+            <h3>Encrypted backup</h3>
+            <p>Configuration can be exported to a password-encrypted <code>.vvk</code> file and restored on another device. A restore never silently re-authorises contacts.</p>
+          </article>
+          <article class="card">
+            <h3>Anti-surveillance safeguards</h3>
+            <p>Finite authorisations, local revocation, mandatory request visibility, hard rate limits and an optional duress phrase with a preselected fallback location.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="principles">
       <div class="wrap split">
         <div>
           <p class="kicker">Principles</p>
@@ -153,30 +183,30 @@
       <div class="wrap">
         <div class="section-heading">
           <p class="kicker">Project status</p>
-          <h2>Make it reliable before making it bigger.</h2>
-          <p>The SMS/location engine already exists. The current priority is real-world robustness.</p>
+          <h2>Build, test and measure before expanding.</h2>
+          <p>The free prototype already passes automated builds. The next major step is validation on real phones.</p>
         </div>
         <div class="roadmap-grid">
           <article class="roadmap-card current">
             <p class="roadmap-label">Now · P0</p>
-            <h3>Stabilisation</h3>
+            <h3>Real-device validation</h3>
             <ul>
-              <li>installable and reproducible builds;</li>
-              <li>real SMS → location → reply testing;</li>
+              <li>real SMS → location → reply, including screen-off use;</li>
+              <li>several senders and per-contact revocation;</li>
               <li>dual-SIM / eSIM behaviour;</li>
-              <li>screen-off and battery restrictions;</li>
-              <li>accessibility and actionable diagnostics.</li>
+              <li>encrypted export/import across devices;</li>
+              <li>battery restrictions and accessibility.</li>
             </ul>
           </article>
           <article class="roadmap-card">
-            <p class="roadmap-label">Next</p>
-            <h3>Manual outgoing SOS</h3>
-            <p>An explicit, cancellable alert to a trusted contact, without automatic emergency calls or a mandatory central server.</p>
+            <p class="roadmap-label">Next · to design</p>
+            <h3>Local VeVak+</h3>
+            <p>Optional convenience features may be studied later, such as several trusted places, response profiles and advanced personalisation. They must never degrade the free safety baseline.</p>
           </article>
           <article class="roadmap-card">
             <p class="roadmap-label">Research</p>
-            <h3>Device recovery</h3>
-            <p>Ring the device, report battery state, return a last-known location or display a message — only with explicit consent and a dedicated threat model.</p>
+            <h3>Relay and device recovery</h3>
+            <p>An optional encrypted Internet relay, cross-device convenience or selected recovery features will only be built if their usefulness and threat model are demonstrated.</p>
           </article>
         </div>
         <p class="roadmap-link"><a href="https://github.com/jasmin-abernathy/vevak/blob/main/ROADMAP.md">Read the full roadmap →</a></p>
@@ -202,7 +232,7 @@
       <div class="wrap final-card">
         <p class="kicker">Current version</p>
         <h2>The project is public. The stable product is not here yet.</h2>
-        <p>VeVak is under active development and real-world testing. There is not yet a stable release that should be relied on as someone's only safety mechanism.</p>
+        <p>VeVak is under active development. Automated tests and builds pass, but real-device validation is still required before a first stable release.</p>
         <a class="button primary" href="https://github.com/jasmin-abernathy/vevak">Explore the project</a>
       </div>
     </section>
