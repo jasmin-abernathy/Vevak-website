@@ -2,9 +2,11 @@
 
 Official lightweight website for **VeVak**, a privacy-first, open-source Android project for on-demand location sharing by SMS.
 
+Production target: `https://vevak.lepotager.org`.
+
 ## Current website
 
-The repository now contains a deployable static bilingual site inspired by the editorial / low-footprint approach used for `app.lepotager.org`:
+The repository contains a deployable static bilingual site:
 
 ```text
 .
@@ -15,6 +17,9 @@ The repository now contains a deployable static bilingual site inspired by the e
 │   ├── styles.css      # local design system, no framework
 │   ├── site.js         # language preference only
 │   └── favicon.svg
+├── robots.txt
+├── sitemap.xml
+├── DEPLOYMENT.md
 ├── .nojekyll
 └── LICENSE
 ```
@@ -25,9 +30,21 @@ There are no external fonts, frameworks, trackers, analytics scripts, advertisin
 
 > A backup location request by SMS, local and under the user's control.
 
-VeVak lets a previously authorised trusted contact request the phone's approximate location by SMS. The core feature is designed to work locally on the device without a VeVak account, mandatory cloud server, advertising, tracking or telemetry.
+VeVak lets explicitly authorised trusted contacts request the phone's location by SMS. The core feature is designed to work locally on the device without a VeVak account, mandatory cloud server, advertising, tracking or telemetry.
 
-VeVak still depends on a working mobile network/SMS service, Android permissions, device background behaviour and location availability. It must not be presented as working “without any network”, as always available, or as a replacement for emergency services.
+The current free prototype also includes:
+
+- up to five locally configured trusted contacts;
+- a separate finite authorisation and revocation state for each contact;
+- globally enforced anti-tracking rate limits;
+- explicit one-time outgoing location sharing;
+- an optional trusted Wi-Fi shortcut;
+- temporary discreet notifications that remain locally visible;
+- an optional duress/fallback phrase;
+- password-encrypted `.vvk` configuration export/import;
+- restore behaviour that never silently re-authorises contacts.
+
+VeVak still depends on a working mobile network/SMS service, Android permissions, device background behaviour and location availability. It must not be presented as always available or as a replacement for emergency services.
 
 ## Website principles
 
@@ -38,22 +55,25 @@ VeVak still depends on a working mobile network/SMS service, Android permissions
 - responsive and keyboard-friendly layout;
 - reduced-motion preference respected;
 - product status and limitations visible before future download calls-to-action;
-- no claim that research features are already implemented.
+- no claim that research or premium candidates are already shipped.
 
 ## Current product direction — August 2026
 
-The Android core remains focused on SMS request → validation → bounded location lookup → SMS response.
+The Android prototype already passes automated FOSS and Play tests/build/lint. The next priority is real-device validation:
 
-Before larger features, the project prioritises:
-
-1. reproducible/installable builds;
-2. real SMS tests, including screen-off/background behaviour;
+1. real SMS → location → reply, including screen-off/background behaviour;
+2. several authorised senders and per-contact revoke/expiry behaviour;
 3. robust dual-SIM/eSIM behaviour;
-4. guided end-to-end readiness tests;
-5. manufacturer/battery diagnostics with actionable guidance;
-6. accessibility, security and privacy review.
+4. encrypted export/import across real devices/document providers;
+5. manufacturer/battery diagnostics and accessibility review.
 
-Later extensions under study include an explicit outgoing SOS to a trusted contact and a local-first device-recovery module inspired by useful ideas from Find Hub/Find Device. The website deliberately presents these as roadmap/research items, not shipped functionality.
+The free safety baseline remains open source. Future paid candidates are limited to optional convenience or genuinely service-backed features, such as several trusted places, advanced response profiles, cross-device conveniences or a future optional encrypted relay. These are roadmap candidates, not shipped promises.
+
+## Deployment
+
+See [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
+For the first publication, the simplest and safest route is to create `vevak.lepotager.org` in o2switch cPanel and upload the static files with cPanel's File Manager. The repository also contains an optional GitHub Actions SSH deployment workflow, but o2switch SSH access is normally protected by an IP allowlist, so hosted GitHub runners may require additional infrastructure before fully automatic SSH deployment is reliable.
 
 ## Related repositories
 
