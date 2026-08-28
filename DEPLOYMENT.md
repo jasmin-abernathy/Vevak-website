@@ -1,106 +1,165 @@
-# Déploiement automatique de VeVak vers o2switch
+# Mettre VeVak en ligne sur o2switch
 
-Objectif : chaque modification publiée sur la branche `main` de `jasmin-abernathy/Vevak-website` met automatiquement à jour `https://vevak.lepotager.org`.
+Cible de production : `https://vevak.lepotager.org`.
 
-Le workflow est déjà présent dans `.github/workflows/deploy-o2switch.yml`. Tant que les secrets o2switch ne sont pas configurés dans GitHub, il reste volontairement inactif et ne tente aucune connexion.
+Le site est entièrement statique : il n'a besoin ni de PHP, ni de base de données, ni de Node.js en production.
+
+## Chemin recommandé pour la première mise en ligne
+
+Pour la première publication, utiliser **cPanel → Gestionnaire de fichiers**. C'est le chemin le plus simple à vérifier et il évite de dépendre immédiatement d'un accès SSH automatisé.
+
+Le workflow `.github/workflows/deploy-o2switch.yml` reste disponible pour une automatisation ultérieure, mais o2switch protège normalement SSH/SFTP/FTPS par une autorisation d'adresse IP. Les runners GitHub hébergés n'ont pas une IP fixe pratique à autoriser durablement. Ne pas considérer le workflow SSH comme opérationnel tant que ce point n'a pas été résolu proprement.
 
 ## 1. Créer `vevak.lepotager.org` dans cPanel
 
 Dans o2switch / cPanel :
 
-1. ouvrir **Domaines** ;
-2. créer le sous-domaine `vevak.lepotager.org` ;
-3. noter exactement sa **racine du document**.
+1. ouvrir l'outil **Sous-domaines** dans la rubrique Domaines ;
+2. saisir `vevak` comme sous-domaine de `lepotager.org` ;
+3. laisser ou choisir une racine de documents dédiée ;
+4. noter **exactement** cette racine.
 
-La racine peut ressembler à `/home/UTILISATEUR/vevak.lepotager.org`, mais il ne faut pas la deviner : recopier la valeur affichée par cPanel.
+Exemple possible :
 
-Si la zone DNS de `lepotager.org` n'est pas gérée par ce cPanel, ajouter le sous-domaine dans la zone DNS utilisée pour `lepotager.org`, en le faisant pointer vers l'adresse de l'hébergement o2switch concerné.
-
-## 2. Identifier l'accès SSH o2switch
-
-Dans cPanel, récupérer :
-
-- le **nom d'hôte SSH** du serveur ;
-- le **nom d'utilisateur cPanel/SSH** ;
-- le port SSH, généralement `22` si aucune autre valeur n'est indiquée.
-
-Ne pas utiliser comme identifiant une adresse du type `jasmin@nom-du-serveur` : GitHub attend séparément le nom d'utilisateur et le nom d'hôte.
-
-## 3. Créer une clé de déploiement dédiée
-
-Depuis un terminal local :
-
-```bash
-ssh-keygen -t ed25519 -C "github-vevak-deploy" -f vevak_deploy
+```text
+/home/UTILISATEUR/vevak.lepotager.org
 ```
 
-Cela crée :
+Ne pas deviner le chemin : reprendre celui affiché par cPanel.
 
-- `vevak_deploy` : clé **privée** ;
-- `vevak_deploy.pub` : clé **publique**.
+Documentation o2switch :
+https://faq.o2switch.fr/cpanel/domaines/configuration-sous-domaine/
 
-Ajouter/autoriser le contenu de `vevak_deploy.pub` dans l'accès SSH du compte o2switch.
+## 2. Vérifier le DNS
 
-Ne jamais publier `vevak_deploy` dans le dépôt.
+Le sous-domaine doit pointer vers l'hébergement o2switch qui contient sa racine de documents.
 
-## 4. Enregistrer l'empreinte du serveur
+Si la zone DNS de `lepotager.org` est déjà gérée par ce compte o2switch, la création du sous-domaine peut suffire selon la configuration existante.
 
-Avec le vrai nom d'hôte SSH :
+Si la zone DNS est gérée ailleurs, créer l'enregistrement nécessaire vers l'hébergement o2switch concerné. L'adresse IP de l'hébergement est visible dans les informations générales de cPanel.
 
-```bash
-ssh-keyscan -p 22 NOM_HOTE_SSH
+Ne modifier aucun enregistrement du domaine principal si seul `vevak.lepotager.org` doit être ajouté.
+
+## 3. Préparer les fichiers à envoyer
+
+Depuis GitHub, récupérer le contenu du dépôt `jasmin-abernathy/Vevak-website` sur la branche `main`.
+
+À la racine de `vevak.lepotager.org`, le serveur doit finalement contenir :
+
+```text
+index.html
+en/
+  index.html
+assets/
+  styles.css
+  site.js
+  favicon.svg
+robots.txt
+sitemap.xml
 ```
 
-Si o2switch utilise un autre port, remplacer `22`.
+Les fichiers de développement (`README.md`, `DEPLOYMENT.md`, `.github/`, `LICENSE`) ne sont pas nécessaires au fonctionnement du site et peuvent rester uniquement sur GitHub.
 
-Conserver la ou les lignes retournées. Elles seront ajoutées à GitHub dans le secret `O2SWITCH_KNOWN_HOSTS` afin que le déploiement refuse un serveur SSH inattendu.
+## 4. Envoyer les fichiers avec le Gestionnaire de fichiers
 
-## 5. Ajouter les secrets dans GitHub
+Dans cPanel :
 
-Dans :
+1. ouvrir **Gestionnaire de fichiers** ;
+2. aller dans la racine exacte de `vevak.lepotager.org` ;
+3. supprimer uniquement une éventuelle page d'attente créée dans ce dossier, après avoir vérifié que vous êtes dans la bonne racine ;
+4. envoyer les fichiers/dossiers du site ;
+5. vérifier que `index.html` se trouve directement dans la racine, et non dans un sous-dossier du type `Vevak-website-main/`.
 
-**Vevak-website → Settings → Secrets and variables → Actions → New repository secret**
+Documentation o2switch :
+https://faq.o2switch.fr/cpanel/fichiers/gestionnaire-fichiers-web/
 
-Créer :
+## 5. Tester d'abord en HTTP
 
-| Secret | Valeur |
-|---|---|
-| `O2SWITCH_HOST` | nom d'hôte SSH o2switch |
-| `O2SWITCH_USER` | utilisateur SSH/cPanel |
-| `O2SWITCH_PATH` | racine exacte de `vevak.lepotager.org` |
-| `O2SWITCH_SSH_KEY` | contenu complet de la clé privée `vevak_deploy` |
-| `O2SWITCH_KNOWN_HOSTS` | sortie vérifiée de `ssh-keyscan` |
-| `O2SWITCH_PORT` | facultatif ; laisser absent pour utiliser `22` |
+Ouvrir :
 
-Le workflow refuse explicitement une racine vide ou `/`.
+```text
+http://vevak.lepotager.org
+```
 
-## 6. Premier déploiement
+Le but de ce test est uniquement de confirmer que :
 
-Après avoir ajouté les secrets :
+- le DNS arrive au bon hébergement ;
+- la racine de documents est correcte ;
+- `index.html`, `/assets/` et `/en/` sont accessibles.
 
-1. ouvrir l'onglet **Actions** du dépôt ;
-2. choisir **Deploy VeVak website to o2switch** ;
-3. cliquer sur **Run workflow** ;
-4. vérifier que le job se termine en vert ;
-5. ouvrir `https://vevak.lepotager.org`.
+Ne pas considérer le déploiement comme terminé tant que HTTPS n'est pas activé.
 
-## 7. Ensuite : fonctionnement automatique
+## 6. Activer HTTPS avec Let's Encrypt
 
-Une modification de l'un de ces éléments sur `main` déclenche automatiquement le déploiement :
+Dans cPanel :
 
-- `index.html` ;
-- `en/**` ;
-- `assets/**` ;
-- `robots.txt` ;
-- `sitemap.xml` ;
-- le workflow lui-même.
+1. ouvrir **Let's Encrypt** ;
+2. choisir `vevak.lepotager.org` ;
+3. générer le certificat classique ;
+4. attendre que le certificat soit installé ;
+5. vérifier `https://vevak.lepotager.org`.
 
-Les modifications purement documentaires du README ne republient donc pas inutilement le site.
+Le domaine doit déjà pointer vers o2switch pour que la validation HTTP de Let's Encrypt réussisse.
 
-## Sécurité et comportement du déploiement
+Documentation o2switch :
+https://faq.o2switch.fr/cpanel/securite/lets-encrypt-ssl-gratuit/
 
-Le transfert utilise SSH + `rsync` avec vérification stricte de l'empreinte du serveur.
+## 7. Forcer HTTPS
 
-Le workflow n'utilise pas `--delete` : une mauvaise racine distante ne peut donc pas provoquer une suppression massive des fichiers existants. Les dossiers `.well-known/` et le fichier `.htaccess` ne sont pas envoyés ni écrasés par le workflow.
+Dans la racine du site, créer ou modifier `.htaccess` et placer en tête :
 
-Une fois la racine vérifiée en production, une stratégie de nettoyage contrôlé pourra être ajoutée si des fichiers obsolètes deviennent réellement un problème.
+```apache
+RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTPS} !on
+RewriteRule ^(.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+```
+
+Puis vérifier que :
+
+- `http://vevak.lepotager.org` redirige vers HTTPS ;
+- `http://vevak.lepotager.org/en/` redirige également ;
+- il n'y a pas de boucle de redirection.
+
+Documentation o2switch :
+https://faq.o2switch.fr/guides/webmastering/forcer-https/
+
+## 8. Vérifications finales
+
+Tester au minimum :
+
+- `https://vevak.lepotager.org/` ;
+- `https://vevak.lepotager.org/en/` ;
+- le bouton FR/EN dans les deux sens ;
+- les liens GitHub ;
+- l'affichage mobile ;
+- `https://vevak.lepotager.org/robots.txt` ;
+- `https://vevak.lepotager.org/sitemap.xml` ;
+- l'absence d'erreur de certificat ;
+- la redirection HTTP → HTTPS.
+
+## Mise à jour manuelle ultérieure
+
+Pour une nouvelle version du site :
+
+1. récupérer la branche `main` à jour ;
+2. remplacer `index.html`, `en/`, `assets/`, `robots.txt` et `sitemap.xml` dans la racine de production ;
+3. ne pas supprimer `.htaccess` ni `.well-known/` ;
+4. recharger la page en navigation privée pour vérifier la version publiée.
+
+## Automatisation GitHub Actions — option avancée
+
+Le dépôt contient un workflow SSH/rsync prévu pour déployer depuis GitHub Actions. Les secrets attendus sont :
+
+- `O2SWITCH_HOST` ;
+- `O2SWITCH_USER` ;
+- `O2SWITCH_PATH` ;
+- `O2SWITCH_SSH_KEY` ;
+- `O2SWITCH_KNOWN_HOSTS` ;
+- `O2SWITCH_PORT` (facultatif, 22 par défaut).
+
+Cependant, o2switch indique que l'accès SSH doit d'abord être autorisé pour l'adresse IP source. Les runners GitHub hébergés utilisent des adresses qui peuvent changer : une automatisation directe par SSH peut donc être peu fiable sans runner auto-hébergé, IP fixe ou autre mécanisme explicitement validé.
+
+Pour cette raison, **ne pas renseigner ces secrets uniquement pour "essayer"** et ne jamais publier une clé privée dans le dépôt.
+
+Le premier déploiement via Gestionnaire de fichiers reste la procédure de référence tant qu'une stratégie d'automatisation stable n'a pas été choisie.
