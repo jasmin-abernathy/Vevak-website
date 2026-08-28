@@ -1,15 +1,10 @@
-name: Deploy VeVak website to o2switch
+name: Manual VeVak website deploy to o2switch
 
+# o2switch normally protects SSH/SFTP with an IP allowlist. GitHub-hosted
+# runners do not provide a practical fixed source IP for this small project,
+# so production deployment is intentionally manual-only until a stable runner
+# or another explicitly reviewed deployment mechanism is configured.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "index.html"
-      - "en/**"
-      - "assets/**"
-      - "robots.txt"
-      - "sitemap.xml"
-      - ".github/workflows/deploy-o2switch.yml"
   workflow_dispatch:
 
 permissions:
@@ -17,7 +12,7 @@ permissions:
 
 concurrency:
   group: vevak-production-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -32,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check deployment configuration
         id: config
@@ -51,8 +46,7 @@ jobs:
           echo "configured=$configured" >> "$GITHUB_OUTPUT"
 
           if [ "$configured" = "false" ]; then
-            echo "o2switch deployment is ready but intentionally inactive until the GitHub secrets are configured."
-            echo "See DEPLOYMENT.md."
+            echo "No deployment attempted. See DEPLOYMENT.md."
             exit 0
           fi
 
@@ -71,16 +65,14 @@ jobs:
           cp index.html .deploy/
           cp -R assets .deploy/
           cp -R en .deploy/
-
-          for optional in robots.txt sitemap.xml; do
-            if [ -f "$optional" ]; then
-              cp "$optional" .deploy/
-            fi
-          done
+          cp robots.txt .deploy/
+          cp sitemap.xml .deploy/
 
           test -f .deploy/index.html
           test -f .deploy/assets/styles.css
           test -f .deploy/en/index.html
+          test -f .deploy/robots.txt
+          test -f .deploy/sitemap.xml
 
       - name: Configure SSH
         if: steps.config.outputs.configured == 'true'
@@ -116,12 +108,12 @@ jobs:
         if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
-          echo "VeVak website deployed successfully."
-          echo "Target: vevak.lepotager.org"
+          echo "VeVak website files were sent to the configured o2switch path."
+          echo "Verify https://vevak.lepotager.org manually."
 
       - name: Setup reminder
         if: steps.config.outputs.configured != 'true'
         shell: bash
         run: |
           echo "No deployment was attempted."
-          echo "Add the o2switch repository secrets described in DEPLOYMENT.md, then run this workflow manually once."
+          echo "The recommended first publication is cPanel File Manager; see DEPLOYMENT.md."
