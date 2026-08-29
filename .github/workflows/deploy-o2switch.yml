@@ -77,6 +77,7 @@ jobs:
           test -f .deploy/en/index.html
           test -f .deploy/test/index.html
           test -f .deploy/test/test.css
+          test -f .deploy/test/test.js
           test -f .deploy/robots.txt
           test -f .deploy/sitemap.xml
 
