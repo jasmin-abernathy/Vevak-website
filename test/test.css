@@ -1,0 +1,90 @@
+.tester-hero {
+  padding: clamp(4rem, 9vw, 7rem) 0 3.5rem;
+}
+.tester-hero-inner { max-width: 900px; }
+.tester-hero h1 { max-width: 15ch; }
+.tester-grid {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: start;
+}
+.tester-callout,
+.tester-warning {
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--signal);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+}
+.tester-callout p:last-child { margin-bottom: 0; }
+.tester-meta {
+  color: var(--ink-soft);
+  font-size: .92rem;
+}
+.install-steps {
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.install-steps > li {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+}
+.install-steps .step-number {
+  margin: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--signal-soft);
+}
+.install-steps p { color: var(--ink-soft); }
+.android-message {
+  margin: 1rem 0;
+  padding: .9rem 1rem;
+  border-radius: 12px;
+  background: var(--paper-2);
+  border: 1px dashed var(--line);
+  color: var(--ink);
+}
+.tester-checklist {
+  display: grid;
+  gap: .7rem;
+  max-width: 850px;
+  margin-bottom: 2rem;
+}
+.tester-checklist label {
+  display: flex;
+  gap: .8rem;
+  align-items: flex-start;
+  padding: .9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  font-weight: 720;
+}
+.tester-checklist input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: .18rem;
+  accent-color: var(--leaf);
+  flex: 0 0 auto;
+}
+.tester-warning {
+  max-width: 850px;
+  background: var(--signal-soft);
+}
+@media (max-width: 760px) {
+  .tester-grid { grid-template-columns: 1fr; }
+  .install-steps > li { grid-template-columns: 1fr; }
+  .install-steps .step-number { margin-bottom: .25rem; }
+}
