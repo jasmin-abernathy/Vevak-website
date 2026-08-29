@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17332c">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="description" content="Questionnaire privé de retour pour les testeurs VeVak.">
+  <title>VeVak — Questionnaire de retour</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <style>
+    .feedback-hero{padding:clamp(4rem,8vw,6.5rem) 0 2.5rem}.feedback-hero h1{max-width:12ch}.feedback-intro{max-width:760px}.feedback-pills{display:flex;flex-wrap:wrap;gap:.55rem;padding:0;margin:1.4rem 0 0;list-style:none}.feedback-pills li{padding:.45rem .75rem;border-radius:999px;background:var(--paper-2);font-size:.86rem;font-weight:760}.feedback-shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:2rem;align-items:start}.feedback-nav{position:sticky;top:96px;padding:1rem;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--white)}.feedback-progress-label{display:flex;justify-content:space-between;gap:1rem;margin-bottom:.65rem;font-size:.85rem;font-weight:800}.feedback-progress{height:9px;overflow:hidden;border-radius:999px;background:var(--paper-2)}.feedback-progress span{display:block;width:12.5%;height:100%;background:var(--leaf);transition:width .2s ease}.feedback-nav ol{padding:0;margin:1.1rem 0 0;list-style:none;display:grid;gap:.35rem}.feedback-nav button{width:100%;padding:.68rem .75rem;border:0;border-radius:10px;background:transparent;color:var(--ink-soft);font:inherit;font-size:.88rem;font-weight:750;text-align:left;cursor:pointer}.feedback-nav button[aria-current="step"]{background:var(--paper-2);color:var(--ink)}.feedback-nav button.is-done::after{content:" ✓";color:var(--leaf);font-weight:900}.feedback-card{padding:clamp(1.4rem,4vw,2.3rem);border:1px solid var(--line);border-radius:var(--radius);background:var(--white);box-shadow:var(--shadow)}.feedback-card[hidden]{display:none}.part-head{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;margin-bottom:1.8rem}.part-number{width:3rem;height:3rem;display:grid;place-items:center;border-radius:50%;background:var(--ink);color:white;font-weight:900}.part-head h2{font-size:clamp(2rem,4vw,3.15rem);margin-bottom:.65rem}.part-head p{margin:0;color:var(--ink-soft)}.question{padding:1.25rem 0;border-top:1px solid var(--line)}.question:first-of-type{border-top:0}.question legend,.question>label:first-child{display:block;margin-bottom:.75rem;font-weight:850}.choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem}.choice{position:relative}.choice input{position:absolute;opacity:0;pointer-events:none}.choice label{min-height:48px;display:grid;place-items:center;padding:.55rem .6rem;border:1px solid var(--line);border-radius:12px;background:var(--paper);font-size:.88rem;font-weight:780;text-align:center;cursor:pointer}.choice input:checked+label{border-color:var(--leaf);background:#d9ece3;outline:2px solid var(--leaf);outline-offset:1px}.choice input:focus-visible+label{outline:3px solid var(--signal);outline-offset:3px}.difficulty{display:flex;flex-wrap:wrap;gap:.55rem}.difficulty .choice label{min-width:48px}.question-help{margin:.45rem 0 .8rem;color:var(--ink-soft);font-size:.9rem}.text-input,textarea,select{width:100%;min-height:48px;padding:.75rem .85rem;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font:inherit;font-size:1rem}textarea{min-height:120px;resize:vertical}.conditional-note{margin-top:.75rem;padding:.85rem 1rem;border-left:4px solid var(--signal);background:var(--signal-soft);border-radius:0 10px 10px 0;font-size:.9rem}.part-actions{display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-top:1.6rem;padding-top:1.4rem;border-top:1px solid var(--line)}.button{cursor:pointer}.button:disabled{opacity:.45;cursor:not-allowed;transform:none}.save-state{margin-top:1rem;color:var(--ink-soft);font-size:.84rem}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.4rem 0}.summary-card{padding:1rem;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper)}.summary-card strong{display:block;margin-bottom:.3rem}.summary-card span{color:var(--ink-soft);font-size:.9rem}.export-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.3rem}.privacy-note{margin-top:1.4rem;padding:1rem;border-radius:var(--radius-sm);background:var(--paper-2);color:var(--ink-soft);font-size:.9rem}.overall-block{margin-top:1.8rem;padding-top:1.5rem;border-top:1px solid var(--line)}.toast{min-height:1.4rem;margin-top:.7rem;color:var(--leaf-dark);font-weight:760;font-size:.88rem}.tester-warning{margin-top:2rem;padding:1rem 1.2rem;border:1px solid var(--signal);border-radius:var(--radius-sm);background:var(--signal-soft)}
+    @media(max-width:920px){.feedback-shell{grid-template-columns:1fr}.feedback-nav{position:static}.feedback-nav ol{grid-template-columns:repeat(4,minmax(0,1fr))}.feedback-nav button{text-align:center;font-size:.78rem}.choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.feedback-nav ol{grid-template-columns:repeat(2,minmax(0,1fr))}.choice-grid,.summary-grid{grid-template-columns:1fr}.part-head{grid-template-columns:1fr}.part-number{width:2.6rem;height:2.6rem}.part-actions .button{width:100%}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="VeVak, accueil"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a>
+      <nav class="nav" aria-label="Navigation testeurs"><a href="../">Espace testeurs</a><a href="../#test">Parcours de test</a><a href="../../">Site public</a></nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="feedback-hero">
+      <div class="wrap feedback-intro">
+        <p class="eyebrow"><span class="status-dot"></span> Test privé · retour de fonctionnement</p>
+        <h1>Dis-moi ce qui a vraiment marché.</h1>
+        <p class="lead">Le but n’est pas de « réussir » le test. Un bouton incompréhensible, une étape hésitante ou quelque chose qui ne marche qu’une fois sur deux sont précisément les informations utiles.</p>
+        <ul class="feedback-pills"><li>8 parties courtes</li><li>Commentaires libres à chaque étape</li><li>Sauvegarde locale automatique</li><li>Aucune donnée envoyée automatiquement</li></ul>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="wrap feedback-shell" data-feedback-app>
+        <aside class="feedback-nav" aria-label="Progression du questionnaire">
+          <div class="feedback-progress-label"><span>Progression</span><strong data-progress-text>1 / 8</strong></div>
+          <div class="feedback-progress" role="progressbar" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1"><span data-progress-bar></span></div>
+          <ol>
+            <li><button type="button" data-go="0" aria-current="step">1 · Lancement</button></li>
+            <li><button type="button" data-go="1">2 · Contact</button></li>
+            <li><button type="button" data-go="2">3 · SMS</button></li>
+            <li><button type="button" data-go="3">4 · Écran verrouillé</button></li>
+            <li><button type="button" data-go="4">5 · Révocation</button></li>
+            <li><button type="button" data-go="5">6 · Partage manuel</button></li>
+            <li><button type="button" data-go="6">7 · Téléphone</button></li>
+            <li><button type="button" data-go="7">8 · Impression générale</button></li>
+          </ol>
+          <p class="save-state" data-save-state>Les réponses restent uniquement sur ce navigateur tant que tu ne les exportes pas.</p>
+        </aside>
+
+        <form id="feedbackForm" novalidate>
+          <section class="feedback-card" data-part="0" data-title="Lancement">
+            <div class="part-head"><div class="part-number">1</div><div><p class="kicker">Premier lancement</p><h2>VeVak s’ouvre correctement ?</h2><p>On cherche ici les blocages de démarrage, les permissions incompréhensibles et les premiers écrans qui mettent le doute.</p></div></div>
+            <fieldset class="question"><legend>Jusqu’où es-tu arrivé ?</legend><div class="choice-grid">
+              <div class="choice"><input id="launch-ok" type="radio" name="launch_result" value="Tout fonctionne"><label for="launch-ok">Tout fonctionne</label></div>
+              <div class="choice"><input id="launch-partial" type="radio" name="launch_result" value="Partiellement"><label for="launch-partial">Partiellement</label></div>
+              <div class="choice"><input id="launch-no" type="radio" name="launch_result" value="Bloqué"><label for="launch-no">Bloqué</label></div>
+              <div class="choice"><input id="launch-na" type="radio" name="launch_result" value="Non testé"><label for="launch-na">Non testé</label></div>
+            </div></fieldset>
+            <fieldset class="question"><legend>Les demandes de permissions étaient-elles compréhensibles ?</legend><div class="choice-grid">
+              <div class="choice"><input id="perm-yes" type="radio" name="permissions_clarity" value="Oui"><label for="perm-yes">Oui</label></div><div class="choice"><input id="perm-mostly" type="radio" name="permissions_clarity" value="Plutôt"><label for="perm-mostly">Plutôt</label></div><div class="choice"><input id="perm-no" type="radio" name="permissions_clarity" value="Non"><label for="perm-no">Non</label></div><div class="choice"><input id="perm-na" type="radio" name="permissions_clarity" value="Non vu"><label for="perm-na">Non vu</label></div>
+            </div></fieldset>
+            <div class="question"><label for="comment-launch">Commentaire libre sur cette partie</label><p class="question-help">Ex. écran inattendu, texte flou, permission qui semble inquiétante, crash, hésitation…</p><textarea id="comment-launch" name="comment_launch" placeholder="Raconte ce que tu as vu, même si ça te paraît anodin."></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" disabled>← Retour</button><button class="button primary" type="button" data-next>Contact de confiance →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="1" data-title="Contact" hidden>
+            <div class="part-head"><div class="part-number">2</div><div><p class="kicker">Configuration</p><h2>Ajouter un contact de confiance.</h2><p>Cette partie vérifie surtout si le parcours et la durée d’autorisation sont compréhensibles sans explication extérieure.</p></div></div>
+            <fieldset class="question"><legend>As-tu réussi à configurer un contact ?</legend><div class="choice-grid">
+              <div class="choice"><input id="contact-ok" type="radio" name="contact_result" value="Oui"><label for="contact-ok">Oui</label></div><div class="choice"><input id="contact-partial" type="radio" name="contact_result" value="Avec difficulté"><label for="contact-partial">Avec difficulté</label></div><div class="choice"><input id="contact-no" type="radio" name="contact_result" value="Non"><label for="contact-no">Non</label></div><div class="choice"><input id="contact-na" type="radio" name="contact_result" value="Non testé"><label for="contact-na">Non testé</label></div>
+            </div></fieldset>
+            <fieldset class="question"><legend>La notion d’autorisation temporaire était-elle claire ?</legend><div class="choice-grid">
+              <div class="choice"><input id="duration-clear" type="radio" name="duration_clarity" value="Très claire"><label for="duration-clear">Très claire</label></div><div class="choice"><input id="duration-mostly" type="radio" name="duration_clarity" value="Assez claire"><label for="duration-mostly">Assez claire</label></div><div class="choice"><input id="duration-no" type="radio" name="duration_clarity" value="Pas claire"><label for="duration-no">Pas claire</label></div><div class="choice"><input id="duration-na" type="radio" name="duration_clarity" value="Non vue"><label for="duration-na">Non vue</label></div>
+            </div></fieldset>
+            <div class="question"><label for="comment-contact">Commentaire libre sur cette partie</label><textarea id="comment-contact" name="comment_contact" placeholder="Qu’est-ce qui t’a semblé évident, bizarre ou inutile ?"></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← Lancement</button><button class="button primary" type="button" data-next>Demande par SMS →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="2" data-title="SMS" hidden>
+            <div class="part-head"><div class="part-number">3</div><div><p class="kicker">Fonction principale</p><h2>Faire une vraie demande par SMS.</h2><p>Le contact autorisé envoie la phrase prévue ; VeVak doit vérifier la demande et répondre avec la position si les conditions le permettent.</p></div></div>
+            <fieldset class="question"><legend>Quel a été le résultat ?</legend><div class="choice-grid">
+              <div class="choice"><input id="sms-ok" type="radio" name="sms_result" value="Réponse correcte"><label for="sms-ok">Réponse correcte</label></div><div class="choice"><input id="sms-slow" type="radio" name="sms_result" value="Réponse mais problème"><label for="sms-slow">Réponse mais problème</label></div><div class="choice"><input id="sms-no" type="radio" name="sms_result" value="Pas de réponse"><label for="sms-no">Pas de réponse</label></div><div class="choice"><input id="sms-na" type="radio" name="sms_result" value="Non testé"><label for="sms-na">Non testé</label></div>
+            </div></fieldset>
+            <fieldset class="question"><legend>La position reçue était-elle cohérente ?</legend><div class="choice-grid"><div class="choice"><input id="loc-yes" type="radio" name="location_accuracy" value="Oui"><label for="loc-yes">Oui</label></div><div class="choice"><input id="loc-rough" type="radio" name="location_accuracy" value="Approximative"><label for="loc-rough">Approximative</label></div><div class="choice"><input id="loc-no" type="radio" name="location_accuracy" value="Non"><label for="loc-no">Non</label></div><div class="choice"><input id="loc-na" type="radio" name="location_accuracy" value="Pas de position"><label for="loc-na">Pas de position</label></div></div></fieldset>
+            <div class="question"><label for="comment-sms">Commentaire libre sur cette partie</label><p class="question-help">Indique notamment si la réponse a mis longtemps, s’est répétée, est arrivée dans le désordre ou contenait quelque chose d’étrange.</p><textarea id="comment-sms" name="comment_sms" placeholder="Décris le comportement observé."></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← Contact</button><button class="button primary" type="button" data-next>Écran verrouillé →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="3" data-title="Écran verrouillé" hidden>
+            <div class="part-head"><div class="part-number">4</div><div><p class="kicker">Arrière-plan</p><h2>Et quand le téléphone dort ?</h2><p>C’est l’un des tests les plus importants : recommence la demande avec l’écran verrouillé et le téléphone laissé tranquille quelques minutes.</p></div></div>
+            <fieldset class="question"><legend>La demande a-t-elle fonctionné écran verrouillé ?</legend><div class="choice-grid"><div class="choice"><input id="locked-ok" type="radio" name="locked_result" value="Oui"><label for="locked-ok">Oui</label></div><div class="choice"><input id="locked-delay" type="radio" name="locked_result" value="Oui avec délai"><label for="locked-delay">Oui avec délai</label></div><div class="choice"><input id="locked-no" type="radio" name="locked_result" value="Non"><label for="locked-no">Non</label></div><div class="choice"><input id="locked-na" type="radio" name="locked_result" value="Non testé"><label for="locked-na">Non testé</label></div></div></fieldset>
+            <fieldset class="question"><legend>As-tu vu une notification liée à l’activité automatique ?</legend><div class="choice-grid"><div class="choice"><input id="notif-yes" type="radio" name="notification_seen" value="Oui"><label for="notif-yes">Oui</label></div><div class="choice"><input id="notif-late" type="radio" name="notification_seen" value="Oui mais tard"><label for="notif-late">Oui mais tard</label></div><div class="choice"><input id="notif-no" type="radio" name="notification_seen" value="Non"><label for="notif-no">Non</label></div><div class="choice"><input id="notif-na" type="radio" name="notification_seen" value="Non vérifié"><label for="notif-na">Non vérifié</label></div></div></fieldset>
+            <div class="question"><label for="comment-locked">Commentaire libre sur cette partie</label><textarea id="comment-locked" name="comment_locked" placeholder="Ex. réponse seulement après déverrouillage, notification absente, batterie optimisée…"></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← SMS</button><button class="button primary" type="button" data-next>Révocation →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="4" data-title="Révocation" hidden>
+            <div class="part-head"><div class="part-number">5</div><div><p class="kicker">Contrôle</p><h2>Révoquer doit vraiment couper l’accès.</h2><p>Après avoir retiré l’autorisation du contact, une nouvelle demande ne doit plus permettre d’obtenir ta position.</p></div></div>
+            <fieldset class="question"><legend>Après révocation, que s’est-il passé ?</legend><div class="choice-grid"><div class="choice"><input id="revoke-ok" type="radio" name="revoke_result" value="Accès bien coupé"><label for="revoke-ok">Accès bien coupé</label></div><div class="choice"><input id="revoke-weird" type="radio" name="revoke_result" value="Comportement étrange"><label for="revoke-weird">Comportement étrange</label></div><div class="choice"><input id="revoke-fail" type="radio" name="revoke_result" value="Position encore envoyée"><label for="revoke-fail">Position encore envoyée</label></div><div class="choice"><input id="revoke-na" type="radio" name="revoke_result" value="Non testé"><label for="revoke-na">Non testé</label></div></div></fieldset>
+            <div class="conditional-note"><strong>Important :</strong> si une position a encore été envoyée après révocation, note précisément ce que tu as fait juste avant.</div>
+            <div class="question"><label for="comment-revoke">Commentaire libre sur cette partie</label><textarea id="comment-revoke" name="comment_revoke" placeholder="Décris l’ordre des actions et ce qui s’est affiché."></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← Écran verrouillé</button><button class="button primary" type="button" data-next>Partage manuel →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="5" data-title="Partage manuel" hidden>
+            <div class="part-head"><div class="part-number">6</div><div><p class="kicker">Action volontaire</p><h2>Partager une position manuellement.</h2><p>Cette fois, pas de demande entrante : tu choisis toi-même le contact et déclenches un partage ponctuel.</p></div></div>
+            <fieldset class="question"><legend>Le partage manuel a-t-il fonctionné ?</legend><div class="choice-grid"><div class="choice"><input id="manual-ok" type="radio" name="manual_result" value="Oui"><label for="manual-ok">Oui</label></div><div class="choice"><input id="manual-hard" type="radio" name="manual_result" value="Oui mais difficile"><label for="manual-hard">Oui mais difficile</label></div><div class="choice"><input id="manual-no" type="radio" name="manual_result" value="Non"><label for="manual-no">Non</label></div><div class="choice"><input id="manual-na" type="radio" name="manual_result" value="Non testé"><label for="manual-na">Non testé</label></div></div></fieldset>
+            <fieldset class="question"><legend>Avais-tu bien compris qu’il s’agissait d’un partage unique ?</legend><div class="choice-grid"><div class="choice"><input id="once-yes" type="radio" name="one_time_clarity" value="Oui"><label for="once-yes">Oui</label></div><div class="choice"><input id="once-mostly" type="radio" name="one_time_clarity" value="Plutôt"><label for="once-mostly">Plutôt</label></div><div class="choice"><input id="once-no" type="radio" name="one_time_clarity" value="Non"><label for="once-no">Non</label></div><div class="choice"><input id="once-na" type="radio" name="one_time_clarity" value="Non testé"><label for="once-na">Non testé</label></div></div></fieldset>
+            <div class="question"><label for="comment-manual">Commentaire libre sur cette partie</label><textarea id="comment-manual" name="comment_manual" placeholder="Bouton facile à trouver ? Confirmation rassurante ? Résultat attendu ?"></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← Révocation</button><button class="button primary" type="button" data-next>Ton téléphone →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="6" data-title="Téléphone" hidden>
+            <div class="part-head"><div class="part-number">7</div><div><p class="kicker">Contexte technique</p><h2>Sur quel téléphone as-tu testé ?</h2><p>Ces informations aident à repérer les différences dues aux constructeurs et aux versions d’Android. N’indique aucun numéro de téléphone, IMEI ou identifiant personnel.</p></div></div>
+            <div class="question"><label for="device-model">Marque et modèle</label><input class="text-input" id="device-model" name="device_model" type="text" placeholder="Ex. Samsung Galaxy A54, Pixel 8a, Fairphone 5…"></div>
+            <div class="question"><label for="android-version">Version Android si tu la connais</label><input class="text-input" id="android-version" name="android_version" type="text" placeholder="Ex. Android 15"></div>
+            <fieldset class="question"><legend>Configuration SIM</legend><div class="choice-grid"><div class="choice"><input id="sim-one" type="radio" name="sim_setup" value="Une SIM"><label for="sim-one">Une SIM</label></div><div class="choice"><input id="sim-dual" type="radio" name="sim_setup" value="Double SIM"><label for="sim-dual">Double SIM</label></div><div class="choice"><input id="sim-esim" type="radio" name="sim_setup" value="eSIM ou mixte"><label for="sim-esim">eSIM / mixte</label></div><div class="choice"><input id="sim-unknown" type="radio" name="sim_setup" value="Je ne sais pas"><label for="sim-unknown">Je ne sais pas</label></div></div></fieldset>
+            <div class="question"><label for="comment-device">Commentaire libre sur cette partie</label><textarea id="comment-device" name="comment_device" placeholder="Ex. économie d’énergie agressive, surcouche constructeur, comportement différent selon la SIM…"></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← Partage manuel</button><button class="button primary" type="button" data-next>Impression générale →</button></div>
+          </section>
+
+          <section class="feedback-card" data-part="7" data-title="Impression générale" hidden>
+            <div class="part-head"><div class="part-number">8</div><div><p class="kicker">Dernier regard</p><h2>Est-ce que VeVak se comprend sans mode d’emploi ?</h2><p>Ici, les impressions comptent autant que les bugs : confiance, vocabulaire, surcharge, choses qui manquent ou au contraire paraissent inutiles.</p></div></div>
+            <fieldset class="question"><legend>Globalement, VeVak t’a semblé…</legend><div class="choice-grid"><div class="choice"><input id="overall-clear" type="radio" name="overall_feeling" value="Très clair"><label for="overall-clear">Très clair</label></div><div class="choice"><input id="overall-ok" type="radio" name="overall_feeling" value="Plutôt clair"><label for="overall-ok">Plutôt clair</label></div><div class="choice"><input id="overall-confusing" type="radio" name="overall_feeling" value="Parfois confus"><label for="overall-confusing">Parfois confus</label></div><div class="choice"><input id="overall-hard" type="radio" name="overall_feeling" value="Difficile à comprendre"><label for="overall-hard">Difficile</label></div></div></fieldset>
+            <fieldset class="question"><legend>Te sentirais-tu en confiance pour l’utiliser dans la vraie vie ?</legend><div class="choice-grid"><div class="choice"><input id="trust-yes" type="radio" name="trust_level" value="Oui"><label for="trust-yes">Oui</label></div><div class="choice"><input id="trust-mostly" type="radio" name="trust_level" value="Probablement"><label for="trust-mostly">Probablement</label></div><div class="choice"><input id="trust-notyet" type="radio" name="trust_level" value="Pas encore"><label for="trust-notyet">Pas encore</label></div><div class="choice"><input id="trust-no" type="radio" name="trust_level" value="Non"><label for="trust-no">Non</label></div></div></fieldset>
+            <div class="question"><label for="comment-overall">Commentaire libre sur cette partie</label><textarea id="comment-overall" name="comment_overall" placeholder="Ce que tu changerais en premier, ce qui t’a rassuré ou ce qui t’a gêné."></textarea></div>
+            <div class="overall-block"><label for="anything-else"><strong>Quelque chose d’autre à me dire ?</strong></label><p class="question-help">Bug non couvert, idée, formulation étrange, fonction que tu cherchais instinctivement… tout est bienvenu.</p><textarea id="anything-else" name="anything_else" placeholder="Commentaire général libre."></textarea></div>
+            <div class="part-actions"><button class="button secondary" type="button" data-prev>← Téléphone</button><button class="button primary" type="button" data-finish>Voir mon compte-rendu →</button></div>
+          </section>
+
+          <section class="feedback-card" data-summary hidden aria-live="polite">
+            <div class="part-head"><div class="part-number">✓</div><div><p class="kicker">Compte-rendu</p><h2>Merci — tes réponses sont prêtes.</h2><p>Rien n’a été envoyé automatiquement. Tu peux relire, revenir modifier une partie, puis exporter le compte-rendu.</p></div></div>
+            <div class="summary-grid" data-summary-grid></div>
+            <div class="export-actions"><button class="button primary" type="button" data-download-txt>Télécharger le compte-rendu (.txt)</button><button class="button secondary" type="button" data-download-json>Exporter les données (.json)</button><button class="button secondary" type="button" data-copy>Copier le compte-rendu</button></div>
+            <p class="toast" data-toast aria-live="polite"></p>
+            <div class="privacy-note"><strong>Vie privée :</strong> le questionnaire ne demande ni nom, ni numéro de téléphone, ni adresse e-mail. Les réponses sont conservées localement dans ton navigateur pour permettre de reprendre plus tard. Les fichiers exportés ne quittent ton appareil que si tu décides de les envoyer.</div>
+            <div class="part-actions"><button class="button secondary" type="button" data-back-last>← Modifier mes réponses</button><button class="button secondary" type="button" data-reset>Effacer ce questionnaire</button></div>
+          </section>
+        </form>
+      </div>
+      <div class="wrap"><div class="tester-warning"><strong>Ne mets aucune donnée sensible dans les commentaires.</strong> Pas de numéro de téléphone, phrase-clé réelle, adresse précise, IMEI ou autre identifiant personnel.</div></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand footer-brand" href="../../"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a><p>Espace privé de test. Les réponses du questionnaire restent locales tant qu’elles ne sont pas exportées.</p></div><div class="footer-links"><a href="../">Espace testeurs</a><a href="../../">Site public</a><a href="https://github.com/jasmin-abernathy/vevak">Code source</a></div></div></footer>
+
+  <script>
+  (()=>{
+    const root=document.querySelector('[data-feedback-app]');
+    if(!root||root.dataset.ready)return;
+    root.dataset.ready='1';
+    const form=root.querySelector('#feedbackForm');
+    const parts=[...root.querySelectorAll('[data-part]')];
+    const summary=root.querySelector('[data-summary]');
+    const navButtons=[...root.querySelectorAll('[data-go]')];
+    const bar=root.querySelector('[data-progress-bar]');
+    const barWrap=bar.parentElement;
+    const progressText=root.querySelector('[data-progress-text]');
+    const saveState=root.querySelector('[data-save-state]');
+    const storageKey='vevak-feedback-v1';
+    let current=0;
+
+    const fields=()=>[...form.querySelectorAll('input,textarea,select')];
+    const snapshot=()=>{
+      const data={};
+      fields().forEach(el=>{
+        if((el.type==='radio'||el.type==='checkbox')){if(el.checked)data[el.name]=el.value;}
+        else data[el.name]=el.value;
+      });
+      return data;
+    };
+    const restore=()=>{
+      try{
+        const raw=localStorage.getItem(storageKey); if(!raw)return;
+        const data=JSON.parse(raw);
+        fields().forEach(el=>{
+          if(!(el.name in data))return;
+          if(el.type==='radio'||el.type==='checkbox')el.checked=el.value===data[el.name];
+          else el.value=data[el.name];
+        });
+        saveState.textContent='Réponses précédentes restaurées sur ce navigateur.';
+      }catch(e){saveState.textContent='La sauvegarde locale est indisponible, mais tu peux continuer.';}
+    };
+    const save=()=>{
+      try{localStorage.setItem(storageKey,JSON.stringify(snapshot()));saveState.textContent='Réponses sauvegardées localement.';}catch(e){saveState.textContent='Impossible de sauvegarder localement sur ce navigateur.';}
+      updateDone();
+    };
+    const partHasAnswer=(index)=>{
+      const part=parts[index];
+      const controls=[...part.querySelectorAll('input,textarea,select')];
+      return controls.some(el=>el.type==='radio'||el.type==='checkbox'?el.checked:el.value.trim()!=='');
+    };
+    const updateDone=()=>navButtons.forEach((b,i)=>b.classList.toggle('is-done',partHasAnswer(i)));
+    const show=(index)=>{
+      current=Math.max(0,Math.min(parts.length-1,index));
+      summary.hidden=true;
+      parts.forEach((p,i)=>p.hidden=i!==current);
+      navButtons.forEach((b,i)=>{if(i===current)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+      const pct=((current+1)/parts.length)*100;
+      bar.style.width=pct+'%';barWrap.setAttribute('aria-valuenow',String(current+1));progressText.textContent=(current+1)+' / '+parts.length;
+      parts[current].scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    };
+    const labelMap={launch_result:'Lancement',permissions_clarity:'Permissions',contact_result:'Contact',duration_clarity:'Durée d’autorisation',sms_result:'Demande SMS',location_accuracy:'Position',locked_result:'Écran verrouillé',notification_seen:'Notification',revoke_result:'Révocation',manual_result:'Partage manuel',one_time_clarity:'Partage unique',device_model:'Téléphone',android_version:'Android',sim_setup:'SIM',overall_feeling:'Clarté globale',trust_level:'Confiance'};
+    const textReport=()=>{
+      const data=snapshot();
+      const lines=['VEVAK — COMPTE-RENDU DE TEST',''];
+      Object.entries(labelMap).forEach(([key,label])=>{if(data[key])lines.push(label+' : '+data[key]);});
+      const comments=[['comment_launch','Lancement'],['comment_contact','Contact'],['comment_sms','SMS'],['comment_locked','Écran verrouillé'],['comment_revoke','Révocation'],['comment_manual','Partage manuel'],['comment_device','Téléphone'],['comment_overall','Impression générale'],['anything_else','Autre commentaire']];
+      comments.forEach(([key,label])=>{if(data[key]&&data[key].trim())lines.push('',label+' — commentaire :',data[key].trim());});
+      return lines.join('\n');
+    };
+    const makeSummary=()=>{
+      const data=snapshot(); const grid=root.querySelector('[data-summary-grid]'); grid.innerHTML='';
+      [['Lancement',data.launch_result],['Contact',data.contact_result],['SMS',data.sms_result],['Écran verrouillé',data.locked_result],['Révocation',data.revoke_result],['Partage manuel',data.manual_result],['Téléphone',data.device_model||'Non indiqué'],['Impression générale',data.overall_feeling]].forEach(([label,value])=>{
+        const div=document.createElement('div');div.className='summary-card';const strong=document.createElement('strong');strong.textContent=label;const span=document.createElement('span');span.textContent=value||'Pas de réponse';div.append(strong,span);grid.appendChild(div);
+      });
+    };
+    const finish=()=>{
+      save();makeSummary();parts.forEach(p=>p.hidden=true);summary.hidden=false;navButtons.forEach(b=>b.removeAttribute('aria-current'));bar.style.width='100%';barWrap.setAttribute('aria-valuenow','8');progressText.textContent='8 / 8';summary.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    };
+    const download=(name,type,text)=>{const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+    form.addEventListener('input',save);
+    form.addEventListener('change',save);
+    root.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{save();show(current+1);}));
+    root.querySelectorAll('[data-prev]').forEach(b=>b.addEventListener('click',()=>{save();show(current-1);}));
+    navButtons.forEach(b=>b.addEventListener('click',()=>{save();show(Number(b.dataset.go));}));
+    root.querySelector('[data-finish]').addEventListener('click',finish);
+    root.querySelector('[data-back-last]').addEventListener('click',()=>show(7));
+    root.querySelector('[data-download-txt]').addEventListener('click',()=>download('vevak-retour-test.txt','text/plain;charset=utf-8',textReport()));
+    root.querySelector('[data-download-json]').addEventListener('click',()=>download('vevak-retour-test.json','application/json;charset=utf-8',JSON.stringify({format:'vevak-feedback-v1',answers:snapshot()},null,2)));
+    root.querySelector('[data-copy]').addEventListener('click',async()=>{const toast=root.querySelector('[data-toast]');try{await navigator.clipboard.writeText(textReport());toast.textContent='Compte-rendu copié.';}catch(e){toast.textContent='Copie automatique impossible : télécharge plutôt le fichier .txt.';}});
+    root.querySelector('[data-reset]').addEventListener('click',()=>{if(!confirm('Effacer toutes les réponses enregistrées sur ce navigateur ?'))return;fields().forEach(el=>{if(el.type==='radio'||el.type==='checkbox')el.checked=false;else el.value='';});try{localStorage.removeItem(storageKey);}catch(e){}saveState.textContent='Questionnaire effacé.';updateDone();show(0);});
+    restore();updateDone();show(0);
+  })();
+  </script>
+</body>
+</html>
