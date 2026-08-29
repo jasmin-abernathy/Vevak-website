@@ -6,25 +6,32 @@ Le dossier `test/` contient la page destinée aux premiers testeurs et son tutor
 
 ## Principe de sécurité
 
-Le dépôt GitHub étant public, **aucun mot de passe n'est stocké dans le code** et l'APK de test ne doit pas être commitée dans ce dépôt.
+Le dépôt GitHub étant public, **aucun mot de passe ni APK de test n'est stocké dans le code**.
 
-La protection doit être appliquée côté o2switch/cPanel avec l'outil **Confidentialité du répertoire**. Il s'agit d'une authentification HTTP gérée par le serveur avant que la page ou l'APK ne soient envoyées au navigateur.
+La page `/test/` doit rester protégée côté o2switch/cPanel avec l'outil **Confidentialité du répertoire**. Il s'agit d'une authentification HTTP gérée par le serveur avant que la page ne soit envoyée au navigateur.
+
+Les APK de test sont distribuées séparément via le dossier Google Drive VeVak :
+
+`https://drive.google.com/drive/folders/1CgzsBx0_Lh_TwcjFpFm5KwhYxupj5ZpW`
+
+Attention : la protection cPanel de `/test/` ne protège pas automatiquement le dossier Drive. Les droits de partage Drive doivent donc être réglés selon le niveau d'accès souhaité.
 
 Documentation o2switch :
 https://faq.o2switch.fr/cpanel/fichiers/protection-repertoire-web/
 
 ## 1. Publier le dossier `test/`
 
-Lors de la mise en ligne du site, envoyer aussi :
+Lors de la mise en ligne du site, envoyer :
 
 ```text
 test/
   index.html
   test.css
-  files/
+  test.js
+  retours/
 ```
 
-Le fichier `test/files/.gitignore` sert uniquement à empêcher qu'une APK soit ajoutée par erreur au dépôt public.
+Le sous-dossier `test/files/` n'est plus utilisé pour distribuer l'APK.
 
 ## 2. Protéger `/test/` avec un mot de passe
 
@@ -42,38 +49,31 @@ Le navigateur doit demander l'identifiant et le mot de passe **avant** d'affiche
 
 Il est possible de créer plusieurs utilisateurs si l'on souhaite donner des identifiants distincts à plusieurs testeurs.
 
-## 3. Déposer l'APK sur le serveur, pas sur GitHub
+## 3. Publier une APK de test
 
 Après avoir compilé et testé une APK FOSS :
 
-1. renommer la copie destinée aux testeurs en :
+1. déposer la nouvelle APK dans le dossier Drive VeVak ;
+2. utiliser un nom explicite permettant d'identifier facilement la version la plus récente ;
+3. vérifier les droits de partage du dossier et du fichier ;
+4. ouvrir `/test/` et vérifier que le bouton **Ouvrir le téléchargement VeVak** mène bien au dossier Drive ;
+5. depuis un téléphone Android, vérifier que le fichier `.apk` le plus récent est téléchargeable et installable.
 
-```text
-VeVak-foss-test.apk
-```
+Il n'est plus nécessaire de remplacer un fichier `VeVak-foss-test.apk` sur le serveur à chaque build.
 
-2. dans cPanel → Gestionnaire de fichiers, déposer ce fichier dans :
-
-```text
-<racine-vevak>/test/files/VeVak-foss-test.apk
-```
-
-3. vérifier que le bouton de la page `/test/` télécharge bien le fichier ;
-4. vérifier dans une autre fenêtre privée que l'APK n'est pas accessible sans authentification.
-
-URL directe protégée :
-
-```text
-https://vevak.lepotager.org/test/files/VeVak-foss-test.apk
-```
+Ne jamais placer une clé privée, un mot de passe, une APK de test ou un fichier `.htpasswd` dans le dépôt GitHub.
 
 ## 4. À chaque nouvelle APK de test
 
-Remplacer simplement le fichier serveur `VeVak-foss-test.apk` par la nouvelle version, après l'avoir testée localement.
+Ajouter la nouvelle version dans le même dossier Drive, après l'avoir testée localement.
 
-Conserver le même nom permet de ne pas modifier la page HTML à chaque build.
+Pour éviter les erreurs côté testeur :
 
-Ne jamais placer une clé privée, un mot de passe, une APK de test ou un fichier `.htpasswd` dans le dépôt GitHub.
+- conserver un nom de fichier lisible avec la version ou la date ;
+- retirer ou archiver les builds obsolètes si plusieurs fichiers deviennent ambigus ;
+- vérifier que le fichier le plus récent est clairement identifiable.
+
+La page `/test/` pointe vers le dossier plutôt que vers un fichier individuel, ce qui évite de devoir modifier le site à chaque nouvelle APK.
 
 ## 5. Indexation
 
@@ -85,12 +85,13 @@ La page contient :
 
 et `robots.txt` interdit également l'exploration de `/test/`.
 
-Ces deux mesures ne remplacent **pas** le mot de passe : elles servent seulement à éviter l'indexation. La vraie protection est l'authentification serveur de cPanel.
+Ces deux mesures ne remplacent **pas** le mot de passe : elles servent seulement à éviter l'indexation. La vraie protection de la page est l'authentification serveur de cPanel.
 
 ## 6. Installation Android
 
 La page `/test/` explique aux testeurs :
 
+- comment ouvrir le dossier Drive et prendre l'APK la plus récente ;
 - les avertissements possibles lors du téléchargement d'une APK ;
 - l'autorisation temporaire **Installer des applis inconnues / Autoriser depuis cette source** ;
 - le rôle de Google Play Protect ;
