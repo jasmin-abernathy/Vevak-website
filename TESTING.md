@@ -6,15 +6,15 @@ Le dossier `test/` contient la page destinée aux premiers testeurs et son tutor
 
 ## Principe de sécurité
 
-Le dépôt GitHub étant public, **aucun mot de passe ni APK de test n'est stocké dans le code**.
+Le dépôt GitHub étant public, **aucun mot de passe ni secret n'est stocké dans le code**.
 
 La page `/test/` doit rester protégée côté o2switch/cPanel avec l'outil **Confidentialité du répertoire**. Il s'agit d'une authentification HTTP gérée par le serveur avant que la page ne soit envoyée au navigateur.
 
-Les APK de test sont distribuées séparément via le dossier Google Drive VeVak :
+L'APK de test est désormais distribuée automatiquement depuis le dépôt GitHub public de VeVak, via une release roulante portant le tag `beta` :
 
-`https://drive.google.com/drive/folders/1CgzsBx0_Lh_TwcjFpFm5KwhYxupj5ZpW`
+`https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
 
-Attention : la protection cPanel de `/test/` ne protège pas automatiquement le dossier Drive. Les droits de partage Drive doivent donc être réglés selon le niveau d'accès souhaité.
+La protection cPanel de `/test/` ne protège donc pas l'APK elle-même : le dépôt VeVak et sa release bêta sont publics. La page test reste privée pour le parcours guidé, les consignes et les questionnaires.
 
 Documentation o2switch :
 https://faq.o2switch.fr/cpanel/fichiers/protection-repertoire-web/
@@ -31,7 +31,7 @@ test/
   retours/
 ```
 
-Le sous-dossier `test/files/` n'est plus utilisé pour distribuer l'APK.
+Le sous-dossier `test/files/` n'est pas utilisé pour distribuer l'APK.
 
 ## 2. Protéger `/test/` avec un mot de passe
 
@@ -51,29 +51,49 @@ Il est possible de créer plusieurs utilisateurs si l'on souhaite donner des ide
 
 ## 3. Publier une APK de test
 
-Après avoir compilé et testé une APK FOSS :
+La publication est automatique depuis `jasmin-abernathy/vevak`.
 
-1. déposer la nouvelle APK dans le dossier Drive VeVak ;
-2. utiliser un nom explicite permettant d'identifier facilement la version la plus récente ;
-3. vérifier les droits de partage du dossier et du fichier ;
-4. ouvrir `/test/` et vérifier que le bouton **Ouvrir le téléchargement VeVak** mène bien au dossier Drive ;
-5. depuis un téléphone Android, vérifier que le fichier `.apk` le plus récent est téléchargeable et installable.
+À chaque changement Android poussé sur `main` :
 
-Il n'est plus nécessaire de remplacer un fichier `VeVak-foss-test.apk` sur le serveur à chaque build.
+1. GitHub Actions exécute les vérifications statiques de confidentialité et d'écoconception ;
+2. les tests unitaires FOSS sont exécutés ;
+3. la variante FOSS debug est compilée puis passée au lint ;
+4. les tests, le build et le lint de la variante Play sont également exécutés ;
+5. si tout réussit, l'APK FOSS est conservée comme artefact GitHub Actions ;
+6. un job séparé avec droit d'écriture publie cette même APK dans la release roulante `beta` sous le nom stable `VeVak-foss-test.apk` ;
+7. un fichier `VeVak-foss-test.apk.sha256` est publié avec elle.
 
-Ne jamais placer une clé privée, un mot de passe, une APK de test ou un fichier `.htpasswd` dans le dépôt GitHub.
+La release n'est donc mise à jour **qu'après réussite complète de la CI**.
+
+Le lien utilisé par `/test/` reste toujours le même :
+
+`https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
+
+Aucun transfert manuel vers Drive, le serveur Web ou un autre hébergement n'est nécessaire.
 
 ## 4. À chaque nouvelle APK de test
 
-Ajouter la nouvelle version dans le même dossier Drive, après l'avoir testée localement.
+Il n'y a plus d'opération de fichier à effectuer manuellement.
 
-Pour éviter les erreurs côté testeur :
+Le cycle normal devient :
 
-- conserver un nom de fichier lisible avec la version ou la date ;
-- retirer ou archiver les builds obsolètes si plusieurs fichiers deviennent ambigus ;
-- vérifier que le fichier le plus récent est clairement identifiable.
+```text
+modification du code
+        ↓
+push sur main
+        ↓
+GitHub Actions
+        ↓
+tests + builds + lints OK
+        ↓
+release GitHub beta mise à jour
+        ↓
+/test/ télécharge automatiquement la nouvelle APK
+```
 
-La page `/test/` pointe vers le dossier plutôt que vers un fichier individuel, ce qui évite de devoir modifier le site à chaque nouvelle APK.
+Avant de prévenir les testeurs d'une nouvelle bêta, vérifier simplement que la dernière exécution GitHub Actions est verte et que la release `beta` affiche bien le nouvel APK.
+
+Le tag `beta` est volontairement roulant : il pointe vers le commit correspondant au dernier build publié. Les versions stables futures devront utiliser des tags/versionnements distincts.
 
 ## 5. Indexation
 
@@ -91,7 +111,7 @@ Ces deux mesures ne remplacent **pas** le mot de passe : elles servent seulement
 
 La page `/test/` explique aux testeurs :
 
-- comment ouvrir le dossier Drive et prendre l'APK la plus récente ;
+- comment télécharger directement l'APK bêta depuis GitHub ;
 - les avertissements possibles lors du téléchargement d'une APK ;
 - l'autorisation temporaire **Installer des applis inconnues / Autoriser depuis cette source** ;
 - le rôle de Google Play Protect ;
@@ -102,3 +122,13 @@ La page `/test/` explique aux testeurs :
 - un petit parcours de test terrain.
 
 Les textes Android varient selon la version du système et le constructeur : la page présente donc les formulations probables sans prétendre reproduire mot pour mot tous les appareils.
+
+## 7. Ce qui reste privé ou public
+
+- `/test/` : privé côté serveur ;
+- questionnaires et consignes : accessibles seulement via l'espace test protégé ;
+- code source VeVak : public ;
+- release `beta` et APK FOSS associée : publiques ;
+- secrets, mots de passe, clés de signature privées : jamais commités ni publiés.
+
+La bêta publiée automatiquement est actuellement une build `fossDebug`. Pour une distribution publique stable, une procédure séparée de signature/release reproductible devra être utilisée.
