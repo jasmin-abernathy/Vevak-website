@@ -39,7 +39,7 @@
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="status-dot"></span> Prototype Android · première validation terrain à venir</p>
+          <p class="eyebrow"><span class="status-dot"></span> Prototype Android · validation terrain en cours</p>
           <h1>Demander une position par SMS.<br><span>Sans compte cloud obligatoire.</span></h1>
           <p class="lead">VeVak permet à plusieurs contacts de confiance, autorisés individuellement et pour une durée limitée, de demander votre position par SMS. Vous pouvez aussi partager vous-même une position unique. Le traitement reste local sur le téléphone et VeVak ne suit pas vos déplacements en permanence.</p>
           <div class="actions">
@@ -100,13 +100,13 @@
           </li>
           <li>
             <span class="step-number">03</span>
-            <h3>La position est cherchée</h3>
-            <p>Une position récente en cache est privilégiée. Sinon, une recherche ponctuelle et limitée dans le temps peut être tentée. Un lieu Wi-Fi de confiance peut éviter de réveiller le GPS.</p>
+            <h3>La meilleure information disponible est cherchée</h3>
+            <p>Un lieu Wi-Fi de confiance peut éviter une nouvelle recherche. Sinon, VeVak privilégie une position récente, compare le cache Android à sa propre dernière position mémorisée localement, puis peut tenter une recherche ponctuelle et limitée dans le temps. Une position mémorisée n’est jamais présentée comme actuelle : son âge reste indiqué.</p>
           </li>
           <li>
             <span class="step-number">04</span>
             <h3>Une réponse est envoyée</h3>
-            <p>Si Android, le réseau et la localisation le permettent, VeVak renvoie le résultat par SMS. La demande reste visible localement et les réponses automatiques sont plafonnées globalement.</p>
+            <p>Si Android, le réseau et les informations disponibles le permettent, VeVak renvoie le résultat par SMS. La demande reste visible localement et les réponses automatiques sont plafonnées globalement.</p>
           </li>
         </ol>
       </div>
@@ -174,7 +174,7 @@
         <div>
           <p class="kicker">Limites importantes</p>
           <h2>VeVak n’est pas un service d’urgence.</h2>
-          <p>Le cœur n’a pas besoin d’Internet, mais il dépend toujours d’un réseau mobile et du fonctionnement des SMS, des permissions Android, de la disponibilité de la localisation et des restrictions d’arrière-plan du téléphone. Il ne garantit ni la réception d’un SMS ni l’obtention d’une position.</p>
+          <p>Le cœur n’a pas besoin d’Internet, mais il dépend toujours d’un réseau mobile et du fonctionnement des SMS, des permissions Android et des restrictions d’arrière-plan du téléphone. Si les services de localisation Android sont coupés, VeVak ne peut pas forcer l’obtention d’une nouvelle position : selon le contexte, il peut seulement utiliser un lieu Wi-Fi déjà reconnu sur la même connexion ou une dernière position locale encore exploitable.</p>
           <p><strong>En cas d’urgence, utilisez les services officiels et les fonctions d’urgence intégrées à votre téléphone.</strong></p>
         </div>
       </div>
@@ -185,7 +185,7 @@
         <div class="section-heading">
           <p class="kicker">État du projet</p>
           <h2>Compiler, tester, mesurer — avant d’élargir.</h2>
-          <p>Le code du prototype gratuit compile déjà en CI. La prochaine étape importante est sa validation sur de vrais téléphones.</p>
+          <p>Le prototype passe les vérifications automatisées et sa validation sur de vrais téléphones est maintenant en cours.</p>
         </div>
         <div class="roadmap-grid">
           <article class="roadmap-card current">
@@ -193,6 +193,7 @@
             <h3>Validation terrain</h3>
             <ul>
               <li>vrai SMS → position → réponse, écran verrouillé compris ;</li>
+              <li>Wi-Fi de confiance et dernière position avec Localisation Android coupée ;</li>
               <li>plusieurs expéditeurs et révocation par contact ;</li>
               <li>double-SIM / eSIM ;</li>
               <li>export/import chiffré sur plusieurs appareils ;</li>
@@ -234,7 +235,7 @@
       <div class="wrap final-card">
         <p class="kicker">Version actuelle</p>
         <h2>Le projet est public. Pas encore le produit stable.</h2>
-        <p>VeVak est en développement actif. Les builds passent les vérifications automatisées, mais la validation sur appareils réels reste nécessaire avant une première version stable.</p>
+        <p>VeVak est en développement actif. Les builds passent les vérifications automatisées et les tests sur appareils réels sont en cours avant une première version stable.</p>
         <a class="button primary" href="https://github.com/jasmin-abernathy/vevak">Explorer le projet</a>
       </div>
     </section>
