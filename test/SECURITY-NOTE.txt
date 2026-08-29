@@ -1,3 +1,4 @@
 Ce dossier doit être protégé côté serveur via cPanel > Confidentialité du répertoire avant toute diffusion de son URL.
 Ne jamais stocker le mot de passe dans GitHub.
 Ne jamais commiter l'APK de test dans le dépôt public.
+Les APK sont distribuées via le dossier Drive VeVak ; vérifier séparément ses droits de partage.
