@@ -1,2 +1,6 @@
-Déposer ici, sur le serveur o2switch uniquement : VeVak-foss-test.apk
-Le fichier APK ne doit pas être ajouté au dépôt GitHub public.
+Ce dossier n'est plus utilisé pour distribuer l'APK de test.
+
+Les builds VeVak sont désormais publiés dans le dossier Drive dédié aux testeurs :
+https://drive.google.com/drive/folders/1CgzsBx0_Lh_TwcjFpFm5KwhYxupj5ZpW
+
+Ne jamais commiter d'APK dans ce dépôt public.
