@@ -1,13 +1,56 @@
 (() => {
   const WIZARD_KEY = 'vevak-tester-install-v1';
   const TEST_KEY = 'vevak-tester-checklist-v1';
-  const APK_DOWNLOAD_URL = 'https://drive.google.com/uc?export=download&id=1iJpVJmZfD8WgWldUuD_dDaP36eHxgp40';
+  const APK_DOWNLOAD_URL = 'https://drive.google.com/drive/folders/1CgzsBx0_Lh_TwcjFpFm5KwhYxupj5ZpW';
 
   const downloadLink = document.querySelector('[data-download]');
   if (downloadLink) {
     downloadLink.href = APK_DOWNLOAD_URL;
     downloadLink.removeAttribute('download');
+    downloadLink.setAttribute('target', '_blank');
+    downloadLink.setAttribute('rel', 'noopener noreferrer');
     downloadLink.setAttribute('referrerpolicy', 'no-referrer');
+    downloadLink.textContent = '📱 Ouvrir le téléchargement VeVak';
+
+    const downloadSection = document.getElementById('telechargement');
+    const downloadIntro = downloadSection?.querySelector('.lead-small');
+    const downloadMeta = downloadSection?.querySelector('.tester-meta');
+
+    if (downloadIntro) {
+      downloadIntro.textContent = 'La dernière APK de test est publiée dans le dossier Drive VeVak. Ouvre-le et télécharge le fichier .apk le plus récent : une nouvelle version peut remplacer rapidement la précédente.';
+    }
+
+    if (downloadMeta) {
+      downloadMeta.innerHTML = '<strong>Source :</strong> dossier Drive VeVak<br><strong>À télécharger :</strong> le fichier <code>.apk</code> le plus récent';
+    }
+
+    const firstInstallStep = document.querySelector('[data-step][data-short-title="Télécharger le fichier"] .step-copy');
+    if (firstInstallStep) {
+      const firstParagraph = firstInstallStep.querySelector('p:not(.step-kicker)');
+      const normalBox = firstInstallStep.querySelector('.normal-box');
+
+      if (firstParagraph) {
+        firstParagraph.innerHTML = 'Appuie sur <strong>« Ouvrir le téléchargement VeVak »</strong>. Dans le dossier Drive, choisis le fichier <code>.apk</code> le plus récent puis lance son téléchargement. Ton navigateur peut te prévenir qu’un fichier APK peut présenter un risque.';
+      }
+
+      if (normalBox) {
+        normalBox.innerHTML = '<strong>✅ Ici, c’est attendu.</strong> Tu viens toi-même de demander l’APK depuis le dossier de test VeVak : confirme uniquement ce téléchargement.';
+      }
+    }
+
+    const secondInstallStep = document.querySelector('[data-step][data-short-title="Ouvrir l\'APK"] .step-copy');
+    if (secondInstallStep) {
+      const secondParagraph = secondInstallStep.querySelector('p:not(.step-kicker)');
+      const helpParagraph = secondInstallStep.querySelector('.help-box p');
+
+      if (secondParagraph) {
+        secondParagraph.innerHTML = 'Appuie sur la notification de téléchargement, ou ouvre l’application <strong>Fichiers / Mes fichiers / Téléchargements</strong>, puis touche le fichier VeVak qui se termine par <code>.apk</code>.';
+      }
+
+      if (helpParagraph) {
+        helpParagraph.innerHTML = 'Ouvre ton application de fichiers puis le dossier <strong>Téléchargements / Downloads</strong>. Cherche le fichier VeVak qui se termine par <code>.apk</code>. Tu peux aussi rouvrir le dossier Drive depuis le haut de cette page.';
+      }
+    }
   }
 
   const wizard = document.querySelector('[data-wizard]');
