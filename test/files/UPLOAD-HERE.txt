@@ -1,1 +1,2 @@
-Nom de fichier attendu sur le serveur : VeVak-foss-test.apk
+OBSOLETE : ne plus déposer d'APK ici.
+Utiliser le dossier Drive VeVak pour publier les builds de test.
