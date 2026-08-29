@@ -120,6 +120,21 @@
     const progressBar = document.querySelector('[data-test-progress]');
     const progress = document.querySelector('.test-progress');
     const complete = document.querySelector('[data-test-complete]');
+    const checklist = document.querySelector('[data-checklist]');
+
+    if (checklist && !document.querySelector('[data-feedback-link]')) {
+      const feedbackActions = document.createElement('div');
+      feedbackActions.className = 'actions';
+      feedbackActions.dataset.feedbackLink = '';
+
+      const feedbackLink = document.createElement('a');
+      feedbackLink.className = 'button primary';
+      feedbackLink.href = 'retours/';
+      feedbackLink.textContent = '📝 Faire le questionnaire de retour';
+
+      feedbackActions.appendChild(feedbackLink);
+      checklist.insertAdjacentElement('afterend', feedbackActions);
+    }
 
     checks.forEach((check) => {
       check.checked = !!savedChecks[check.dataset.testCheck];
