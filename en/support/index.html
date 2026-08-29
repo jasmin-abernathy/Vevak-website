@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17332c">
+  <meta name="description" content="Support the development of VeVak, a free and open-source Android app with no advertising and no telemetry.">
+  <meta name="color-scheme" content="light">
+  <title>Support VeVak — Help keep the project free and open</title>
+  <link rel="canonical" href="https://vevak.lepotager.org/en/support/">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <link rel="stylesheet" href="../../assets/support.css">
+  <link rel="alternate" hreflang="fr" href="https://vevak.lepotager.org/soutenir/">
+  <link rel="alternate" hreflang="en" href="https://vevak.lepotager.org/en/support/">
+  <script defer src="../../assets/site.js"></script>
+</head>
+<body data-lang="en">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../" aria-label="VeVak home">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>VeVak</span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="../#how">How it works</a>
+        <a href="../#principles">Principles</a>
+        <a href="../#contribute">Contribute</a>
+        <a class="lang-link" data-lang-choice="fr" href="../../soutenir/" lang="fr">FR</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="support-hero">
+      <div class="wrap statement">
+        <a class="back-link" href="../">← Back to VeVak</a>
+        <p class="eyebrow"><span class="status-dot"></span> Voluntary support · no required reward</p>
+        <h1>Help VeVak stay <span>free and open.</span></h1>
+        <p class="lead">VeVak is developed as an open-source project, with no advertising and no telemetry. If the project is useful to you, or if you simply want to help fund the time spent building it, you can contribute an amount of your choice.</p>
+        <ul class="chips" aria-label="Support principles">
+          <li>Choose your amount</li>
+          <li>No subscription</li>
+          <li>No feature unlock</li>
+          <li>Open-source project</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="wrap support-layout">
+        <article class="support-promise">
+          <p class="kicker">What your support funds</p>
+          <h2>Development time, not privileged access.</h2>
+          <p>Contributions help cover part of the time and costs involved in development, real-device testing, documentation and project maintenance.</p>
+          <ul>
+            <li>VeVak remains usable without contributing.</li>
+            <li>Supporting the project does not unlock a “better” version of the safety baseline.</li>
+            <li>There is no automatic subscription or recurring commitment.</li>
+            <li>Support does not qualify for a tax deduction.</li>
+          </ul>
+        </article>
+
+        <section class="support-panel" id="payment" aria-labelledby="payment-title">
+          <p class="kicker">Choose an amount</p>
+          <h2 id="payment-title">A small boost 🌱</h2>
+          <p>You will soon be able to pick one of these amounts or enter your own. Payment will be handled through a dedicated server-side integration so no secret is exposed in the site's public source code.</p>
+
+          <!--
+            Payment integration:
+            - never put secret/API keys in this file;
+            - start payments through a separate server-side endpoint;
+            - this public repository must contain client-side interface code only.
+          -->
+          <form class="support-form" action="#payment" method="post">
+            <div class="amount-grid" aria-label="Suggested amounts">
+              <div class="amount-choice">
+                <input type="radio" id="amount-2" name="amount" value="2">
+                <label for="amount-2">€2</label>
+              </div>
+              <div class="amount-choice">
+                <input type="radio" id="amount-5" name="amount" value="5" checked>
+                <label for="amount-5">€5</label>
+              </div>
+              <div class="amount-choice">
+                <input type="radio" id="amount-10" name="amount" value="10">
+                <label for="amount-10">€10</label>
+              </div>
+            </div>
+
+            <div class="custom-amount">
+              <label for="custom-amount">Or another amount</label>
+              <input id="custom-amount" name="custom_amount" type="number" min="1" step="1" inputmode="decimal" placeholder="e.g. €15">
+            </div>
+
+            <button class="button support-submit" type="button" disabled aria-describedby="payment-status">Payment coming soon</button>
+            <p class="payment-status" id="payment-status">The interface is ready; the secure payment module has not been connected yet.</p>
+          </form>
+
+          <p class="support-note">Payments are voluntary support for the project, with no functional reward. They are recorded as revenue by the business carrying VeVak's development.</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="kicker">Simple questions</p>
+          <h2>What supporting VeVak changes — and what it does not.</h2>
+        </div>
+        <div class="support-faq">
+          <article>
+            <h3>Does VeVak become paid?</h3>
+            <p>No. This page only makes it possible to support the project voluntarily. Paying nothing does not block access to VeVak.</p>
+          </article>
+          <article>
+            <h3>Do I unlock anything?</h3>
+            <p>No. Support does not purchase features, a special status or priority in the development roadmap.</p>
+          </article>
+          <article>
+            <h3>Why contribute then?</h3>
+            <p>Because a free project still takes time: development, testing, bug fixing, documentation, hosting and maintenance.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section final-cta">
+      <div class="wrap final-card">
+        <p class="kicker">Another way to help</p>
+        <h2>Feedback and testing matter too.</h2>
+        <p>If you do not want to contribute financially, testing VeVak, reporting an issue or improving the documentation helps the project just as much.</p>
+        <a class="button primary" href="https://github.com/jasmin-abernathy/vevak/issues">Contribute on GitHub</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <a class="brand footer-brand" href="../"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a>
+        <p>Open-source project developed in France by Le Potager des Apps.</p>
+      </div>
+      <div class="footer-links">
+        <a href="../">Home</a>
+        <a href="https://github.com/jasmin-abernathy/vevak">Code</a>
+        <a href="https://github.com/jasmin-abernathy/vevak-docs">Documentation</a>
+        <a class="lang-link" data-lang-choice="fr" href="../../soutenir/" lang="fr">Français</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
