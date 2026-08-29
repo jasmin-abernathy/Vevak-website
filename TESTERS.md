@@ -3,13 +3,16 @@
 1. Publier le dossier `test/` sur `vevak.lepotager.org`.
 2. Activer HTTPS sur le sous-domaine.
 3. Dans cPanel → **Confidentialité du répertoire**, protéger le dossier `test/` avec un utilisateur et un mot de passe.
-4. Compiler et valider localement l'APK FOSS.
-5. Déposer la nouvelle APK dans le dossier Drive VeVak utilisé pour les tests :
-   `https://drive.google.com/drive/folders/1CgzsBx0_Lh_TwcjFpFm5KwhYxupj5ZpW`
-6. Vérifier les droits de partage du dossier Drive selon le niveau d'accès souhaité, puis vérifier que le bouton de `/test/` ouvre bien ce dossier.
-7. Vérifier en navigation privée que `/test/` demande toujours les identifiants côté serveur.
-8. Envoyer aux testeurs uniquement l'URL HTTPS de `/test/` et les identifiants par un canal privé.
+4. Pousser les changements Android sur `main` dans `jasmin-abernathy/vevak`.
+5. Attendre que la CI Android réussisse : tests FOSS/Play, builds, lints et vérifications de confidentialité/écoconception.
+6. Vérifier que la release GitHub roulante `beta` contient bien `VeVak-foss-test.apk` et `VeVak-foss-test.apk.sha256`.
+7. Vérifier que le bouton de `/test/` télécharge bien :
+   `https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
+8. Vérifier en navigation privée que `/test/` demande toujours les identifiants côté serveur.
+9. Envoyer aux testeurs uniquement l'URL HTTPS de `/test/` et les identifiants par un canal privé.
 
-L'APK n'est plus déposée dans `test/files/` et ne doit jamais être commitée dans le dépôt public.
+La distribution de l'APK de test est désormais **100 % GitHub** : aucun dépôt manuel sur Google Drive ni dans `test/files/` n'est nécessaire.
+
+La page `/test/` peut rester privée, mais l'APK publiée dans la release GitHub `beta` appartient au dépôt public et est donc publiquement téléchargeable.
 
 Détails : voir `TESTING.md`.
