@@ -39,7 +39,7 @@
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="status-dot"></span> Android prototype · first real-device validation ahead</p>
+          <p class="eyebrow"><span class="status-dot"></span> Android prototype · real-device validation in progress</p>
           <h1>Request a location by SMS.<br><span>No mandatory cloud account.</span></h1>
           <p class="lead">VeVak lets several trusted contacts, each explicitly authorised for a limited period, request your location by SMS. You can also share a one-time location yourself. Processing stays local on the phone and VeVak does not continuously track your movements.</p>
           <div class="actions">
@@ -100,13 +100,13 @@
           </li>
           <li>
             <span class="step-number">03</span>
-            <h3>A location is requested</h3>
-            <p>A sufficiently recent cached location is preferred. Otherwise, a bounded one-time lookup may be attempted. A trusted Wi-Fi place can avoid waking GPS.</p>
+            <h3>The best available location information is selected</h3>
+            <p>A trusted Wi-Fi place can avoid a new lookup. Otherwise VeVak prefers recent data, compares Android's cache with its own locally remembered last position, and may then attempt one bounded current-location lookup. A remembered point is never presented as current: its age remains visible.</p>
           </li>
           <li>
             <span class="step-number">04</span>
             <h3>A reply is sent</h3>
-            <p>If Android, the mobile network and location availability allow it, VeVak replies by SMS. The request remains locally visible and automatic replies are globally capped.</p>
+            <p>If Android, the mobile network and the available location information allow it, VeVak replies by SMS. The request remains locally visible and automatic replies are globally capped.</p>
           </li>
         </ol>
       </div>
@@ -174,7 +174,7 @@
         <div>
           <p class="kicker">Important limitations</p>
           <h2>VeVak is not an emergency service.</h2>
-          <p>The core does not require Internet access, but it still depends on mobile-network/SMS availability, Android permissions, location availability and the phone's background restrictions. It cannot guarantee that an SMS will arrive or that a location will be obtained.</p>
+          <p>The core does not require Internet access, but it still depends on mobile-network/SMS availability, Android permissions and the phone's background restrictions. If Android Location services are switched off, VeVak cannot force a new location fix; depending on context it can only use a trusted Wi-Fi place already verified on the same connection or a still-usable locally remembered position.</p>
           <p><strong>In an emergency, use official emergency services and your phone's built-in emergency features.</strong></p>
         </div>
       </div>
@@ -185,7 +185,7 @@
         <div class="section-heading">
           <p class="kicker">Project status</p>
           <h2>Build, test and measure before expanding.</h2>
-          <p>The free prototype already passes automated builds. The next major step is validation on real phones.</p>
+          <p>The prototype passes automated checks and real-device validation is now in progress.</p>
         </div>
         <div class="roadmap-grid">
           <article class="roadmap-card current">
@@ -193,6 +193,7 @@
             <h3>Real-device validation</h3>
             <ul>
               <li>real SMS → location → reply, including screen-off use;</li>
+              <li>trusted Wi-Fi and remembered-location behaviour with Android Location switched off;</li>
               <li>several senders and per-contact revocation;</li>
               <li>dual-SIM / eSIM behaviour;</li>
               <li>encrypted export/import across devices;</li>
@@ -234,7 +235,7 @@
       <div class="wrap final-card">
         <p class="kicker">Current version</p>
         <h2>The project is public. The stable product is not here yet.</h2>
-        <p>VeVak is under active development. Automated tests and builds pass, but real-device validation is still required before a first stable release.</p>
+        <p>VeVak is under active development. Automated tests and builds pass, and real-device validation is underway before a first stable release.</p>
         <a class="button primary" href="https://github.com/jasmin-abernathy/vevak">Explore the project</a>
       </div>
     </section>
