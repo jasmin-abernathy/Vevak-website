@@ -65,12 +65,18 @@ jobs:
           cp index.html .deploy/
           cp -R assets .deploy/
           cp -R en .deploy/
+          cp -R test .deploy/
           cp robots.txt .deploy/
           cp sitemap.xml .deploy/
+
+          # The test APK is deliberately not versioned. Keep only the page structure.
+          rm -f .deploy/test/files/.gitignore
 
           test -f .deploy/index.html
           test -f .deploy/assets/styles.css
           test -f .deploy/en/index.html
+          test -f .deploy/test/index.html
+          test -f .deploy/test/test.css
           test -f .deploy/robots.txt
           test -f .deploy/sitemap.xml
 
@@ -100,6 +106,8 @@ jobs:
             --checksum \
             --exclude='.well-known/' \
             --exclude='.htaccess' \
+            --exclude='.htpasswd' \
+            --exclude='test/files/*.apk' \
             -e "ssh -i $HOME/.ssh/vevak_deploy_key -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
             .deploy/ \
             "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
@@ -109,6 +117,7 @@ jobs:
         shell: bash
         run: |
           echo "VeVak website files were sent to the configured o2switch path."
+          echo "Tester HTTP auth and APK remain server-side; verify them manually."
           echo "Verify https://vevak.lepotager.org manually."
 
       - name: Setup reminder
