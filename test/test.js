@@ -1,55 +1,78 @@
 (() => {
   const WIZARD_KEY = 'vevak-tester-install-v1';
   const TEST_KEY = 'vevak-tester-checklist-v1';
-  const APK_DOWNLOAD_URL = 'https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk';
+  const BETA_RELEASE_API = 'https://api.github.com/repos/jasmin-abernathy/vevak/releases/tags/beta';
+  const BETA_RELEASE_PAGE = 'https://github.com/jasmin-abernathy/vevak/releases/tag/beta';
 
   const downloadLink = document.querySelector('[data-download]');
   if (downloadLink) {
-    downloadLink.href = APK_DOWNLOAD_URL;
+    downloadLink.href = BETA_RELEASE_PAGE;
     downloadLink.removeAttribute('download');
     downloadLink.setAttribute('rel', 'noopener noreferrer');
     downloadLink.setAttribute('referrerpolicy', 'no-referrer');
-    downloadLink.textContent = '📱 Télécharger la dernière bêta VeVak';
+    downloadLink.textContent = '📱 Recherche de la dernière bêta…';
 
     const downloadSection = document.getElementById('telechargement');
     const downloadIntro = downloadSection?.querySelector('.lead-small');
     const downloadMeta = downloadSection?.querySelector('.tester-meta');
+    const firstInstallStep = document.querySelector('[data-step][data-short-title="Télécharger le fichier"] .step-copy');
+    const firstParagraph = firstInstallStep?.querySelector('p:not(.step-kicker)');
+    const normalBox = firstInstallStep?.querySelector('.normal-box');
+    const secondInstallStep = document.querySelector('[data-step][data-short-title="Ouvrir l\'APK"] .step-copy');
+    const secondParagraph = secondInstallStep?.querySelector('p:not(.step-kicker)');
+    const helpParagraph = secondInstallStep?.querySelector('.help-box p');
 
     if (downloadIntro) {
-      downloadIntro.textContent = 'La dernière APK FOSS validée est publiée automatiquement par GitHub après réussite des tests et du build. Le bouton télécharge toujours la bêta la plus récente.';
+      downloadIntro.textContent = 'VeVak vérifie directement la release bêta GitHub et sélectionne l’APK exacte du dernier build validé.';
     }
-
     if (downloadMeta) {
-      downloadMeta.innerHTML = '<strong>Source :</strong> GitHub Releases · tag <code>beta</code><br><strong>Fichier :</strong> <code>VeVak-foss-test.apk</code> · mis à jour automatiquement après une CI réussie';
+      downloadMeta.innerHTML = '<strong>Source :</strong> GitHub Releases · tag <code>beta</code><br><strong>Fichier :</strong> vérification en cours…';
+    }
+    if (normalBox) {
+      normalBox.innerHTML = '<strong>✅ Ici, c’est attendu.</strong> Le téléchargement vient du dépôt GitHub officiel de VeVak et le nom du fichier inclut désormais la version et le build.';
     }
 
-    const firstInstallStep = document.querySelector('[data-step][data-short-title="Télécharger le fichier"] .step-copy');
-    if (firstInstallStep) {
-      const firstParagraph = firstInstallStep.querySelector('p:not(.step-kicker)');
-      const normalBox = firstInstallStep.querySelector('.normal-box');
+    fetch(BETA_RELEASE_API, {
+      cache: 'no-store',
+      headers: { Accept: 'application/vnd.github+json' }
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+        return response.json();
+      })
+      .then((release) => {
+        const assets = Array.isArray(release.assets) ? release.assets : [];
+        const apk = assets.find((asset) => /^VeVak-\d+\.\d+\.\d+-foss-beta-[0-9a-f]{7}\.apk$/i.test(asset.name))
+          || assets.find((asset) => asset.name?.toLowerCase().endsWith('.apk'));
+        if (!apk?.browser_download_url) throw new Error('APK bêta absente de la release');
 
-      if (firstParagraph) {
-        firstParagraph.innerHTML = 'Appuie sur <strong>« Télécharger la dernière bêta VeVak »</strong>. Le fichier <code>VeVak-foss-test.apk</code> est téléchargé directement depuis la release bêta GitHub validée automatiquement. Ton navigateur peut te prévenir qu’un fichier APK peut présenter un risque.';
-      }
+        downloadLink.href = apk.browser_download_url;
+        downloadLink.textContent = `📱 Télécharger ${apk.name}`;
 
-      if (normalBox) {
-        normalBox.innerHTML = '<strong>✅ Ici, c’est attendu.</strong> Tu viens toi-même de demander l’APK depuis le dépôt GitHub officiel de VeVak : confirme uniquement ce téléchargement.';
-      }
-    }
-
-    const secondInstallStep = document.querySelector('[data-step][data-short-title="Ouvrir l\'APK"] .step-copy');
-    if (secondInstallStep) {
-      const secondParagraph = secondInstallStep.querySelector('p:not(.step-kicker)');
-      const helpParagraph = secondInstallStep.querySelector('.help-box p');
-
-      if (secondParagraph) {
-        secondParagraph.innerHTML = 'Appuie sur la notification de téléchargement, ou ouvre l’application <strong>Fichiers / Mes fichiers / Téléchargements</strong>, puis touche <code>VeVak-foss-test.apk</code>.';
-      }
-
-      if (helpParagraph) {
-        helpParagraph.innerHTML = 'Ouvre ton application de fichiers puis le dossier <strong>Téléchargements / Downloads</strong>. Cherche <code>VeVak-foss-test.apk</code>. Si besoin, relance le téléchargement depuis le bouton en haut de cette page.';
-      }
-    }
+        if (downloadMeta) {
+          const releaseName = release.name || 'VeVak bêta';
+          downloadMeta.innerHTML = `<strong>Release :</strong> ${releaseName}<br><strong>Fichier exact :</strong> <code>${apk.name}</code>`;
+        }
+        if (firstParagraph) {
+          firstParagraph.innerHTML = `Appuie sur <strong>« Télécharger ${apk.name} »</strong>. Le nom du fichier contient la version et l’identifiant du build pour éviter toute confusion avec une ancienne APK.`;
+        }
+        if (secondParagraph) {
+          secondParagraph.innerHTML = `Appuie sur la notification de téléchargement, ou ouvre <strong>Fichiers / Mes fichiers / Téléchargements</strong>, puis touche <code>${apk.name}</code>.`;
+        }
+        if (helpParagraph) {
+          helpParagraph.innerHTML = `Dans <strong>Téléchargements / Downloads</strong>, cherche exactement <code>${apk.name}</code>. Une APK VeVak portant un autre nom peut être une version précédente.`;
+        }
+      })
+      .catch(() => {
+        downloadLink.href = BETA_RELEASE_PAGE;
+        downloadLink.textContent = '📱 Ouvrir la dernière release bêta GitHub';
+        if (downloadMeta) {
+          downloadMeta.innerHTML = '<strong>Vérification automatique indisponible.</strong> Ouvre la release <code>beta</code> et télécharge l’unique fichier <code>.apk</code> dont le nom contient la version et le build.';
+        }
+        if (firstParagraph) {
+          firstParagraph.innerHTML = 'Ouvre la release bêta GitHub puis télécharge <strong>l’unique fichier .apk</strong>. Son nom doit contenir la version VeVak et un identifiant de build.';
+        }
+      });
   }
 
   const wizard = document.querySelector('[data-wizard]');
@@ -160,8 +183,6 @@
     render();
   }
 
-  // 0.3.1 regression checks: these are injected before the generic checklist logic so they use
-  // the same local persistence and progress handling as the original tests.
   const checklist = document.querySelector('[data-checklist]');
   if (checklist && !document.querySelector('[data-test-check="trusted-wifi-location-off"]')) {
     checklist.insertAdjacentHTML(
@@ -169,8 +190,8 @@
       `<label>
         <input type="checkbox" data-test-check="trusted-wifi-location-off">
         <span>
-          <strong>Je teste « Maison » avec Localisation coupée</strong>
-          <small>Enregistre le Wi-Fi de confiance avec Localisation activée, reste connecté au même Wi-Fi, coupe ensuite le bouton Android « Localisation » et fais une nouvelle demande SMS. VeVak doit encore répondre avec le lieu de confiance.</small>
+          <strong>Je teste « Maison » sans activer la localisation</strong>
+          <small>Connecte le téléphone au Wi-Fi de la maison, enregistre « Maison » sans activer la localisation puis fais une demande SMS. Tant que cette même connexion Wi-Fi reste active, VeVak doit répondre « Je suis à la maison ».</small>
         </span>
       </label>
       <label>
@@ -212,7 +233,7 @@
       const resilienceLink = document.createElement('a');
       resilienceLink.className = 'button primary';
       resilienceLink.href = 'retours/resilience-0.3.1.html';
-      resilienceLink.textContent = '📍 Retour ciblé 0.3.1';
+      resilienceLink.textContent = '📍 Retour ciblé résilience';
 
       const feedbackLink = document.createElement('a');
       feedbackLink.className = 'button secondary';
