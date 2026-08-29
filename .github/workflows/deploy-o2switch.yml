@@ -37,17 +37,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Validate deployment configuration
+      - name: Check deployment configuration
+        id: config
         shell: bash
         run: |
           set -euo pipefail
 
+          configured=true
           for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_KEY DEPLOY_KNOWN_HOSTS CPANEL_API_TOKEN; do
             if [ -z "${!name:-}" ]; then
-              echo "::error::Missing GitHub secret for ${name}. See DEPLOYMENT.md."
-              exit 1
+              echo "::notice::Deployment secret ${name} is not configured yet."
+              configured=false
             fi
           done
+
+          echo "configured=$configured" >> "$GITHUB_OUTPUT"
+
+          if [ "$configured" != "true" ]; then
+            echo "Automatic production deployment is idle until all secrets are configured. See DEPLOYMENT.md."
+            exit 0
+          fi
 
           case "$DEPLOY_PATH" in
             "/home/$DEPLOY_USER/"*) ;;
@@ -58,6 +67,7 @@ jobs:
           esac
 
       - name: Prepare static site
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -87,6 +97,7 @@ jobs:
           test -f .deploy/sitemap.xml
 
       - name: Detect GitHub runner public IPv4
+        if: steps.config.outputs.configured == 'true'
         id: runner_ip
         shell: bash
         run: |
@@ -100,6 +111,7 @@ jobs:
           echo "Runner IPv4 detected."
 
       - name: Temporarily whitelist runner on o2switch
+        if: steps.config.outputs.configured == 'true'
         id: whitelist
         shell: bash
         env:
@@ -139,6 +151,7 @@ jobs:
           echo "Temporary SSH exception created."
 
       - name: Configure SSH
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -152,6 +165,7 @@ jobs:
           chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Deploy static files with rsync
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -160,8 +174,7 @@ jobs:
 
           $SSH "$REMOTE" "mkdir -p '$DEPLOY_PATH/assets' '$DEPLOY_PATH/en' '$DEPLOY_PATH/soutenir' '$DEPLOY_PATH/test'"
 
-          # Root files only: this deliberately preserves server-owned .htaccess,
-          # .well-known, /api and any other server-side configuration.
+          # Root files only: preserve server-owned .htaccess, .well-known, /api and other server config.
           rsync -az --checksum -e "$SSH" \
             .deploy/index.html .deploy/robots.txt .deploy/sitemap.xml \
             "$REMOTE:$DEPLOY_PATH/"
@@ -181,6 +194,7 @@ jobs:
             "$REMOTE:$DEPLOY_PATH/test/"
 
       - name: Verify production site
+        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -195,7 +209,7 @@ jobs:
           echo "Production smoke test passed."
 
       - name: Remove temporary o2switch SSH exception
-        if: always() && steps.whitelist.outputs.added == 'true'
+        if: always() && steps.config.outputs.configured == 'true' && steps.whitelist.outputs.added == 'true'
         continue-on-error: true
         shell: bash
         env:
@@ -212,6 +226,6 @@ jobs:
           echo "Temporary SSH exception cleanup requested."
 
       - name: Remove SSH material from runner
-        if: always()
+        if: always() && steps.config.outputs.configured == 'true'
         shell: bash
         run: rm -rf "$HOME/.ssh/vevak_deploy_key" "$HOME/.ssh/known_hosts"
