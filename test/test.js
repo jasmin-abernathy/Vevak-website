@@ -1,27 +1,26 @@
 (() => {
   const WIZARD_KEY = 'vevak-tester-install-v1';
   const TEST_KEY = 'vevak-tester-checklist-v1';
-  const APK_DOWNLOAD_URL = 'https://drive.google.com/drive/folders/1CgzsBx0_Lh_TwcjFpFm5KwhYxupj5ZpW';
+  const APK_DOWNLOAD_URL = 'https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk';
 
   const downloadLink = document.querySelector('[data-download]');
   if (downloadLink) {
     downloadLink.href = APK_DOWNLOAD_URL;
     downloadLink.removeAttribute('download');
-    downloadLink.setAttribute('target', '_blank');
     downloadLink.setAttribute('rel', 'noopener noreferrer');
     downloadLink.setAttribute('referrerpolicy', 'no-referrer');
-    downloadLink.textContent = '📱 Ouvrir le téléchargement VeVak';
+    downloadLink.textContent = '📱 Télécharger la dernière bêta VeVak';
 
     const downloadSection = document.getElementById('telechargement');
     const downloadIntro = downloadSection?.querySelector('.lead-small');
     const downloadMeta = downloadSection?.querySelector('.tester-meta');
 
     if (downloadIntro) {
-      downloadIntro.textContent = 'La dernière APK de test est publiée dans le dossier Drive VeVak. Ouvre-le et télécharge le fichier .apk le plus récent : une nouvelle version peut remplacer rapidement la précédente.';
+      downloadIntro.textContent = 'La dernière APK FOSS validée est publiée automatiquement par GitHub après réussite des tests et du build. Le bouton télécharge toujours la bêta la plus récente.';
     }
 
     if (downloadMeta) {
-      downloadMeta.innerHTML = '<strong>Source :</strong> dossier Drive VeVak<br><strong>À télécharger :</strong> le fichier <code>.apk</code> le plus récent (0.3.1 ou plus récent pour le test de résilience)';
+      downloadMeta.innerHTML = '<strong>Source :</strong> GitHub Releases · tag <code>beta</code><br><strong>Fichier :</strong> <code>VeVak-foss-test.apk</code> · mis à jour automatiquement après une CI réussie';
     }
 
     const firstInstallStep = document.querySelector('[data-step][data-short-title="Télécharger le fichier"] .step-copy');
@@ -30,11 +29,11 @@
       const normalBox = firstInstallStep.querySelector('.normal-box');
 
       if (firstParagraph) {
-        firstParagraph.innerHTML = 'Appuie sur <strong>« Ouvrir le téléchargement VeVak »</strong>. Dans le dossier Drive, choisis le fichier <code>.apk</code> le plus récent puis lance son téléchargement. Ton navigateur peut te prévenir qu’un fichier APK peut présenter un risque.';
+        firstParagraph.innerHTML = 'Appuie sur <strong>« Télécharger la dernière bêta VeVak »</strong>. Le fichier <code>VeVak-foss-test.apk</code> est téléchargé directement depuis la release bêta GitHub validée automatiquement. Ton navigateur peut te prévenir qu’un fichier APK peut présenter un risque.';
       }
 
       if (normalBox) {
-        normalBox.innerHTML = '<strong>✅ Ici, c’est attendu.</strong> Tu viens toi-même de demander l’APK depuis le dossier de test VeVak : confirme uniquement ce téléchargement.';
+        normalBox.innerHTML = '<strong>✅ Ici, c’est attendu.</strong> Tu viens toi-même de demander l’APK depuis le dépôt GitHub officiel de VeVak : confirme uniquement ce téléchargement.';
       }
     }
 
@@ -44,11 +43,11 @@
       const helpParagraph = secondInstallStep.querySelector('.help-box p');
 
       if (secondParagraph) {
-        secondParagraph.innerHTML = 'Appuie sur la notification de téléchargement, ou ouvre l’application <strong>Fichiers / Mes fichiers / Téléchargements</strong>, puis touche le fichier VeVak qui se termine par <code>.apk</code>.';
+        secondParagraph.innerHTML = 'Appuie sur la notification de téléchargement, ou ouvre l’application <strong>Fichiers / Mes fichiers / Téléchargements</strong>, puis touche <code>VeVak-foss-test.apk</code>.';
       }
 
       if (helpParagraph) {
-        helpParagraph.innerHTML = 'Ouvre ton application de fichiers puis le dossier <strong>Téléchargements / Downloads</strong>. Cherche le fichier VeVak qui se termine par <code>.apk</code>. Tu peux aussi rouvrir le dossier Drive depuis le haut de cette page.';
+        helpParagraph.innerHTML = 'Ouvre ton application de fichiers puis le dossier <strong>Téléchargements / Downloads</strong>. Cherche <code>VeVak-foss-test.apk</code>. Si besoin, relance le téléchargement depuis le bouton en haut de cette page.';
       }
     }
   }
@@ -139,6 +138,7 @@
     next.addEventListener('click', () => {
       if (current < steps.length - 1) {
         current += 1;
+        done = false;
         saveAndRender();
         wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
