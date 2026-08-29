@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17332c">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="description" content="Retour ciblé sur les tests de résilience de localisation VeVak 0.3.1.">
+  <title>VeVak 0.3.1 — Retour résilience localisation</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <style>
+    .resilience-hero{padding:clamp(4rem,8vw,6rem) 0 2.5rem}.resilience-hero h1{max-width:14ch}.form-card{max-width:850px;margin:0 auto;padding:clamp(1.3rem,4vw,2.2rem);border:1px solid var(--line);border-radius:var(--radius);background:var(--white);box-shadow:var(--shadow)}.test-block{padding:1.35rem 0;border-top:1px solid var(--line)}.test-block:first-child{border-top:0}.test-block h2{font-size:clamp(1.55rem,4vw,2.3rem);margin-bottom:.5rem}.test-block>p{color:var(--ink-soft)}fieldset{border:0;padding:0;margin:1.1rem 0}legend,label{font-weight:820}.choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin-top:.7rem}.choice{position:relative}.choice input{position:absolute;opacity:0}.choice label{min-height:48px;display:grid;place-items:center;padding:.65rem;border:1px solid var(--line);border-radius:12px;background:var(--paper);text-align:center;cursor:pointer}.choice input:checked+label{border-color:var(--leaf);background:#d9ece3;outline:2px solid var(--leaf);outline-offset:1px}.text-input,textarea{width:100%;padding:.8rem;border:1px solid var(--line);border-radius:12px;background:var(--paper);font:inherit}textarea{min-height:120px;resize:vertical}.field{margin:1rem 0}.privacy-note{margin:1.4rem 0;padding:1rem;border-radius:var(--radius-sm);background:var(--paper-2);color:var(--ink-soft);font-size:.9rem}.actions{display:flex;flex-wrap:wrap;gap:.75rem}.status{min-height:1.4rem;margin-top:.8rem;color:var(--leaf-dark);font-weight:760}.warning{padding:1rem;border-left:4px solid var(--signal);background:var(--signal-soft);border-radius:0 10px 10px 0}@media(max-width:680px){.choices{grid-template-columns:1fr}.actions .button{width:100%}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <header class="site-header"><div class="wrap header-inner"><a class="brand" href="../../" aria-label="VeVak, accueil"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a><nav class="nav" aria-label="Navigation testeurs"><a href="../">Espace testeurs</a><a href="./">Questionnaire complet</a><a href="../../">Site public</a></nav></div></header>
+
+  <main id="main">
+    <section class="resilience-hero"><div class="wrap"><p class="eyebrow"><span class="status-dot"></span> VeVak 0.3.1 · test ciblé</p><h1>Localisation coupée : qu’est-ce qui reste fiable ?</h1><p class="lead">Ce mini-questionnaire concerne uniquement les deux corrections de résilience de la 0.3.1. Il reste local dans ton navigateur jusqu’à ce que tu exportes le compte-rendu.</p></div></section>
+
+    <section class="section compact"><div class="wrap"><form class="form-card" id="resilienceForm">
+      <section class="test-block">
+        <p class="kicker">Test 1 · lieu de confiance</p><h2>« Maison » sur la même connexion Wi-Fi</h2><p>Avec Localisation activée, enregistre le Wi-Fi comme lieu de confiance. Sans couper le Wi-Fi ni changer de réseau, désactive ensuite le bouton Android « Localisation », puis fais une demande SMS autorisée.</p>
+        <fieldset><legend>Quel résultat as-tu obtenu ?</legend><div class="choices">
+          <div class="choice"><input id="wifi-ok" type="radio" name="wifi_same_session" value="Maison reconnue"><label for="wifi-ok">Maison reconnue</label></div>
+          <div class="choice"><input id="wifi-location" type="radio" name="wifi_same_session" value="Coordonnées ou autre repli"><label for="wifi-location">Autre repli</label></div>
+          <div class="choice"><input id="wifi-fail" type="radio" name="wifi_same_session" value="Position indisponible"><label for="wifi-fail">Indisponible</label></div>
+          <div class="choice"><input id="wifi-na" type="radio" name="wifi_same_session" value="Non testé"><label for="wifi-na">Non testé</label></div>
+        </div></fieldset>
+        <div class="field"><label for="wifi-comment">Détail utile</label><textarea id="wifi-comment" name="wifi_comment" placeholder="Ex. réponse reçue, délai, notification, comportement étrange…"></textarea></div>
+      </section>
+
+      <section class="test-block">
+        <p class="kicker">Test 2 · mémoire locale</p><h2>Dernière position connue par VeVak</h2><p>Fais d’abord obtenir une vraie position à VeVak. Ensuite, hors du raccourci « Maison » si nécessaire, coupe Android « Localisation » et refais une demande. Si aucun nouveau point n’est disponible, VeVak 0.3.1 peut utiliser sa dernière position mémorisée pendant au maximum 24 h et doit indiquer son âge.</p>
+        <fieldset><legend>Quel résultat as-tu obtenu ?</legend><div class="choices">
+          <div class="choice"><input id="memory-ok" type="radio" name="remembered_location" value="Position mémorisée avec âge"><label for="memory-ok">Position + âge</label></div>
+          <div class="choice"><input id="memory-current" type="radio" name="remembered_location" value="Autre position obtenue"><label for="memory-current">Autre position</label></div>
+          <div class="choice"><input id="memory-fail" type="radio" name="remembered_location" value="Position indisponible"><label for="memory-fail">Indisponible</label></div>
+          <div class="choice"><input id="memory-na" type="radio" name="remembered_location" value="Non testé"><label for="memory-na">Non testé</label></div>
+        </div></fieldset>
+        <fieldset><legend>L’âge de la position était-il clairement indiqué ?</legend><div class="choices">
+          <div class="choice"><input id="age-yes" type="radio" name="age_visible" value="Oui"><label for="age-yes">Oui</label></div>
+          <div class="choice"><input id="age-unclear" type="radio" name="age_visible" value="Peu clair"><label for="age-unclear">Peu clair</label></div>
+          <div class="choice"><input id="age-no" type="radio" name="age_visible" value="Non"><label for="age-no">Non</label></div>
+          <div class="choice"><input id="age-na" type="radio" name="age_visible" value="Pas de position mémorisée"><label for="age-na">Non applicable</label></div>
+        </div></fieldset>
+        <div class="field"><label for="memory-comment">Détail utile</label><textarea id="memory-comment" name="memory_comment" placeholder="Indique notamment l’âge affiché approximativement et si le résultat t’a semblé compréhensible."></textarea></div>
+      </section>
+
+      <section class="test-block">
+        <p class="kicker">Garde-fous</p><h2>Reconnexion et redémarrage</h2><p>Ces cas doivent échouer prudemment : VeVak ne doit pas deviner que tu es encore « Maison » après une nouvelle session Wi-Fi ou un redémarrage si Android masque toujours le SSID.</p>
+        <fieldset><legend>Après déconnexion/reconnexion Wi-Fi avec Localisation toujours coupée :</legend><div class="choices">
+          <div class="choice"><input id="reconnect-safe" type="radio" name="wifi_reconnect" value="Pas de faux Maison"><label for="reconnect-safe">Pas de faux Maison</label></div>
+          <div class="choice"><input id="reconnect-bad" type="radio" name="wifi_reconnect" value="Faux Maison"><label for="reconnect-bad">Faux Maison ⚠️</label></div>
+          <div class="choice"><input id="reconnect-other" type="radio" name="wifi_reconnect" value="Autre comportement"><label for="reconnect-other">Autre</label></div>
+          <div class="choice"><input id="reconnect-na" type="radio" name="wifi_reconnect" value="Non testé"><label for="reconnect-na">Non testé</label></div>
+        </div></fieldset>
+        <fieldset><legend>Après redémarrage avec Localisation coupée :</legend><div class="choices">
+          <div class="choice"><input id="reboot-safe" type="radio" name="reboot_result" value="Pas de faux Maison"><label for="reboot-safe">Pas de faux Maison</label></div>
+          <div class="choice"><input id="reboot-bad" type="radio" name="reboot_result" value="Faux Maison"><label for="reboot-bad">Faux Maison ⚠️</label></div>
+          <div class="choice"><input id="reboot-other" type="radio" name="reboot_result" value="Autre comportement"><label for="reboot-other">Autre</label></div>
+          <div class="choice"><input id="reboot-na" type="radio" name="reboot_result" value="Non testé"><label for="reboot-na">Non testé</label></div>
+        </div></fieldset>
+      </section>
+
+      <section class="test-block">
+        <p class="kicker">Contexte</p><h2>Le téléphone testé</h2>
+        <div class="field"><label for="device">Marque et modèle</label><input class="text-input" id="device" name="device" type="text" placeholder="Ex. Pixel 8a, Samsung Galaxy A54…"></div>
+        <div class="field"><label for="android">Version Android</label><input class="text-input" id="android" name="android" type="text" placeholder="Ex. Android 16"></div>
+        <div class="field"><label for="general-comment">Autre chose à signaler</label><textarea id="general-comment" name="general_comment" placeholder="Délai, écran verrouillé, économie de batterie, comportement constructeur…"></textarea></div>
+      </section>
+
+      <div class="warning"><strong>Pas de données sensibles :</strong> ne copie pas tes coordonnées, ton SSID/BSSID, ton numéro, celui du contact ou ta phrase-clé.</div>
+      <div class="privacy-note">Les réponses sont sauvegardées uniquement dans le stockage local de ce navigateur. Aucun envoi automatique n’est effectué.</div>
+      <div class="actions"><button class="button primary" type="button" id="downloadReport">Télécharger le compte-rendu (.txt)</button><button class="button secondary" type="button" id="copyReport">Copier</button><a class="button secondary" href="./">Questionnaire complet →</a></div>
+      <p class="status" id="status" aria-live="polite"></p>
+    </form></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand footer-brand" href="../../"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a><p>Retour ciblé de test 0.3.1.</p></div><div class="footer-links"><a href="../">Espace testeurs</a><a href="./">Questionnaire complet</a></div></div></footer>
+
+  <script>
+  (()=>{
+    const form=document.getElementById('resilienceForm');
+    const status=document.getElementById('status');
+    const key='vevak-resilience-031-feedback';
+    const fields=()=>[...form.querySelectorAll('input,textarea')];
+    const snapshot=()=>{const data={};fields().forEach(el=>{if(el.type==='radio'){if(el.checked)data[el.name]=el.value;}else data[el.name]=el.value;});return data;};
+    const save=()=>{try{localStorage.setItem(key,JSON.stringify(snapshot()));status.textContent='Réponses sauvegardées localement.';}catch(_){status.textContent='Sauvegarde locale indisponible.';}};
+    const restore=()=>{try{const data=JSON.parse(localStorage.getItem(key)||'{}');fields().forEach(el=>{if(!(el.name in data))return;if(el.type==='radio')el.checked=el.value===data[el.name];else el.value=data[el.name];});}catch(_){}};
+    const report=()=>{const d=snapshot();return ['VEVAK 0.3.1 — TEST RÉSILIENCE','',`Wi-Fi même session : ${d.wifi_same_session||'Non renseigné'}`,`Détail Wi-Fi : ${d.wifi_comment||''}`,`Dernière position VeVak : ${d.remembered_location||'Non renseigné'}`,`Âge visible : ${d.age_visible||'Non renseigné'}`,`Détail mémoire : ${d.memory_comment||''}`,`Reconnexion Wi-Fi : ${d.wifi_reconnect||'Non renseigné'}`,`Redémarrage : ${d.reboot_result||'Non renseigné'}`,`Téléphone : ${d.device||'Non renseigné'}`,`Android : ${d.android||'Non renseigné'}`,`Autre : ${d.general_comment||''}`].join('\n');};
+    form.addEventListener('input',save);form.addEventListener('change',save);restore();
+    document.getElementById('downloadReport').addEventListener('click',()=>{const blob=new Blob([report()],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='vevak-0.3.1-resilience.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Compte-rendu téléchargé.';});
+    document.getElementById('copyReport').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(report());status.textContent='Compte-rendu copié.';}catch(_){status.textContent='Copie automatique impossible : utilise le téléchargement .txt.';}});
+  })();
+  </script>
+</body>
+</html>
