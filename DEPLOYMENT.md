@@ -1,216 +1,230 @@
-# Mettre VeVak en ligne sur o2switch
+# Déploiement automatique du site VeVak
 
 Cible de production : `https://vevak.lepotager.org`.
 
-Le site est entièrement statique : il n'a besoin ni de PHP, ni de base de données, ni de Node.js en production.
+Le dépôt `jasmin-abernathy/Vevak-website` est la source du site. Une fois la configuration ci-dessous faite une seule fois, toute modification pertinente poussée sur `main` est publiée automatiquement sur o2switch par GitHub Actions.
 
-## Chemin recommandé pour la première mise en ligne
-
-Pour la première publication, utiliser **cPanel → Gestionnaire de fichiers**. C'est le chemin le plus simple à vérifier et il évite de dépendre immédiatement d'un accès SSH automatisé.
-
-Le workflow `.github/workflows/deploy-o2switch.yml` reste disponible pour une automatisation ultérieure, mais o2switch protège normalement SSH/SFTP/FTPS par une autorisation d'adresse IP. Les runners GitHub hébergés n'ont pas une IP fixe pratique à autoriser durablement. Ne pas considérer le workflow SSH comme opérationnel tant que ce point n'a pas été résolu proprement.
-
-## 1. Créer `vevak.lepotager.org` dans cPanel
-
-Dans o2switch / cPanel :
-
-1. ouvrir l'outil **Sous-domaines** dans la rubrique Domaines ;
-2. saisir `vevak` comme sous-domaine de `lepotager.org` ;
-3. laisser ou choisir une racine de documents dédiée ;
-4. noter **exactement** cette racine.
-
-Exemple possible :
+## Architecture retenue
 
 ```text
-/home/UTILISATEUR/vevak.lepotager.org
+modification du site
+        ↓
+GitHub / branche main
+        ↓
+GitHub Actions
+        ↓
+IP temporaire du runner autorisée chez o2switch
+        ↓
+SSH + rsync
+        ↓
+vevak.lepotager.org
+        ↓
+retrait de l'IP temporaire
 ```
 
-Ne pas deviner le chemin : reprendre celui affiché par cPanel.
+Le mécanisme suit la méthode CI/CD documentée par o2switch : un token API cPanel permet d'autoriser dynamiquement l'adresse IP du runner GitHub pour SSH.
 
-Documentation o2switch :
-https://faq.o2switch.fr/cpanel/domaines/configuration-sous-domaine/
+L'APK ne fait pas partie de ce déploiement. Elle est publiée automatiquement dans la release GitHub roulante `beta` du dépôt Android :
 
-## 2. Vérifier le DNS
+`https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
 
-Le sous-domaine doit pointer vers l'hébergement o2switch qui contient sa racine de documents.
+## Ce que le workflow publie
 
-Si la zone DNS de `lepotager.org` est déjà gérée par ce compte o2switch, la création du sous-domaine peut suffire selon la configuration existante.
+Le workflow `.github/workflows/deploy-o2switch.yml` synchronise :
 
-Si la zone DNS est gérée ailleurs, créer l'enregistrement nécessaire vers l'hébergement o2switch concerné. L'adresse IP de l'hébergement est visible dans les informations générales de cPanel.
+- `index.html` ;
+- `assets/` ;
+- `en/` ;
+- `soutenir/` ;
+- `test/` ;
+- `robots.txt` ;
+- `sitemap.xml`.
 
-Ne modifier aucun enregistrement du domaine principal si seul `vevak.lepotager.org` doit être ajouté.
+Il préserve volontairement les éléments gérés directement par le serveur, notamment :
 
-## 3. Préparer les fichiers à envoyer
+- `.htaccess` ;
+- `.htpasswd` ;
+- `.well-known/` ;
+- `/api` et donc le backend Stancer ;
+- l'ancien dossier serveur `test/files/` tant qu'il n'est pas nettoyé manuellement.
 
-Depuis GitHub, récupérer le contenu du dépôt `jasmin-abernathy/Vevak-website` sur la branche `main`.
+La protection cPanel de `/test/` n'est donc pas écrasée par un déploiement.
 
-À la racine de `vevak.lepotager.org`, le serveur doit finalement contenir :
+---
+
+# Configuration unique
+
+## 1. Relever les trois informations o2switch
+
+Dans cPanel / le mail de bienvenue o2switch, noter :
+
+1. **le serveur cPanel**, sous la forme `quelquechose.o2switch.net` ;
+2. **l'identifiant cPanel** ;
+3. **la racine exacte du sous-domaine `vevak.lepotager.org`**.
+
+Le chemin doit être un chemin complet situé sous `/home/IDENTIFIANT/`, par exemple :
+
+```text
+/home/monuser/vevak.lepotager.org
+```
+
+Ne pas deviner ce chemin : reprendre la racine de documents affichée dans cPanel.
+
+## 2. Créer un token API cPanel
+
+Dans cPanel :
+
+1. ouvrir **Sécurité → API Tokens / Manage API Tokens** ;
+2. créer un nouveau token ;
+3. lui donner un nom explicite, par exemple `github-vevak-deploy` ;
+4. copier immédiatement le token généré.
+
+Le token n'est affiché qu'une fois. Ne pas l'ajouter dans un fichier du dépôt.
+
+Il servira uniquement à appeler l'API o2switch `SshWhitelist` afin d'autoriser temporairement l'IP du runner GitHub.
+
+## 3. Créer une clé SSH dédiée au déploiement
+
+Sur ton ordinateur, créer une paire dédiée :
+
+```bash
+ssh-keygen -t rsa -b 4096 -f vevak_github_deploy -N ""
+```
+
+Cela crée :
+
+```text
+vevak_github_deploy       ← clé privée, secrète
+vevak_github_deploy.pub   ← clé publique
+```
+
+Ne jamais envoyer la clé privée dans le dépôt Git.
+
+### Installer la clé publique chez o2switch
+
+Dans cPanel, ouvrir **Terminal** puis :
+
+```bash
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys
+```
+
+Ajouter sur une nouvelle ligne le contenu complet de `vevak_github_deploy.pub`, enregistrer, puis :
+
+```bash
+chmod 644 ~/.ssh/authorized_keys
+```
+
+Si `authorized_keys` contient déjà d'autres clés, ne pas les supprimer.
+
+## 4. Récupérer l'identité SSH du serveur
+
+Le workflow utilise `StrictHostKeyChecking=yes` afin de ne pas accepter aveuglément n'importe quel serveur.
+
+Depuis une machine autorisée à se connecter en SSH à l'hébergement :
+
+```bash
+ssh-keyscan -H -p 22 TON_SERVEUR.o2switch.net
+```
+
+Copier les lignes retournées. Elles deviendront le secret `O2SWITCH_KNOWN_HOSTS`.
+
+Avant cette commande, il peut être nécessaire d'autoriser temporairement l'IP de ta machine dans **cPanel → Autorisation SSH**.
+
+## 5. Ajouter les secrets dans GitHub
+
+Dans :
+
+**GitHub → `jasmin-abernathy/Vevak-website` → Settings → Secrets and variables → Actions → New repository secret**
+
+Créer exactement ces secrets :
+
+| Secret | Contenu |
+|---|---|
+| `O2SWITCH_HOST` | serveur cPanel, ex. `xxxx.o2switch.net` |
+| `O2SWITCH_USER` | identifiant cPanel |
+| `O2SWITCH_PATH` | racine exacte de `vevak.lepotager.org` |
+| `O2SWITCH_SSH_KEY` | contenu complet de la clé privée `vevak_github_deploy` |
+| `O2SWITCH_KNOWN_HOSTS` | sortie vérifiée de `ssh-keyscan` |
+| `O2SWITCH_CPANEL_API_TOKEN` | token API créé à l'étape 2 |
+
+Il n'y a pas besoin de secret FTP, de mot de passe cPanel ni de token GitHub personnel.
+
+## 6. Premier test volontaire
+
+Une fois les six secrets ajoutés :
+
+1. ouvrir l'onglet **Actions** du dépôt ;
+2. choisir **Deploy VeVak website to o2switch** ;
+3. choisir **Run workflow** sur `main` ;
+4. suivre les étapes.
+
+Le workflow doit successivement :
+
+- valider la configuration ;
+- préparer les fichiers statiques ;
+- détecter l'IP publique du runner ;
+- créer une exception SSH temporaire chez o2switch ;
+- configurer la clé SSH ;
+- synchroniser le site ;
+- vérifier l'accueil et `/soutenir/` ;
+- vérifier si `/test/` répond bien comme zone protégée ;
+- retirer l'exception SSH temporaire.
+
+## 7. Fonctionnement quotidien
+
+Après ce premier test réussi, aucune action manuelle n'est nécessaire.
+
+Un push sur `main` déclenche le déploiement si le commit modifie au moins un de ces chemins :
 
 ```text
 index.html
-en/
-  index.html
-assets/
-  styles.css
-  site.js
-  favicon.svg
-test/
-  index.html
-  test.css
-  files/
+assets/**
+en/**
+soutenir/**
+test/**
 robots.txt
 sitemap.xml
+.github/workflows/deploy-o2switch.yml
 ```
 
-L'APK de test n'est volontairement **pas** versionnée dans GitHub. Elle sera déposée directement sur le serveur dans `test/files/`.
+Un changement uniquement dans un README ou une documentation ne déclenche donc pas inutilement la production.
 
-Les fichiers de développement (`README.md`, `DEPLOYMENT.md`, `TESTING.md`, `.github/`, `LICENSE`) ne sont pas nécessaires au fonctionnement du site et peuvent rester uniquement sur GitHub.
+## 8. Retour arrière
 
-## 4. Envoyer les fichiers avec le Gestionnaire de fichiers
+Si une mise à jour du site pose problème :
 
-Dans cPanel :
+1. revenir sur GitHub au dernier commit correct ;
+2. faire un **Revert** du commit problématique ou pousser un correctif ;
+3. le nouveau commit sur `main` redéploiera automatiquement l'état corrigé.
 
-1. ouvrir **Gestionnaire de fichiers** ;
-2. aller dans la racine exacte de `vevak.lepotager.org` ;
-3. supprimer uniquement une éventuelle page d'attente créée dans ce dossier, après avoir vérifié que vous êtes dans la bonne racine ;
-4. envoyer les fichiers/dossiers du site, y compris `test/` ;
-5. vérifier que `index.html` se trouve directement dans la racine, et non dans un sous-dossier du type `Vevak-website-main/`.
+Le serveur n'est plus la source de vérité : la source de vérité est la branche `main` du dépôt.
 
-Documentation o2switch :
-https://faq.o2switch.fr/cpanel/fichiers/gestionnaire-fichiers-web/
+## 9. Points de sécurité
 
-## 5. Tester d'abord en HTTP
+- ne jamais ajouter de clé privée ou token API dans un fichier Git ;
+- le workflow ne supprime jamais toutes les IP de la whitelist o2switch ;
+- il ajoute uniquement son IP temporaire et ne la retire que s'il l'a lui-même ajoutée ;
+- si les 5 exceptions SSH o2switch sont déjà utilisées, le déploiement échoue sans en supprimer une arbitrairement ;
+- les déploiements sont sérialisés afin d'éviter deux synchronisations concurrentes ;
+- la clé privée est supprimée du runner à la fin ;
+- les fichiers serveur sensibles sont préservés.
 
-Ouvrir :
+## 10. Cas particulier : 2FA cPanel
 
-```text
-http://vevak.lepotager.org
-```
+La documentation o2switch indique que lorsque la 2FA cPanel est activée, les appels API non-session peuvent également demander un code à usage unique.
 
-Le but de ce test est uniquement de confirmer que :
+Ne stocke pas la graine TOTP/QR code de ta 2FA dans GitHub pour contourner ce mécanisme.
 
-- le DNS arrive au bon hébergement ;
-- la racine de documents est correcte ;
-- `index.html`, `/assets/` et `/en/` sont accessibles.
+Si le workflow échoue sur l'étape `Temporarily whitelist runner on o2switch` alors que le token est correct et que la 2FA est active, utiliser plutôt une stratégie de déploiement tirée depuis l'hébergement (cron + dépôt Git public) ou un runner avec IP stable. Ce cas doit être traité séparément plutôt que d'affaiblir la 2FA.
 
-Ne pas considérer le déploiement comme terminé tant que HTTPS n'est pas activé.
+## Documentation de référence
 
-## 6. Activer HTTPS avec Let's Encrypt
+- o2switch — Autorisation SSH / CI-CD : `https://faq.o2switch.fr/cpanel/outils/exception-parefeu/`
+- o2switch — Token API cPanel : `https://faq.o2switch.fr/cpanel/securite/token-api-cpanel/`
+- o2switch — Connexion et clés SSH : `https://faq.o2switch.fr/guides/webmastering/connexion-ssh/`
 
-Dans cPanel :
+## État actuel
 
-1. ouvrir **Let's Encrypt** ;
-2. choisir `vevak.lepotager.org` ;
-3. générer le certificat classique ;
-4. attendre que le certificat soit installé ;
-5. vérifier `https://vevak.lepotager.org`.
-
-Le domaine doit déjà pointer vers o2switch pour que la validation HTTP de Let's Encrypt réussisse.
-
-Documentation o2switch :
-https://faq.o2switch.fr/cpanel/securite/lets-encrypt-ssl-gratuit/
-
-## 7. Forcer HTTPS
-
-Dans la racine du site, créer ou modifier `.htaccess` et placer en tête :
-
-```apache
-RewriteEngine On
-RewriteCond %{HTTP:X-Forwarded-Proto} !https
-RewriteCond %{HTTPS} !on
-RewriteRule ^(.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-```
-
-Puis vérifier que :
-
-- `http://vevak.lepotager.org` redirige vers HTTPS ;
-- `http://vevak.lepotager.org/en/` redirige également ;
-- il n'y a pas de boucle de redirection.
-
-Documentation o2switch :
-https://faq.o2switch.fr/guides/webmastering/forcer-https/
-
-## 8. Protéger l'espace `/test/` par mot de passe
-
-La page de test et l'APK doivent être protégées **côté serveur**, pas par un mot de passe JavaScript stocké dans le dépôt public.
-
-Dans cPanel :
-
-1. ouvrir **Confidentialité du répertoire** ;
-2. naviguer jusqu'au dossier `test` de `vevak.lepotager.org` ;
-3. choisir l'action **Modifier** pour ce dossier ;
-4. activer la protection par mot de passe ;
-5. utiliser par exemple `VeVak - tests privés` comme nom du répertoire ;
-6. créer un utilisateur dédié avec un mot de passe long et unique ;
-7. ouvrir `https://vevak.lepotager.org/test/` en navigation privée et vérifier que le navigateur demande les identifiants avant d'afficher la page.
-
-Documentation o2switch :
-https://faq.o2switch.fr/cpanel/fichiers/protection-repertoire-web/
-
-La page utilise aussi `noindex` et `robots.txt` interdit `/test/`, mais ces mesures d'indexation ne remplacent pas l'authentification serveur.
-
-Voir `TESTING.md` pour la procédure détaillée.
-
-## 9. Déposer l'APK de test
-
-Une fois l'APK FOSS compilée et validée localement :
-
-1. renommer la copie distribuée en `VeVak-foss-test.apk` ;
-2. la déposer directement dans :
-
-```text
-<racine-vevak>/test/files/VeVak-foss-test.apk
-```
-
-3. tester le bouton de téléchargement dans `/test/` ;
-4. tester aussi l'URL directe en navigation privée : elle doit demander les mêmes identifiants.
-
-Ne jamais commiter l'APK de test, un mot de passe, une clé privée ou un fichier `.htpasswd` dans le dépôt public.
-
-## 10. Vérifications finales
-
-Tester au minimum :
-
-- `https://vevak.lepotager.org/` ;
-- `https://vevak.lepotager.org/en/` ;
-- le bouton FR/EN dans les deux sens ;
-- les liens GitHub ;
-- l'affichage mobile ;
-- `https://vevak.lepotager.org/robots.txt` ;
-- `https://vevak.lepotager.org/sitemap.xml` ;
-- l'absence d'erreur de certificat ;
-- la redirection HTTP → HTTPS ;
-- la demande de mot de passe sur `/test/` ;
-- l'impossibilité de télécharger `/test/files/VeVak-foss-test.apk` sans authentification ;
-- le téléchargement après authentification.
-
-## Mise à jour manuelle ultérieure
-
-Pour une nouvelle version du site :
-
-1. récupérer la branche `main` à jour ;
-2. remplacer `index.html`, `en/`, `assets/`, `test/index.html`, `test/test.css`, `robots.txt` et `sitemap.xml` ;
-3. ne pas supprimer `.htaccess`, `.htpasswd`, `.well-known/` ni l'APK présente dans `test/files/` ;
-4. recharger la page en navigation privée pour vérifier la version publiée ;
-5. vérifier à nouveau que `/test/` demande le mot de passe.
-
-Pour une nouvelle APK de test, remplacer uniquement `test/files/VeVak-foss-test.apk`.
-
-## Automatisation GitHub Actions — option avancée
-
-Le dépôt contient un workflow SSH/rsync prévu pour déployer depuis GitHub Actions. Les secrets attendus sont :
-
-- `O2SWITCH_HOST` ;
-- `O2SWITCH_USER` ;
-- `O2SWITCH_PATH` ;
-- `O2SWITCH_SSH_KEY` ;
-- `O2SWITCH_KNOWN_HOSTS` ;
-- `O2SWITCH_PORT` (facultatif, 22 par défaut).
-
-Cependant, o2switch indique que l'accès SSH doit d'abord être autorisé pour l'adresse IP source. Les runners GitHub hébergés utilisent des adresses qui peuvent changer : une automatisation directe par SSH peut donc être peu fiable sans runner auto-hébergé, IP fixe ou autre mécanisme explicitement validé.
-
-Le workflow conserve volontairement les `.htaccess`/`.htpasswd` serveur et n'envoie aucune APK de test depuis GitHub.
-
-Pour cette raison, **ne pas renseigner ces secrets uniquement pour "essayer"** et ne jamais publier une clé privée dans le dépôt.
-
-Le premier déploiement via Gestionnaire de fichiers reste la procédure de référence tant qu'une stratégie d'automatisation stable n'a pas été choisie.
+Le workflow est déjà installé dans le dépôt. Tant que les six secrets ci-dessus ne sont pas renseignés, il se met volontairement en veille et ne touche pas au serveur.
