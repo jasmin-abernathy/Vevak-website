@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#17332c">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <meta name="description" content="Espace privé de test VeVak : téléchargement de l'APK FOSS et guide d'installation Android hors Google Play.">
+  <meta name="description" content="Espace privé de test VeVak : téléchargement de l'APK FOSS et assistant d'installation Android hors Google Play.">
   <title>VeVak — Espace testeurs</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
   <link rel="stylesheet" href="test.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <script defer src="test.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au contenu</a>
@@ -21,9 +23,9 @@
         <span>VeVak</span>
       </a>
       <nav class="nav" aria-label="Navigation testeurs">
-        <a href="#telechargement">Téléchargement</a>
-        <a href="#installation">Installation</a>
-        <a href="#test">À tester</a>
+        <a href="#telechargement">Télécharger</a>
+        <a href="#installation">Installer</a>
+        <a href="#test">Tester</a>
         <a href="../">Retour au site</a>
       </nav>
     </div>
@@ -34,86 +36,149 @@
       <div class="wrap tester-hero-inner">
         <p class="eyebrow"><span class="status-dot"></span> Accès privé · version de test</p>
         <h1>Merci de tester VeVak.</h1>
-        <p class="lead">Cette APK est une version de développement destinée à quelques testeurs. Elle n'est pas encore distribuée par Google Play ni F-Droid et ne doit pas être considérée comme un moyen de sécurité garanti.</p>
+        <p class="lead">Pas besoin d'être à l'aise avec Android : cette page te guide étape par étape. Compte environ 3 minutes pour l'installation, puis quelques minutes pour les tests.</p>
+        <div class="hero-pills" aria-label="Résumé du parcours">
+          <span>1 · Télécharger</span><span>2 · Installer</span><span>3 · Tester</span>
+        </div>
       </div>
     </section>
 
     <section class="section compact" id="telechargement">
       <div class="wrap tester-grid">
         <div>
-          <p class="kicker">Téléchargement</p>
-          <h2>APK FOSS de test</h2>
-          <p class="lead-small">Télécharge uniquement l'APK depuis cette page protégée. Ne la republie pas ailleurs : une nouvelle version peut remplacer rapidement celle-ci.</p>
+          <p class="kicker">Étape zéro</p>
+          <h2>Récupère l'APK de test.</h2>
+          <p class="lead-small">Télécharge-la uniquement depuis cette page protégée. Une nouvelle version peut remplacer rapidement la précédente.</p>
           <div class="actions">
-            <a class="button primary" href="files/VeVak-foss-test.apk" download>Télécharger VeVak (.apk)</a>
+            <a class="button primary download-button" href="files/VeVak-foss-test.apk" download data-download>📱 Télécharger VeVak (.apk)</a>
+            <a class="button secondary" href="#installation">J'ai déjà le fichier →</a>
           </div>
-          <p class="tester-meta"><strong>Nom attendu :</strong> <code>VeVak-foss-test.apk</code><br><strong>Canal :</strong> test privé FOSS</p>
+          <p class="tester-meta"><strong>Fichier attendu :</strong> <code>VeVak-foss-test.apk</code><br><strong>Canal :</strong> test privé FOSS</p>
         </div>
         <aside class="tester-callout">
-          <h3>Avant d'installer</h3>
-          <p>Android affiche volontairement des avertissements pour les applications installées hors d'un store. C'est normal, mais il faut les lire : le texte exact varie selon Android et le constructeur.</p>
-          <p><strong>Ne désactive pas Google Play Protect.</strong> S'il indique réellement que VeVak est dangereuse ou bloque l'installation pour un risque détecté, arrête-toi et préviens-moi.</p>
+          <span class="callout-icon" aria-hidden="true">🛡️</span>
+          <div>
+            <h3>Les alertes Android ne sont pas un bug</h3>
+            <p>Android est prudent avec toute application installée hors d'un store. Je te montre ci-dessous ce qui est normal et, surtout, à quel moment il faut s'arrêter.</p>
+            <p><strong>Ne désactive jamais Play Protect pour ce test.</strong></p>
+          </div>
         </aside>
       </div>
     </section>
 
     <section class="section tinted" id="installation">
-      <div class="wrap">
-        <div class="section-heading">
-          <p class="kicker">Installation sans Google Play</p>
-          <h2>Ce qu'Android va probablement te demander.</h2>
-          <p>Les noms de menus et les formulations peuvent varier entre Pixel, Samsung, Xiaomi, Nothing, Fairphone, etc. Le principe reste le même sur Android 8 et versions ultérieures : tu autorises temporairement l'application qui ouvre l'APK — par exemple Chrome ou ton gestionnaire de fichiers — à installer cette APK.</p>
+      <div class="wrap wizard-wrap">
+        <div class="section-heading wizard-heading">
+          <p class="kicker">Assistant d'installation</p>
+          <h2>On le fait ensemble.</h2>
+          <p>Le texte exact peut changer selon Samsung, Pixel, Xiaomi, Fairphone, Nothing… Choisis simplement l'action la plus proche de ce qui est indiqué.</p>
         </div>
 
-        <ol class="install-steps">
-          <li>
-            <span class="step-number">01</span>
+        <div class="wizard-shell" data-wizard>
+          <div class="wizard-topbar">
             <div>
-              <h3>Télécharge l'APK</h3>
-              <p>Appuie sur <strong>Télécharger VeVak (.apk)</strong>. Ton navigateur peut avertir qu'un fichier APK « peut être dangereux » ou demander si tu souhaites conserver/télécharger ce type de fichier.</p>
-              <div class="android-message"><strong>Message possible :</strong> « Ce type de fichier peut endommager votre appareil » ou une formulation voisine.</div>
-              <p>Comme tu as volontairement demandé l'APK depuis l'espace privé VeVak, confirme uniquement le téléchargement de ce fichier.</p>
+              <span class="wizard-label" id="wizardLabel">Étape 1 sur 6</span>
+              <strong id="wizardShortTitle">Télécharger le fichier</strong>
             </div>
-          </li>
-          <li>
-            <span class="step-number">02</span>
+            <button class="wizard-reset" type="button" data-reset-wizard title="Recommencer le tutoriel">↺ Recommencer</button>
+          </div>
+          <div class="wizard-progress" role="progressbar" aria-label="Progression de l'installation" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1">
+            <span data-progress-bar></span>
+          </div>
+
+          <div class="wizard-stage" aria-live="polite">
+            <article class="install-step" data-step data-short-title="Télécharger le fichier">
+              <div class="step-visual"><span>1</span><span aria-hidden="true">⬇️</span></div>
+              <div class="step-copy">
+                <p class="step-kicker">Téléchargement</p>
+                <h3>Télécharge l'APK</h3>
+                <p>Appuie sur <strong>« Télécharger VeVak (.apk) »</strong>. Ton navigateur peut te prévenir qu'un fichier APK peut présenter un risque.</p>
+                <div class="android-message"><span aria-hidden="true">💬</span><div><strong>Tu peux voir quelque chose comme :</strong><br>« Ce type de fichier peut endommager votre appareil » ou « Voulez-vous quand même télécharger ce fichier ? »</div></div>
+                <div class="normal-box"><strong>✅ Ici, c'est attendu.</strong> Tu viens toi-même de demander le fichier depuis l'espace privé VeVak : confirme uniquement ce téléchargement.</div>
+                <details class="help-box"><summary>Mon téléphone affiche autre chose</summary><p>Si ton navigateur te demande simplement <em>Annuler / Télécharger quand même / Conserver</em>, choisis l'option qui conserve le fichier. Si le message parle explicitement d'un logiciel malveillant détecté, ne continue pas et fais une capture.</p></details>
+              </div>
+            </article>
+
+            <article class="install-step" data-step data-short-title="Ouvrir l'APK">
+              <div class="step-visual"><span>2</span><span aria-hidden="true">📂</span></div>
+              <div class="step-copy">
+                <p class="step-kicker">Ouverture</p>
+                <h3>Ouvre le fichier téléchargé</h3>
+                <p>Appuie sur la notification de téléchargement, ou ouvre l'application <strong>Fichiers / Mes fichiers / Téléchargements</strong>, puis touche <code>VeVak-foss-test.apk</code>.</p>
+                <div class="android-message"><span aria-hidden="true">💬</span><div><strong>Message fréquent :</strong><br>« Pour votre sécurité, votre téléphone n'est pas autorisé à installer des applications inconnues provenant de cette source. »</div></div>
+                <div class="normal-box"><strong>✅ C'est exactement l'étape attendue.</strong> Choisis <strong>Paramètres</strong> si Android te le propose.</div>
+                <details class="help-box"><summary>Je ne retrouve pas le fichier</summary><p>Ouvre ton application de fichiers puis le dossier <strong>Téléchargements / Downloads</strong>. Le nom attendu est <code>VeVak-foss-test.apk</code>. Tu peux aussi relancer le téléchargement depuis le haut de cette page.</p></details>
+              </div>
+            </article>
+
+            <article class="install-step" data-step data-short-title="Autoriser la source">
+              <div class="step-visual"><span>3</span><span aria-hidden="true">🔓</span></div>
+              <div class="step-copy">
+                <p class="step-kicker">Autorisation temporaire</p>
+                <h3>Autorise cette source, juste pour l'installation</h3>
+                <p>Dans l'écran de réglages ouvert par Android, active <strong>« Autoriser depuis cette source »</strong> pour l'application qui a ouvert l'APK : Chrome, Firefox, Fichiers, Mes fichiers…</p>
+                <div class="path-box"><span>⚙️</span><div>Si tu dois chercher le réglage manuellement :<br><strong>Paramètres → Applications → Accès spécial → Installer des applis inconnues</strong></div></div>
+                <div class="normal-box"><strong>🔐 Cette permission n'est pas donnée à VeVak.</strong> Elle autorise seulement ton navigateur/gestionnaire de fichiers à lancer l'installation.</div>
+                <details class="help-box"><summary>Je ne trouve pas « Autoriser depuis cette source »</summary><p>Utilise la recherche des Paramètres avec les mots <strong>applications inconnues</strong>, <strong>sources inconnues</strong> ou <strong>installer des applis inconnues</strong>. Sur certains Samsung, le menu peut se trouver dans Sécurité et confidentialité.</p></details>
+              </div>
+            </article>
+
+            <article class="install-step" data-step data-short-title="Installer VeVak">
+              <div class="step-visual"><span>4</span><span aria-hidden="true">🌱</span></div>
+              <div class="step-copy">
+                <p class="step-kicker">Installation</p>
+                <h3>Installe VeVak</h3>
+                <p>Reviens à l'APK si Android ne le fait pas automatiquement. Un écran doit afficher le nom <strong>VeVak</strong> avec un bouton <strong>Installer</strong>.</p>
+                <div class="android-message"><span aria-hidden="true">🛡️</span><div><strong>Play Protect peut maintenant proposer une analyse.</strong><br>Tu peux et tu devrais laisser cette analyse se faire.</div></div>
+                <div class="normal-box"><strong>✅ Proposition d'analyse = normale.</strong> Attends son résultat avant de continuer.</div>
+                <details class="help-box"><summary>Android me demande un code / empreinte</summary><p>C'est simplement la confirmation de sécurité de ton téléphone. Utilise ton verrouillage habituel uniquement si l'écran système te le demande.</p></details>
+              </div>
+            </article>
+
+            <article class="install-step danger-step" data-step data-short-title="Vérifier Play Protect">
+              <div class="step-visual"><span>5</span><span aria-hidden="true">🛑</span></div>
+              <div class="step-copy">
+                <p class="step-kicker">Point de sécurité</p>
+                <h3>Lis le résultat de Play Protect</h3>
+                <p>Il y a une différence entre <strong>« application inconnue, analyser ? »</strong> et <strong>« application dangereuse détectée »</strong>.</p>
+                <div class="decision-grid">
+                  <div class="decision ok"><strong>✅ Analyse proposée / aucun problème détecté</strong><span>Tu peux poursuivre l'installation.</span></div>
+                  <div class="decision stop"><strong>🛑 Danger détecté / installation bloquée</strong><span>Arrête ici. Ne cherche pas « installer quand même ». Fais une capture et préviens-moi.</span></div>
+                </div>
+                <details class="help-box"><summary>Je ne sais pas dans quel cas je suis</summary><p>Si Android emploie des termes comme <strong>dangereuse</strong>, <strong>malveillante</strong>, <strong>risque détecté</strong> ou bloque explicitement l'app pour ta sécurité, arrête le test. Si Android indique seulement qu'il ne connaît pas encore l'application et souhaite l'analyser, laisse-le faire.</p></details>
+              </div>
+            </article>
+
+            <article class="install-step" data-step data-short-title="Refermer la permission">
+              <div class="step-visual"><span>6</span><span aria-hidden="true">🔒</span></div>
+              <div class="step-copy">
+                <p class="step-kicker">Dernière étape</p>
+                <h3>Retire l'autorisation d'installation</h3>
+                <p>Une fois VeVak installée, retourne dans <strong>Installer des applis inconnues</strong> et désactive <strong>« Autoriser depuis cette source »</strong> pour Chrome/Fichiers.</p>
+                <div class="normal-box"><strong>✨ C'est fini.</strong> Cette permission ne sert plus à rien pour utiliser VeVak normalement.</div>
+                <details class="help-box"><summary>Je préfère le faire plus tard</summary><p>Tu peux ouvrir VeVak avant, mais pense à revenir désactiver cette permission. Elle concerne toutes les futures APK ouvertes depuis cette même application, pas seulement VeVak.</p></details>
+              </div>
+            </article>
+          </div>
+
+          <div class="wizard-controls">
+            <button class="button secondary wizard-back" type="button" data-prev>← Retour</button>
+            <div class="wizard-dots" data-dots aria-label="Étapes d'installation"></div>
+            <button class="button primary wizard-next" type="button" data-next>C'est fait →</button>
+          </div>
+
+          <div class="wizard-complete" data-complete hidden>
+            <span class="complete-icon" aria-hidden="true">🎉</span>
             <div>
-              <h3>Ouvre le fichier téléchargé</h3>
-              <p>Depuis la notification de téléchargement ou l'application Fichiers/Téléchargements, ouvre <code>VeVak-foss-test.apk</code>.</p>
-              <div class="android-message"><strong>Message possible :</strong> Android peut expliquer que, pour ta sécurité, cette source n'est pas autorisée à installer des applications inconnues et proposer <strong>Paramètres</strong>.</div>
+              <p class="kicker">Installation terminée</p>
+              <h3>VeVak est installé.</h3>
+              <p>Tu peux maintenant ouvrir l'application. Les permissions qu'elle demande ensuite concernent son fonctionnement, pas l'installation hors Play.</p>
+              <a class="button primary" href="#premier-lancement">Ouvrir la suite du tuto ↓</a>
             </div>
-          </li>
-          <li>
-            <span class="step-number">03</span>
-            <div>
-              <h3>Autorise temporairement cette source</h3>
-              <p>Appuie sur <strong>Paramètres</strong>, puis active <strong>Autoriser depuis cette source</strong> pour l'application utilisée : ton navigateur ou ton gestionnaire de fichiers.</p>
-              <p>Selon le téléphone, le chemin manuel peut ressembler à <strong>Paramètres → Applications → Accès spécial → Installer des applis inconnues</strong>.</p>
-            </div>
-          </li>
-          <li>
-            <span class="step-number">04</span>
-            <div>
-              <h3>Reviens à l'APK et installe VeVak</h3>
-              <p>Android affiche ensuite l'écran d'installation avec le nom de l'application et un bouton <strong>Installer</strong>. Vérifie que tu installes bien <strong>VeVak</strong>, puis confirme.</p>
-              <div class="android-message"><strong>Play Protect peut intervenir :</strong> il peut proposer d'analyser une application inconnue ou indiquer qu'elle n'a encore jamais été analysée. Tu peux laisser l'analyse se faire.</div>
-            </div>
-          </li>
-          <li>
-            <span class="step-number">05</span>
-            <div>
-              <h3>Si Play Protect signale un vrai danger : stop</h3>
-              <p>Une simple proposition d'analyse est normale. En revanche, si Play Protect indique que l'application est dangereuse, potentiellement dangereuse, ou empêche son installation à cause d'un risque détecté, <strong>ne contourne pas l'alerte</strong>. Fais une capture d'écran et envoie-la-moi.</p>
-            </div>
-          </li>
-          <li>
-            <span class="step-number">06</span>
-            <div>
-              <h3>Retire l'autorisation d'installation</h3>
-              <p>Une fois VeVak installée, retourne dans <strong>Installer des applis inconnues</strong> et désactive <strong>Autoriser depuis cette source</strong> pour Chrome/Fichiers. Tu n'en as plus besoin pour utiliser VeVak.</p>
-            </div>
-          </li>
-        </ol>
+          </div>
+        </div>
+
+        <noscript><p class="tester-warning"><strong>JavaScript est désactivé :</strong> aucun problème, les six étapes restent affichées les unes sous les autres. La progression interactive est simplement indisponible.</p></noscript>
       </div>
     </section>
 
@@ -121,37 +186,49 @@
       <div class="wrap split">
         <div>
           <p class="kicker">Premier lancement</p>
-          <h2>Les permissions VeVak sont différentes de l'installation.</h2>
-          <p class="lead-small">Après l'installation, Android peut encore demander des permissions nécessaires au fonctionnement de VeVak, notamment SMS, notifications et localisation. Elles doivent être lues et accordées dans le cadre du test, pas confondues avec l'autorisation « applications inconnues ».</p>
+          <h2>Encore quelques demandes Android — cette fois pour VeVak.</h2>
+          <p class="lead-small">SMS, localisation et notifications servent au fonctionnement de l'app. Android peut les demander séparément. Lis chaque écran et accorde les permissions nécessaires au scénario de test.</p>
+          <div class="permission-tip"><span>💡</span><p>Si une permission te semble étrange ou incompréhensible, <strong>ne devine pas</strong> : fais une capture et demande-moi.</p></div>
         </div>
         <div class="principle-grid">
-          <article class="card"><h3>SMS</h3><p>VeVak doit pouvoir recevoir la demande du contact autorisé et envoyer la réponse prévue par le test.</p></article>
-          <article class="card"><h3>Localisation</h3><p>La position est recherchée ponctuellement à la demande. VeVak ne doit pas devenir un suivi continu.</p></article>
-          <article class="card"><h3>Notifications</h3><p>Les réponses automatiques exigent que l'activité de VeVak reste visible localement.</p></article>
-          <article class="card"><h3>Réglages batterie</h3><p>Certains constructeurs limitent fortement l'arrière-plan. Note tout écran inhabituel ou tout échec lorsque le téléphone est verrouillé.</p></article>
+          <article class="card permission-card"><span aria-hidden="true">💬</span><h3>SMS</h3><p>Recevoir la demande d'un contact autorisé et envoyer la réponse prévue.</p></article>
+          <article class="card permission-card"><span aria-hidden="true">📍</span><h3>Localisation</h3><p>Rechercher ponctuellement une position à la demande, sans suivi continu.</p></article>
+          <article class="card permission-card"><span aria-hidden="true">🔔</span><h3>Notifications</h3><p>Rendre visible l'activité lorsque des réponses automatiques sont autorisées.</p></article>
+          <article class="card permission-card"><span aria-hidden="true">🔋</span><h3>Batterie</h3><p>Certains constructeurs limitent l'arrière-plan. Note tout comportement inhabituel écran verrouillé.</p></article>
         </div>
       </div>
     </section>
 
     <section class="section tinted" id="test">
-      <div class="wrap">
+      <div class="wrap test-flow">
         <div class="section-heading">
           <p class="kicker">Mini parcours de test</p>
-          <h2>Ce que j'aimerais que tu essaies.</h2>
+          <h2>8 petits tests, et c'est bon.</h2>
+          <p>Les cases restent cochées sur ce téléphone si tu reviens plus tard sur la page.</p>
         </div>
-        <div class="tester-checklist">
-          <label><input type="checkbox"> Installer et ouvrir VeVak sans erreur.</label>
-          <label><input type="checkbox"> Configurer un contact de confiance et une autorisation temporaire.</label>
-          <label><input type="checkbox"> Faire une vraie demande par SMS et vérifier la réponse de localisation.</label>
-          <label><input type="checkbox"> Refaire le test avec l'écran verrouillé.</label>
-          <label><input type="checkbox"> Tester la révocation du contact.</label>
-          <label><input type="checkbox"> Tester le partage manuel d'une position.</label>
-          <label><input type="checkbox"> Si possible, tester sur double-SIM/eSIM ou un autre modèle Android.</label>
-          <label><input type="checkbox"> Me signaler tout message Android incompréhensible, avec une capture d'écran si possible.</label>
+
+        <div class="test-progress-card">
+          <div><strong id="testProgressText">0 / 8 terminés</strong><span>Tu peux fermer la page et reprendre plus tard.</span></div>
+          <div class="test-progress" role="progressbar" aria-label="Progression des tests" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"><span data-test-progress></span></div>
         </div>
-        <div class="tester-warning">
-          <strong>VeVak n'est pas un service d'urgence.</strong> Pendant cette phase, ne l'utilise jamais comme unique moyen de sécurité ou comme remplacement des fonctions d'urgence du téléphone.
+
+        <div class="tester-checklist" data-checklist>
+          <label><input type="checkbox" data-test-check="install"><span><strong>VeVak s'ouvre sans erreur</strong><small>Le premier lancement va jusqu'à l'écran principal.</small></span></label>
+          <label><input type="checkbox" data-test-check="contact"><span><strong>Je configure un contact de confiance</strong><small>Avec une autorisation temporaire.</small></span></label>
+          <label><input type="checkbox" data-test-check="sms"><span><strong>Je fais une vraie demande par SMS</strong><small>Et je vérifie si la localisation est bien renvoyée.</small></span></label>
+          <label><input type="checkbox" data-test-check="locked"><span><strong>Je recommence écran verrouillé</strong><small>C'est un des tests les plus importants.</small></span></label>
+          <label><input type="checkbox" data-test-check="revoke"><span><strong>Je révoque le contact</strong><small>Une nouvelle demande ne doit plus obtenir ma position.</small></span></label>
+          <label><input type="checkbox" data-test-check="manual"><span><strong>Je teste le partage manuel</strong><small>Une position unique vers le contact choisi.</small></span></label>
+          <label><input type="checkbox" data-test-check="device"><span><strong>Je note mon modèle / double-SIM si pertinent</strong><small>Particulièrement utile pour repérer les différences constructeur.</small></span></label>
+          <label><input type="checkbox" data-test-check="feedback"><span><strong>Je signale les écrans ou comportements bizarres</strong><small>Une capture d'écran vaut souvent mieux qu'une longue description.</small></span></label>
         </div>
+
+        <div class="tester-finish" data-test-complete hidden>
+          <span aria-hidden="true">🌱</span>
+          <div><strong>Merci, tu viens vraiment d'aider VeVak.</strong><p>Si tout a fonctionné, dis-moi simplement ton modèle de téléphone et ta version Android. S'il y a eu un problème, indique à quelle étape.</p></div>
+        </div>
+
+        <div class="tester-warning"><strong>VeVak n'est pas un service d'urgence.</strong> Pendant cette phase, ne l'utilise jamais comme unique moyen de sécurité ou comme remplacement des fonctions d'urgence du téléphone.</div>
       </div>
     </section>
   </main>
