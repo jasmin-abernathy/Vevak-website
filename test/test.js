@@ -209,12 +209,17 @@
       feedbackActions.className = 'actions';
       feedbackActions.dataset.feedbackLink = '';
 
-      const feedbackLink = document.createElement('a');
-      feedbackLink.className = 'button primary';
-      feedbackLink.href = 'retours/';
-      feedbackLink.textContent = '📝 Faire le questionnaire de retour';
+      const resilienceLink = document.createElement('a');
+      resilienceLink.className = 'button primary';
+      resilienceLink.href = 'retours/resilience-0.3.1.html';
+      resilienceLink.textContent = '📍 Retour ciblé 0.3.1';
 
-      feedbackActions.appendChild(feedbackLink);
+      const feedbackLink = document.createElement('a');
+      feedbackLink.className = 'button secondary';
+      feedbackLink.href = 'retours/';
+      feedbackLink.textContent = '📝 Questionnaire complet';
+
+      feedbackActions.append(resilienceLink, feedbackLink);
       checklist.insertAdjacentElement('afterend', feedbackActions);
     }
 
