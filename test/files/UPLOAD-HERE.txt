@@ -1,2 +1,0 @@
-OBSOLETE : ne plus déposer d'APK ici.
-Utiliser le dossier Drive VeVak pour publier les builds de test.
