@@ -54,11 +54,17 @@ assets/
   styles.css
   site.js
   favicon.svg
+test/
+  index.html
+  test.css
+  files/
 robots.txt
 sitemap.xml
 ```
 
-Les fichiers de développement (`README.md`, `DEPLOYMENT.md`, `.github/`, `LICENSE`) ne sont pas nécessaires au fonctionnement du site et peuvent rester uniquement sur GitHub.
+L'APK de test n'est volontairement **pas** versionnée dans GitHub. Elle sera déposée directement sur le serveur dans `test/files/`.
+
+Les fichiers de développement (`README.md`, `DEPLOYMENT.md`, `TESTING.md`, `.github/`, `LICENSE`) ne sont pas nécessaires au fonctionnement du site et peuvent rester uniquement sur GitHub.
 
 ## 4. Envoyer les fichiers avec le Gestionnaire de fichiers
 
@@ -67,7 +73,7 @@ Dans cPanel :
 1. ouvrir **Gestionnaire de fichiers** ;
 2. aller dans la racine exacte de `vevak.lepotager.org` ;
 3. supprimer uniquement une éventuelle page d'attente créée dans ce dossier, après avoir vérifié que vous êtes dans la bonne racine ;
-4. envoyer les fichiers/dossiers du site ;
+4. envoyer les fichiers/dossiers du site, y compris `test/` ;
 5. vérifier que `index.html` se trouve directement dans la racine, et non dans un sous-dossier du type `Vevak-website-main/`.
 
 Documentation o2switch :
@@ -124,7 +130,44 @@ Puis vérifier que :
 Documentation o2switch :
 https://faq.o2switch.fr/guides/webmastering/forcer-https/
 
-## 8. Vérifications finales
+## 8. Protéger l'espace `/test/` par mot de passe
+
+La page de test et l'APK doivent être protégées **côté serveur**, pas par un mot de passe JavaScript stocké dans le dépôt public.
+
+Dans cPanel :
+
+1. ouvrir **Confidentialité du répertoire** ;
+2. naviguer jusqu'au dossier `test` de `vevak.lepotager.org` ;
+3. choisir l'action **Modifier** pour ce dossier ;
+4. activer la protection par mot de passe ;
+5. utiliser par exemple `VeVak - tests privés` comme nom du répertoire ;
+6. créer un utilisateur dédié avec un mot de passe long et unique ;
+7. ouvrir `https://vevak.lepotager.org/test/` en navigation privée et vérifier que le navigateur demande les identifiants avant d'afficher la page.
+
+Documentation o2switch :
+https://faq.o2switch.fr/cpanel/fichiers/protection-repertoire-web/
+
+La page utilise aussi `noindex` et `robots.txt` interdit `/test/`, mais ces mesures d'indexation ne remplacent pas l'authentification serveur.
+
+Voir `TESTING.md` pour la procédure détaillée.
+
+## 9. Déposer l'APK de test
+
+Une fois l'APK FOSS compilée et validée localement :
+
+1. renommer la copie distribuée en `VeVak-foss-test.apk` ;
+2. la déposer directement dans :
+
+```text
+<racine-vevak>/test/files/VeVak-foss-test.apk
+```
+
+3. tester le bouton de téléchargement dans `/test/` ;
+4. tester aussi l'URL directe en navigation privée : elle doit demander les mêmes identifiants.
+
+Ne jamais commiter l'APK de test, un mot de passe, une clé privée ou un fichier `.htpasswd` dans le dépôt public.
+
+## 10. Vérifications finales
 
 Tester au minimum :
 
@@ -136,16 +179,22 @@ Tester au minimum :
 - `https://vevak.lepotager.org/robots.txt` ;
 - `https://vevak.lepotager.org/sitemap.xml` ;
 - l'absence d'erreur de certificat ;
-- la redirection HTTP → HTTPS.
+- la redirection HTTP → HTTPS ;
+- la demande de mot de passe sur `/test/` ;
+- l'impossibilité de télécharger `/test/files/VeVak-foss-test.apk` sans authentification ;
+- le téléchargement après authentification.
 
 ## Mise à jour manuelle ultérieure
 
 Pour une nouvelle version du site :
 
 1. récupérer la branche `main` à jour ;
-2. remplacer `index.html`, `en/`, `assets/`, `robots.txt` et `sitemap.xml` dans la racine de production ;
-3. ne pas supprimer `.htaccess` ni `.well-known/` ;
-4. recharger la page en navigation privée pour vérifier la version publiée.
+2. remplacer `index.html`, `en/`, `assets/`, `test/index.html`, `test/test.css`, `robots.txt` et `sitemap.xml` ;
+3. ne pas supprimer `.htaccess`, `.htpasswd`, `.well-known/` ni l'APK présente dans `test/files/` ;
+4. recharger la page en navigation privée pour vérifier la version publiée ;
+5. vérifier à nouveau que `/test/` demande le mot de passe.
+
+Pour une nouvelle APK de test, remplacer uniquement `test/files/VeVak-foss-test.apk`.
 
 ## Automatisation GitHub Actions — option avancée
 
@@ -159,6 +208,8 @@ Le dépôt contient un workflow SSH/rsync prévu pour déployer depuis GitHub Ac
 - `O2SWITCH_PORT` (facultatif, 22 par défaut).
 
 Cependant, o2switch indique que l'accès SSH doit d'abord être autorisé pour l'adresse IP source. Les runners GitHub hébergés utilisent des adresses qui peuvent changer : une automatisation directe par SSH peut donc être peu fiable sans runner auto-hébergé, IP fixe ou autre mécanisme explicitement validé.
+
+Le workflow conserve volontairement les `.htaccess`/`.htpasswd` serveur et n'envoie aucune APK de test depuis GitHub.
 
 Pour cette raison, **ne pas renseigner ces secrets uniquement pour "essayer"** et ne jamais publier une clé privée dans le dépôt.
 
