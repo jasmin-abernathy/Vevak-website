@@ -200,6 +200,7 @@
   padding: 1rem 1.3rem 1.3rem;
   border-top: 1px solid var(--line);
 }
+.wizard-controls[hidden] { display: none; }
 .wizard-controls .button {
   border: 1px solid var(--ink);
   cursor: pointer;
