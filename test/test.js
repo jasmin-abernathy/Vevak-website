@@ -1,6 +1,14 @@
 (() => {
   const WIZARD_KEY = 'vevak-tester-install-v1';
   const TEST_KEY = 'vevak-tester-checklist-v1';
+  const APK_DOWNLOAD_URL = 'https://drive.google.com/uc?export=download&id=1iJpVJmZfD8WgWldUuD_dDaP36eHxgp40';
+
+  const downloadLink = document.querySelector('[data-download]');
+  if (downloadLink) {
+    downloadLink.href = APK_DOWNLOAD_URL;
+    downloadLink.removeAttribute('download');
+    downloadLink.setAttribute('referrerpolicy', 'no-referrer');
+  }
 
   const wizard = document.querySelector('[data-wizard]');
   if (wizard) {
