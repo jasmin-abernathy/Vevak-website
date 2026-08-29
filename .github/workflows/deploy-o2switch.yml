@@ -1,10 +1,17 @@
-name: Manual VeVak website deploy to o2switch
+name: Deploy VeVak website to o2switch
 
-# o2switch normally protects SSH/SFTP with an IP allowlist. GitHub-hosted
-# runners do not provide a practical fixed source IP for this small project,
-# so production deployment is intentionally manual-only until a stable runner
-# or another explicitly reviewed deployment mechanism is configured.
 on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "en/**"
+      - "soutenir/**"
+      - "test/**"
+      - "robots.txt"
+      - "sitemap.xml"
+      - ".github/workflows/deploy-o2switch.yml"
   workflow_dispatch:
 
 permissions:
@@ -17,72 +24,121 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       DEPLOY_HOST: ${{ secrets.O2SWITCH_HOST }}
       DEPLOY_USER: ${{ secrets.O2SWITCH_USER }}
       DEPLOY_PATH: ${{ secrets.O2SWITCH_PATH }}
       DEPLOY_KEY: ${{ secrets.O2SWITCH_SSH_KEY }}
       DEPLOY_KNOWN_HOSTS: ${{ secrets.O2SWITCH_KNOWN_HOSTS }}
-      DEPLOY_PORT_SECRET: ${{ secrets.O2SWITCH_PORT }}
+      CPANEL_API_TOKEN: ${{ secrets.O2SWITCH_CPANEL_API_TOKEN }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Check deployment configuration
-        id: config
+      - name: Validate deployment configuration
         shell: bash
         run: |
           set -euo pipefail
 
-          configured=true
-          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_KEY DEPLOY_KNOWN_HOSTS; do
+          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_KEY DEPLOY_KNOWN_HOSTS CPANEL_API_TOKEN; do
             if [ -z "${!name:-}" ]; then
-              echo "Missing configuration for ${name}."
-              configured=false
+              echo "::error::Missing GitHub secret for ${name}. See DEPLOYMENT.md."
+              exit 1
             fi
           done
 
-          echo "configured=$configured" >> "$GITHUB_OUTPUT"
-
-          if [ "$configured" = "false" ]; then
-            echo "No deployment attempted. See DEPLOYMENT.md."
-            exit 0
-          fi
-
-          if [ "$DEPLOY_PATH" = "/" ] || [ ${#DEPLOY_PATH} -lt 5 ]; then
-            echo "Refusing to deploy to an unsafe remote path: '$DEPLOY_PATH'"
-            exit 1
-          fi
+          case "$DEPLOY_PATH" in
+            "/home/$DEPLOY_USER/"*) ;;
+            *)
+              echo "::error::Refusing unsafe deployment path '$DEPLOY_PATH'. It must live under /home/$DEPLOY_USER/."
+              exit 1
+              ;;
+          esac
 
       - name: Prepare static site
-        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
           rm -rf .deploy
           mkdir -p .deploy
+
           cp index.html .deploy/
-          cp -R assets .deploy/
-          cp -R en .deploy/
-          cp -R test .deploy/
           cp robots.txt .deploy/
           cp sitemap.xml .deploy/
+          cp -R assets .deploy/
+          cp -R en .deploy/
+          cp -R soutenir .deploy/
+          cp -R test .deploy/
 
-          # The test APK is deliberately not versioned. Keep only the page structure.
-          rm -f .deploy/test/files/.gitignore
+          # APK distribution is handled by the rolling GitHub beta release.
+          # Keep obsolete server-side test/files content outside this deployment.
+          rm -rf .deploy/test/files
 
           test -f .deploy/index.html
           test -f .deploy/assets/styles.css
           test -f .deploy/en/index.html
+          test -f .deploy/soutenir/index.html
           test -f .deploy/test/index.html
           test -f .deploy/test/test.css
           test -f .deploy/test/test.js
           test -f .deploy/robots.txt
           test -f .deploy/sitemap.xml
 
+      - name: Detect GitHub runner public IPv4
+        id: runner_ip
+        shell: bash
+        run: |
+          set -euo pipefail
+          IP="$(curl -fsS --max-time 15 https://api.ipify.org)"
+          if ! [[ "$IP" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+            echo "::error::Could not determine a valid runner IPv4 address."
+            exit 1
+          fi
+          echo "ipv4=$IP" >> "$GITHUB_OUTPUT"
+          echo "Runner IPv4 detected."
+
+      - name: Temporarily whitelist runner on o2switch
+        id: whitelist
+        shell: bash
+        env:
+          RUNNER_IP: ${{ steps.runner_ip.outputs.ipv4 }}
+        run: |
+          set -euo pipefail
+          AUTH="Authorization: cpanel $DEPLOY_USER:$CPANEL_API_TOKEN"
+          BASE="https://$DEPLOY_HOST:2083/execute/SshWhitelist"
+
+          LIST="$(curl -fsS --max-time 45 -H "$AUTH" "$BASE/list")"
+          if [ "$(jq -r '.status // 0' <<<"$LIST")" != "1" ]; then
+            echo "$LIST" | jq .
+            echo "::error::o2switch SSH whitelist API refused the request."
+            exit 1
+          fi
+
+          if jq -e --arg ip "$RUNNER_IP" '.data.list[]? | select(.address == $ip and .port == 22)' <<<"$LIST" >/dev/null; then
+            echo "added=false" >> "$GITHUB_OUTPUT"
+            echo "Runner IP was already whitelisted."
+            exit 0
+          fi
+
+          COUNT="$(jq -r '.data.count // 0' <<<"$LIST")"
+          if [ "$COUNT" -ge 5 ]; then
+            echo "::error::The o2switch SSH whitelist already contains 5 exceptions. Remove one manually before deploying."
+            exit 1
+          fi
+
+          ADD="$(curl -fsS --max-time 45 -H "$AUTH" "$BASE/add?address=$RUNNER_IP&port=22")"
+          if [ "$(jq -r '.status // 0' <<<"$ADD")" != "1" ]; then
+            echo "$ADD" | jq .
+            echo "::error::Could not whitelist the GitHub runner on o2switch."
+            exit 1
+          fi
+
+          echo "added=true" >> "$GITHUB_OUTPUT"
+          echo "Temporary SSH exception created."
+
       - name: Configure SSH
-        if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -95,35 +151,67 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
 
-      - name: Deploy to o2switch
-        if: steps.config.outputs.configured == 'true'
+      - name: Deploy static files with rsync
         shell: bash
         run: |
           set -euo pipefail
-          PORT="${DEPLOY_PORT_SECRET:-22}"
+          SSH="ssh -i $HOME/.ssh/vevak_deploy_key -p 22 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          REMOTE="$DEPLOY_USER@$DEPLOY_HOST"
 
-          rsync \
-            -az \
-            --checksum \
-            --exclude='.well-known/' \
+          $SSH "$REMOTE" "mkdir -p '$DEPLOY_PATH/assets' '$DEPLOY_PATH/en' '$DEPLOY_PATH/soutenir' '$DEPLOY_PATH/test'"
+
+          # Root files only: this deliberately preserves server-owned .htaccess,
+          # .well-known, /api and any other server-side configuration.
+          rsync -az --checksum -e "$SSH" \
+            .deploy/index.html .deploy/robots.txt .deploy/sitemap.xml \
+            "$REMOTE:$DEPLOY_PATH/"
+
+          # Managed static directories are mirrored so deletions in GitHub also propagate.
+          rsync -az --checksum --delete -e "$SSH" .deploy/assets/ "$REMOTE:$DEPLOY_PATH/assets/"
+          rsync -az --checksum --delete -e "$SSH" .deploy/en/ "$REMOTE:$DEPLOY_PATH/en/"
+          rsync -az --checksum --delete -e "$SSH" .deploy/soutenir/ "$REMOTE:$DEPLOY_PATH/soutenir/"
+
+          # Preserve cPanel directory-protection files and the obsolete local APK folder.
+          rsync -az --checksum --delete \
             --exclude='.htaccess' \
             --exclude='.htpasswd' \
-            --exclude='test/files/*.apk' \
-            -e "ssh -i $HOME/.ssh/vevak_deploy_key -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-            .deploy/ \
-            "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+            --exclude='files/' \
+            -e "$SSH" \
+            .deploy/test/ \
+            "$REMOTE:$DEPLOY_PATH/test/"
 
-      - name: Deployment summary
-        if: steps.config.outputs.configured == 'true'
+      - name: Verify production site
         shell: bash
         run: |
-          echo "VeVak website files were sent to the configured o2switch path."
-          echo "Tester HTTP auth and APK remain server-side; verify them manually."
-          echo "Verify https://vevak.lepotager.org manually."
+          set -euo pipefail
+          curl -fsSL --max-time 20 https://vevak.lepotager.org/ | grep -q '<title>VeVak'
+          curl -fsSL --max-time 20 https://vevak.lepotager.org/soutenir/ >/dev/null
 
-      - name: Setup reminder
-        if: steps.config.outputs.configured != 'true'
+          TEST_STATUS="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 https://vevak.lepotager.org/test/ || true)"
+          if [ "$TEST_STATUS" != "401" ]; then
+            echo "::warning::/test/ returned HTTP $TEST_STATUS instead of 401. Check cPanel Directory Privacy."
+          fi
+
+          echo "Production smoke test passed."
+
+      - name: Remove temporary o2switch SSH exception
+        if: always() && steps.whitelist.outputs.added == 'true'
+        continue-on-error: true
         shell: bash
+        env:
+          RUNNER_IP: ${{ steps.runner_ip.outputs.ipv4 }}
         run: |
-          echo "No deployment was attempted."
-          echo "The recommended first publication is cPanel File Manager; see DEPLOYMENT.md."
+          set -u
+          AUTH="Authorization: cpanel $DEPLOY_USER:$CPANEL_API_TOKEN"
+          BASE="https://$DEPLOY_HOST:2083/execute/SshWhitelist"
+
+          for DIRECTION in in out; do
+            curl -fsS --max-time 45 -H "$AUTH" \
+              "$BASE/remove?address=$RUNNER_IP&port=22&direction=$DIRECTION" >/dev/null || true
+          done
+          echo "Temporary SSH exception cleanup requested."
+
+      - name: Remove SSH material from runner
+        if: always()
+        shell: bash
+        run: rm -rf "$HOME/.ssh/vevak_deploy_key" "$HOME/.ssh/known_hosts"
