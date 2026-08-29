@@ -21,7 +21,7 @@
     }
 
     if (downloadMeta) {
-      downloadMeta.innerHTML = '<strong>Source :</strong> dossier Drive VeVak<br><strong>À télécharger :</strong> le fichier <code>.apk</code> le plus récent';
+      downloadMeta.innerHTML = '<strong>Source :</strong> dossier Drive VeVak<br><strong>À télécharger :</strong> le fichier <code>.apk</code> le plus récent (0.3.1 ou plus récent pour le test de résilience)';
     }
 
     const firstInstallStep = document.querySelector('[data-step][data-short-title="Télécharger le fichier"] .step-copy');
@@ -160,6 +160,34 @@
     render();
   }
 
+  // 0.3.1 regression checks: these are injected before the generic checklist logic so they use
+  // the same local persistence and progress handling as the original tests.
+  const checklist = document.querySelector('[data-checklist]');
+  if (checklist && !document.querySelector('[data-test-check="trusted-wifi-location-off"]')) {
+    checklist.insertAdjacentHTML(
+      'beforeend',
+      `<label>
+        <input type="checkbox" data-test-check="trusted-wifi-location-off">
+        <span>
+          <strong>Je teste « Maison » avec Localisation coupée</strong>
+          <small>Enregistre le Wi-Fi de confiance avec Localisation activée, reste connecté au même Wi-Fi, coupe ensuite le bouton Android « Localisation » et fais une nouvelle demande SMS. VeVak doit encore répondre avec le lieu de confiance.</small>
+        </span>
+      </label>
+      <label>
+        <input type="checkbox" data-test-check="remembered-location-off">
+        <span>
+          <strong>Je teste la dernière position VeVak avec Localisation coupée</strong>
+          <small>Après avoir obtenu au moins une vraie position, coupe « Localisation » puis refais une demande hors du raccourci Maison. Si aucun nouveau point n'est possible, VeVak doit pouvoir renvoyer sa dernière position mémorisée en indiquant clairement son âge.</small>
+        </span>
+      </label>`
+    );
+  }
+
+  const testHeading = document.querySelector('#test .section-heading h2');
+  if (testHeading) {
+    testHeading.textContent = '10 petits tests, dont 2 de résilience.';
+  }
+
   const checks = [...document.querySelectorAll('[data-test-check]')];
   if (checks.length) {
     let savedChecks = {};
@@ -171,7 +199,10 @@
     const progressBar = document.querySelector('[data-test-progress]');
     const progress = document.querySelector('.test-progress');
     const complete = document.querySelector('[data-test-complete]');
-    const checklist = document.querySelector('[data-checklist]');
+
+    if (progress) {
+      progress.setAttribute('aria-valuemax', String(checks.length));
+    }
 
     if (checklist && !document.querySelector('[data-feedback-link]')) {
       const feedbackActions = document.createElement('div');
