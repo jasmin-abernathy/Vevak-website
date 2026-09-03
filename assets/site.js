@@ -34,3 +34,26 @@
     }
   }
 })();
+
+
+(() => {
+  const toggle = document.querySelector('[data-vevak-accessibility-toggle]');
+  if (!toggle) return;
+  const key = 'vevak-accessible-mode';
+  const isEnglish = document.documentElement.lang === 'en';
+  const apply = enabled => {
+    document.documentElement.dataset.vevakAccessible = String(enabled);
+    toggle.setAttribute('aria-pressed', String(enabled));
+    toggle.textContent = enabled
+      ? (isEnglish ? 'Standard version' : 'Version standard')
+      : (isEnglish ? 'Accessible version' : 'Version accessible');
+  };
+  let saved = false;
+  try { saved = localStorage.getItem(key) === 'true'; } catch (_) {}
+  apply(saved);
+  toggle.addEventListener('click', () => {
+    const enabled = document.documentElement.dataset.vevakAccessible !== 'true';
+    apply(enabled);
+    try { localStorage.setItem(key, String(enabled)); } catch (_) {}
+  });
+})();
