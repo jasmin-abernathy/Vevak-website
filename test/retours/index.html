@@ -17,10 +17,17 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au contenu</a>
-  <header class="site-header">
+  <header class="site-header" data-site-header>
     <div class="wrap header-inner">
-      <a class="brand" href="../../" aria-label="VeVak, accueil"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a>
-      <nav class="nav" aria-label="Navigation testeurs"><a href="../">Espace testeurs</a><a href="../#test">Parcours de test</a><a href="../../">Site public</a></nav>
+      <a class="brand" href="../../" aria-label="VeVak, accueil">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span class="brand-copy"><strong>VeVak</strong><small data-site-context data-context-default="espace testeurs · Le Potager du Web">espace testeurs · Le Potager du Web</small></span>
+      </a>
+      <div class="header-actions">
+        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Navigation testeurs"><a href="../">Espace testeurs</a><a href="../#test">Parcours de test</a><a href="../../">Site public</a></nav>
+        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Version accessible</button>
+        <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Ouvrir le menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
+      </div>
     </div>
   </header>
 
@@ -148,6 +155,7 @@
 
   <footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand footer-brand" href="../../"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a><p>Espace privé de test. Les réponses du questionnaire restent locales tant qu’elles ne sont pas exportées.</p></div><div class="footer-links"><a href="../">Espace testeurs</a><a href="../../">Site public</a><a href="https://github.com/jasmin-abernathy/vevak">Code source</a></div></div></footer>
 
+  <script defer src="../../assets/site.js"></script>
   <script>
   (()=>{
     const root=document.querySelector('[data-feedback-app]');
