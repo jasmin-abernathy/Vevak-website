@@ -343,3 +343,10 @@
   .test-progress > span,
   .tester-checklist label { transition: none; }
 }
+
+html[data-vevak-accessible="true"] .decision.stop,
+html[data-vevak-accessible="true"] .tester-warning,
+html[data-vevak-accessible="true"] .tester-callout{border-color:#765d00!important}
+html[data-vevak-accessible="true"] .wizard-shell,
+html[data-vevak-accessible="true"] .test-progress-card,
+html[data-vevak-accessible="true"] .tester-checklist label{box-shadow:none!important}
