@@ -10,24 +10,23 @@
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
   <link rel="stylesheet" href="test.css">
+  <script defer src="../assets/site.js"></script>
   <script defer src="test.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Aller au contenu</a>
 
-  <header class="site-header">
+  <header class="site-header" data-site-header>
     <div class="wrap header-inner">
       <a class="brand" href="../" aria-label="VeVak, accueil">
         <span class="brand-mark" aria-hidden="true">V</span>
-        <span>VeVak</span>
+        <span class="brand-copy"><strong>VeVak</strong><small data-site-context data-context-default="espace testeurs · Le Potager du Web">espace testeurs · Le Potager du Web</small></span>
       </a>
-      <nav class="nav" aria-label="Navigation testeurs">
-        <a href="#telechargement">Télécharger</a>
-        <a href="#installation">Installer</a>
-        <a href="#parametrage">Paramétrer</a>
-        <a href="#test">Tester</a>
-        <a href="../">Retour au site</a>
-      </nav>
+      <div class="header-actions">
+        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Navigation testeurs"><a href="#telechargement">Télécharger</a><a href="#installation">Installer</a><a href="#parametrage">Paramétrer</a><a href="#test">Tester</a><a href="../">Retour au site</a></nav>
+        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Version accessible</button>
+        <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Ouvrir le menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
+      </div>
     </div>
   </header>
 
