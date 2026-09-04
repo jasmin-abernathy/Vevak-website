@@ -57,3 +57,46 @@
     try { localStorage.setItem(key, String(enabled)); } catch (_) {}
   });
 })();
+
+
+(() => {
+  const toggle = document.querySelector('[data-site-menu-toggle]');
+  const nav = document.querySelector('[data-site-nav]');
+  if (toggle && nav) {
+    const close = () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      nav.dataset.open = 'false';
+    };
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      nav.dataset.open = String(open);
+    });
+    nav.addEventListener('click', (event) => {
+      if (event.target.closest('a')) close();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close();
+    });
+  }
+
+  const value = new URLSearchParams(location.search).get('ref');
+  const ref = value === 'potager' || value === 'prestadmin' ? value : 'direct';
+  document.documentElement.dataset.siteRef = ref;
+  document.querySelectorAll('[data-site-context]').forEach((label) => {
+    const english = document.documentElement.lang === 'en';
+    label.textContent = ref === 'prestadmin'
+      ? (english ? 'with Prestadmin × Le Potager' : 'avec Prestadmin × Le Potager')
+      : label.dataset.contextDefault;
+  });
+  if (ref !== 'direct') {
+    document.querySelectorAll('a[href]').forEach((link) => {
+      const raw = link.getAttribute('href');
+      if (!raw || raw.startsWith('#') || /^(mailto:|tel:|javascript:)/i.test(raw)) return;
+      const url = new URL(raw, location.href);
+      if (url.origin !== location.origin || url.searchParams.has('ref')) return;
+      url.searchParams.set('ref', ref);
+      link.href = url.pathname + url.search + url.hash;
+    });
+  }
+})();
