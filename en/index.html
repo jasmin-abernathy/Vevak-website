@@ -17,22 +17,30 @@
 <body data-lang="en">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
+  <header class="site-header" data-site-header>
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="VeVak home">
         <span class="brand-mark" aria-hidden="true">V</span>
-        <span>VeVak</span>
+        <span class="brand-copy">
+          <strong>VeVak</strong>
+          <small data-site-context data-context-default="by Le Potager du Web">by Le Potager du Web</small>
+        </span>
       </a>
-      <nav class="nav" aria-label="Main navigation">
+      <div class="header-actions">
+        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Main navigation">
         <a href="#how">How it works</a>
         <a href="#included">Already included</a>
         <a href="#principles">Principles</a>
         <a href="#roadmap">Roadmap</a>
         <a href="#contribute">Contribute</a>
         <a href="./support/">Support</a>
-        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Accessible version</button>
+        </nav>
         <a class="lang-link" data-lang-choice="fr" href="../" lang="fr">FR</a>
-      </nav>
+        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Accessible version</button>
+        <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Open menu">
+          <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
   </header>
 
