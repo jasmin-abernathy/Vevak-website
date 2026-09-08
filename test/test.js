@@ -10,27 +10,35 @@
   const digestMeta = document.querySelector('[data-download-digest]');
   const currentApkCopy = document.querySelector('[data-current-apk-copy]');
   const openApkCopy = document.querySelector('[data-open-apk-copy]');
-  const downloadGrid = document.querySelector('#telechargement .tester-grid');
-  const androidAlert = downloadGrid?.querySelector(':scope > .tester-callout');
-  const downloadBlock = downloadGrid?.querySelector(':scope > div');
+  const downloadSection = document.getElementById('telechargement');
+  const androidAlert = downloadSection?.querySelector('.tester-callout');
   const installationSection = document.getElementById('installation');
+  const installationHeading = installationSection?.querySelector('.wizard-heading');
+  const firstInstallStepCopy = installationSection?.querySelector('[data-step] .step-copy');
 
-  if (downloadGrid && androidAlert && downloadBlock) {
-    downloadGrid.insertBefore(androidAlert, downloadBlock);
-    downloadGrid.style.gridTemplateColumns = 'minmax(0, 1fr)';
+  if (installationSection && installationHeading && androidAlert) {
+    installationHeading.insertAdjacentElement('afterend', androidAlert);
   }
 
-  if (downloadLink) {
-    downloadLink.addEventListener('click', (event) => {
-      if (downloadLink.href === BETA_RELEASE_PAGE) {
-        event.preventDefault();
-        window.open(downloadLink.href, '_blank', 'noopener,noreferrer');
-      }
-      window.setTimeout(() => {
-        installationSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 250);
-    });
+  if (firstInstallStepCopy && downloadLink) {
+    const downloadActions = document.createElement('div');
+    downloadActions.className = 'actions';
+    downloadActions.appendChild(downloadLink);
 
+    const apkCopy = firstInstallStepCopy.querySelector('[data-current-apk-copy]');
+    apkCopy?.insertAdjacentElement('afterend', downloadActions);
+    if (downloadMeta) downloadActions.insertAdjacentElement('afterend', downloadMeta);
+    if (digestMeta && downloadMeta) downloadMeta.insertAdjacentElement('afterend', digestMeta);
+
+    if (currentApkCopy) {
+      currentApkCopy.innerHTML = 'Télécharge ici la dernière APK FOSS validée. Le fichier doit porter un nom versionné du type <code>VeVak-x.y.z-foss-beta-xxxxxxx.apk</code>.';
+    }
+  }
+
+  downloadSection?.remove();
+  document.querySelector('a[href="#telechargement"]')?.setAttribute('href', '#installation');
+
+  if (downloadLink) {
     fetch(BETA_RELEASE_API, {
       cache: 'no-store',
       headers: { Accept: 'application/vnd.github+json' }
@@ -67,7 +75,7 @@
         }
 
         if (currentApkCopy) {
-          currentApkCopy.innerHTML = `Utilise le bouton de téléchargement plus haut. Pour cette bêta, le fichier attendu est <code>${escapeHtml(apk.name)}</code>.`;
+          currentApkCopy.innerHTML = `Télécharge ici la dernière APK FOSS validée. Pour cette bêta, le fichier attendu est <code>${escapeHtml(apk.name)}</code>.`;
         }
         if (openApkCopy) {
           openApkCopy.innerHTML = `Ouvre la notification de téléchargement ou le dossier <strong>Téléchargements</strong>, puis touche <code>${escapeHtml(apk.name)}</code>.`;
