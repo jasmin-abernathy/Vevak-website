@@ -10,8 +10,27 @@
   const digestMeta = document.querySelector('[data-download-digest]');
   const currentApkCopy = document.querySelector('[data-current-apk-copy]');
   const openApkCopy = document.querySelector('[data-open-apk-copy]');
+  const downloadGrid = document.querySelector('#telechargement .tester-grid');
+  const androidAlert = downloadGrid?.querySelector(':scope > .tester-callout');
+  const downloadBlock = downloadGrid?.querySelector(':scope > div');
+  const installationSection = document.getElementById('installation');
+
+  if (downloadGrid && androidAlert && downloadBlock) {
+    downloadGrid.insertBefore(androidAlert, downloadBlock);
+    downloadGrid.style.gridTemplateColumns = 'minmax(0, 1fr)';
+  }
 
   if (downloadLink) {
+    downloadLink.addEventListener('click', (event) => {
+      if (downloadLink.href === BETA_RELEASE_PAGE) {
+        event.preventDefault();
+        window.open(downloadLink.href, '_blank', 'noopener,noreferrer');
+      }
+      window.setTimeout(() => {
+        installationSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    });
+
     fetch(BETA_RELEASE_API, {
       cache: 'no-store',
       headers: { Accept: 'application/vnd.github+json' }
