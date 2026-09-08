@@ -10,9 +10,9 @@ Le dépôt GitHub étant public, **aucun mot de passe ni secret n'est stocké da
 
 La page `/test/` doit rester protégée côté o2switch/cPanel avec l'outil **Confidentialité du répertoire**. Il s'agit d'une authentification HTTP gérée par le serveur avant que la page ne soit envoyée au navigateur.
 
-L'APK de test est désormais distribuée automatiquement depuis le dépôt GitHub public de VeVak, via une release roulante portant le tag `beta` :
+L'APK de test est distribuée depuis le dépôt GitHub public de VeVak, via une release roulante portant le tag `beta` :
 
-`https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
+`https://github.com/jasmin-abernathy/vevak/releases/tag/beta`
 
 La protection cPanel de `/test/` ne protège donc pas l'APK elle-même : le dépôt VeVak et sa release bêta sont publics. La page test reste privée pour le parcours guidé, les consignes et les questionnaires.
 
@@ -51,23 +51,23 @@ Il est possible de créer plusieurs utilisateurs si l'on souhaite donner des ide
 
 ## 3. Publier une APK de test
 
-La publication est automatique depuis `jasmin-abernathy/vevak`.
+La publication est déclenchée volontairement depuis le workflow `Android CI` de `jasmin-abernathy/vevak`, sur la branche `main`.
 
-À chaque changement Android poussé sur `main` :
+À chaque bêta réellement souhaitée :
 
 1. GitHub Actions exécute les vérifications statiques de confidentialité et d'écoconception ;
 2. les tests unitaires FOSS sont exécutés ;
 3. la variante FOSS debug est compilée puis passée au lint ;
 4. les tests, le build et le lint de la variante Play sont également exécutés ;
 5. si tout réussit, l'APK FOSS est conservée comme artefact GitHub Actions ;
-6. un job séparé avec droit d'écriture publie cette même APK dans la release roulante `beta` sous le nom stable `VeVak-foss-test.apk` ;
-7. un fichier `VeVak-foss-test.apk.sha256` est publié avec elle.
+6. un job séparé avec droit d'écriture publie cette même APK dans la release roulante `beta` sous un nom versionné du type `VeVak-x.y.z-foss-beta-xxxxxxx.apk` ;
+7. le fichier `.sha256` portant le même nom est publié avec elle.
 
 La release n'est donc mise à jour **qu'après réussite complète de la CI**.
 
-Le lien utilisé par `/test/` reste toujours le même :
+La page `/test/` interroge toujours la même release et sélectionne automatiquement l'unique APK FOSS versionnée :
 
-`https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
+`https://github.com/jasmin-abernathy/vevak/releases/tag/beta`
 
 Aucun transfert manuel vers Drive, le serveur Web ou un autre hébergement n'est nécessaire.
 
@@ -80,7 +80,7 @@ Le cycle normal devient :
 ```text
 modification du code
         ↓
-push sur main
+push sur main + lancement volontaire du workflow
         ↓
 GitHub Actions
         ↓

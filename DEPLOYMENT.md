@@ -24,9 +24,9 @@ retrait de l'IP temporaire
 
 Le mécanisme suit la méthode CI/CD documentée par o2switch : un token API cPanel permet d'autoriser dynamiquement l'adresse IP du runner GitHub pour SSH.
 
-L'APK ne fait pas partie de ce déploiement. Elle est publiée automatiquement dans la release GitHub roulante `beta` du dépôt Android :
+L'APK ne fait pas partie de ce déploiement. Elle est publiée dans la release GitHub roulante `beta` du dépôt Android sous un nom versionné. La page `/test/` interroge cette release et pointe automatiquement vers l'unique APK FOSS courante :
 
-`https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-foss-test.apk`
+`https://github.com/jasmin-abernathy/vevak/releases/tag/beta`
 
 ## Ce que le workflow publie
 
