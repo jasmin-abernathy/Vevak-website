@@ -2,7 +2,7 @@
   const WIZARD_KEY = 'vevak-tester-install-v2';
   const TEST_KEY = 'vevak-tester-checklist-v2';
   const BETA_RELEASE_API = 'https://api.github.com/repos/jasmin-abernathy/vevak/releases/tags/beta';
-  const BETA_RELEASE_PAGE = 'https://github.com/jasmin-abernathy/vevak/releases/tag/beta';
+  const BETA_APK_FALLBACK = 'https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-beta.apk';
 
   const downloadLink = document.querySelector('[data-download]');
   const betaStatus = document.querySelector('[data-beta-status]');
@@ -10,33 +10,6 @@
   const digestMeta = document.querySelector('[data-download-digest]');
   const currentApkCopy = document.querySelector('[data-current-apk-copy]');
   const openApkCopy = document.querySelector('[data-open-apk-copy]');
-  const downloadSection = document.getElementById('telechargement');
-  const androidAlert = downloadSection?.querySelector('.tester-callout');
-  const installationSection = document.getElementById('installation');
-  const installationHeading = installationSection?.querySelector('.wizard-heading');
-  const firstInstallStepCopy = installationSection?.querySelector('[data-step] .step-copy');
-
-  if (installationSection && installationHeading && androidAlert) {
-    installationHeading.insertAdjacentElement('afterend', androidAlert);
-  }
-
-  if (firstInstallStepCopy && downloadLink) {
-    const downloadActions = document.createElement('div');
-    downloadActions.className = 'actions';
-    downloadActions.appendChild(downloadLink);
-
-    const apkCopy = firstInstallStepCopy.querySelector('[data-current-apk-copy]');
-    apkCopy?.insertAdjacentElement('afterend', downloadActions);
-    if (downloadMeta) downloadActions.insertAdjacentElement('afterend', downloadMeta);
-    if (digestMeta && downloadMeta) downloadMeta.insertAdjacentElement('afterend', digestMeta);
-
-    if (currentApkCopy) {
-      currentApkCopy.innerHTML = 'Télécharge ici la dernière APK FOSS validée. Le fichier doit porter un nom versionné du type <code>VeVak-x.y.z-foss-beta-xxxxxxx.apk</code>.';
-    }
-  }
-
-  downloadSection?.remove();
-  document.querySelector('a[href="#telechargement"]')?.setAttribute('href', '#installation');
 
   if (downloadLink) {
     fetch(BETA_RELEASE_API, {
@@ -75,17 +48,17 @@
         }
 
         if (currentApkCopy) {
-          currentApkCopy.innerHTML = `Télécharge ici la dernière APK FOSS validée. Pour cette bêta, le fichier attendu est <code>${escapeHtml(apk.name)}</code>.`;
+          currentApkCopy.innerHTML = `Utilise le bouton de téléchargement plus haut. Pour cette bêta, le fichier attendu est <code>${escapeHtml(apk.name)}</code>.`;
         }
         if (openApkCopy) {
           openApkCopy.innerHTML = `Ouvre la notification de téléchargement ou le dossier <strong>Téléchargements</strong>, puis touche <code>${escapeHtml(apk.name)}</code>.`;
         }
       })
       .catch(() => {
-        downloadLink.href = BETA_RELEASE_PAGE;
-        downloadLink.textContent = '📱 Ouvrir la dernière bêta GitHub';
-        if (betaStatus) betaStatus.innerHTML = '<strong>Dernière bêta :</strong> vérification automatique indisponible — utilise la release <code>beta</code>.';
-        if (downloadMeta) downloadMeta.innerHTML = '<strong>Source :</strong> release GitHub <code>beta</code>. Télécharge l’unique APK FOSS versionnée.';
+        downloadLink.href = BETA_APK_FALLBACK;
+        downloadLink.textContent = '📱 Télécharger directement VeVak 0.3.13';
+        if (betaStatus) betaStatus.innerHTML = '<strong>Dernière bêta :</strong> VeVak 0.3.13';
+        if (downloadMeta) downloadMeta.innerHTML = '<strong>Version :</strong> VeVak 0.3.13 · APK FOSS validée par la CI<br><strong>Source :</strong> release GitHub officielle <code>beta</code>.';
         if (digestMeta) digestMeta.textContent = '';
       });
   }
