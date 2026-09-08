@@ -23,7 +23,7 @@
         <span class="brand-copy"><strong>VeVak</strong><small data-site-context data-context-default="espace testeurs · Le Potager du Web">espace testeurs · Le Potager du Web</small></span>
       </a>
       <div class="header-actions">
-        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Navigation testeurs"><a href="#telechargement">Télécharger</a><a href="#installation">Installer</a><a href="#parametrage">Paramétrer</a><a href="#test">Tester</a><a href="../">Retour au site</a></nav>
+        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Navigation testeurs"><a href="#installation">Télécharger</a><a href="#installation">Installer</a><a href="#parametrage">Paramétrer</a><a href="#test">Tester</a><a href="../">Retour au site</a></nav>
         <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Version accessible</button>
         <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Ouvrir le menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
       </div>
@@ -43,19 +43,14 @@
       </div>
     </section>
 
-    <section class="section compact" id="telechargement">
-      <div class="wrap tester-grid">
-        <div>
-          <p class="kicker">Étape zéro</p>
-          <h2>Télécharge toujours la dernière bêta validée.</h2>
-          <p class="lead-small">Le bouton interroge la release GitHub <code>beta</code> et sélectionne l’APK FOSS produite par la CI. Ainsi, cette page ne dépend plus d’une copie locale qui peut devenir obsolète.</p>
-          <div class="actions">
-            <a class="button primary download-button" href="https://github.com/jasmin-abernathy/vevak/releases/tag/beta" rel="noopener noreferrer" referrerpolicy="no-referrer" data-download>📱 Ouvrir la dernière bêta GitHub</a>
-            <a class="button secondary" href="#installation">J’ai déjà l’APK →</a>
-          </div>
-          <p class="tester-meta" data-download-meta><strong>Source :</strong> GitHub Releases · tag <code>beta</code><br><strong>APK :</strong> résolution automatique en cours…</p>
-          <p class="tester-meta" data-download-digest></p>
+    <section class="section tinted" id="installation">
+      <div class="wrap wizard-wrap">
+        <div class="section-heading wizard-heading">
+          <p class="kicker">Assistant d’installation Android</p>
+          <h2>Installer l’APK sans désactiver les protections du téléphone.</h2>
+          <p>Les intitulés exacts varient selon les constructeurs. Le principe reste le même : autoriser temporairement l’application qui ouvre l’APK, laisser Play Protect analyser, puis retirer cette autorisation.</p>
         </div>
+
         <aside class="tester-callout">
           <span class="callout-icon" aria-hidden="true">🛡️</span>
           <div>
@@ -64,16 +59,6 @@
             <p><strong>Ne désactive jamais Play Protect pour installer VeVak.</strong></p>
           </div>
         </aside>
-      </div>
-    </section>
-
-    <section class="section tinted" id="installation">
-      <div class="wrap wizard-wrap">
-        <div class="section-heading wizard-heading">
-          <p class="kicker">Assistant d’installation Android</p>
-          <h2>Installer l’APK sans désactiver les protections du téléphone.</h2>
-          <p>Les intitulés exacts varient selon les constructeurs. Le principe reste le même : autoriser temporairement l’application qui ouvre l’APK, laisser Play Protect analyser, puis retirer cette autorisation.</p>
-        </div>
 
         <div class="wizard-shell" data-wizard>
           <div class="wizard-topbar">
@@ -91,7 +76,12 @@
               <div class="step-copy">
                 <p class="step-kicker">Téléchargement</p>
                 <h3>Télécharge l’APK de la release bêta</h3>
-                <p data-current-apk-copy>Utilise le bouton de téléchargement plus haut. Le fichier doit porter un nom versionné du type <code>VeVak-x.y.z-foss-beta-xxxxxxx.apk</code>.</p>
+                <p data-current-apk-copy>Télécharge ici la dernière APK FOSS validée. Le fichier doit porter un nom versionné du type <code>VeVak-x.y.z-foss-beta-xxxxxxx.apk</code>.</p>
+                <div class="actions">
+                  <a class="button primary download-button" href="https://github.com/jasmin-abernathy/vevak/releases/tag/beta" rel="noopener noreferrer" referrerpolicy="no-referrer" data-download>📱 Ouvrir la dernière bêta GitHub</a>
+                </div>
+                <p class="tester-meta" data-download-meta><strong>Source :</strong> GitHub Releases · tag <code>beta</code><br><strong>APK :</strong> résolution automatique en cours…</p>
+                <p class="tester-meta" data-download-digest></p>
                 <div class="android-message"><span aria-hidden="true">💬</span><div><strong>Message possible :</strong><br>« Ce type de fichier peut présenter un risque » ou « Voulez-vous quand même télécharger ce fichier ? »</div></div>
                 <div class="normal-box"><strong>✅ Avertissement de provenance : attendu.</strong> Tu viens toi-même de demander l’APK depuis la release officielle VeVak.</div>
               </div>
