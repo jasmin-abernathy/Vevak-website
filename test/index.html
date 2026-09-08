@@ -191,17 +191,17 @@
       <div class="wrap test-flow">
         <div class="section-heading">
           <p class="kicker">Parcours de validation</p>
-          <h2>12 tests utiles pour la bêta actuelle.</h2>
+          <h2>14 tests utiles pour la bêta actuelle.</h2>
           <p>Les cases restent enregistrées uniquement dans ton navigateur. Aucun résultat n’est envoyé automatiquement.</p>
         </div>
 
         <div class="test-progress-card">
-          <div><strong id="testProgressText">0 / 12 terminés</strong><span>Tu peux fermer cette page et reprendre plus tard.</span></div>
-          <div class="test-progress" role="progressbar" aria-label="Progression des tests" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><span data-test-progress></span></div>
+          <div><strong id="testProgressText">0 / 14 terminés</strong><span>Tu peux fermer cette page et reprendre plus tard.</span></div>
+          <div class="test-progress" role="progressbar" aria-label="Progression des tests" aria-valuemin="0" aria-valuemax="14" aria-valuenow="0"><span data-test-progress></span></div>
         </div>
 
         <div class="tester-checklist" data-checklist>
-          <label><input type="checkbox" data-test-check="onboarding"><span><strong>1 · Le premier paramétrage va jusqu’au bout</strong><small>Maison + contact + phrase-clé + options + permissions + durée d’autorisation.</small></span></label>
+          <label><input type="checkbox" data-test-check="onboarding"><span><strong>1 · Le premier paramétrage va jusqu’au bout</strong><small>Maison + contact + phrase-clé + options + permissions + urgence facultative + durée d’autorisation.</small></span></label>
           <label><input type="checkbox" data-test-check="options"><span><strong>2 · Je vois le choix de carte et la localisation alternative</strong><small>À l’étape 3, CoMaps / OpenStreetMap / Google Maps et l’option réseau/IP doivent être configurables.</small></span></label>
           <label><input type="checkbox" data-test-check="permissions"><span><strong>3 · La dernière position se rafraîchit hors écran</strong><small>Dans Réglages → Sécurité, urgence et mémoire de position, active le rafraîchissement, accorde « Toujours autoriser », ferme VeVak puis contrôle après 30 à 90 minutes que l’âge du point a évolué. Android peut retarder le passage.</small></span></label>
           <label><input type="checkbox" data-test-check="home"><span><strong>4 · Sur Maison, la demande SMS répond « Je suis chez moi »</strong><small>Avec batterie en charge ou niveau de batterie si cette option est activée. Une estimation IP grossière ne doit pas prendre la priorité sur Maison.</small></span></label>
@@ -210,9 +210,11 @@
           <label><input type="checkbox" data-test-check="network-estimate"><span><strong>7 · Je vérifie une estimation réseau si elle devient nécessaire</strong><small>Elle doit être annoncée comme une <em>zone estimée</em>, jamais comme un GPS ou une position précise ; une grande incertitude doit être clairement visible.</small></span></label>
           <label><input type="checkbox" data-test-check="locked"><span><strong>8 · Je refais une demande écran verrouillé</strong><small>La réponse SMS doit fonctionner sans notification VeVak, si Android autorise l’exécution en arrière-plan.</small></span></label>
           <label><input type="checkbox" data-test-check="manual"><span><strong>9 · Je teste « Partager ma position »</strong><small>Le partage volontaire demande confirmation et utilise uniquement la dernière vraie position déjà connue.</small></span></label>
-          <label><input type="checkbox" data-test-check="emergency"><span><strong>10 · Je teste le raccourci discret d’urgence</strong><small>Seulement dans un contexte convenu avec les destinataires : crée le raccourci depuis les réglages de sécurité, vérifie le délai d’armement de 4 secondes et le second appui qui annule l’envoi.</small></span></label>
-          <label><input type="checkbox" data-test-check="revoke"><span><strong>11 · Je révoque un contact</strong><small>Une nouvelle phrase-clé de ce contact ne doit plus obtenir la position.</small></span></label>
-          <label><input type="checkbox" data-test-check="feedback"><span><strong>12 · Je note les différences de mon téléphone</strong><small>Modèle, version Android, double-SIM, comportement écran verrouillé, Wi-Fi Maison, messages Play Protect ou permissions inhabituels.</small></span></label>
+          <label><input type="checkbox" data-test-check="emergency"><span><strong>10 · Je teste le raccourci discret d’urgence</strong><small>Vérifie qu’aucun contact n’est précoché, que les vraies icônes sont visibles, puis teste le délai de 4 secondes, l’annulation au second appui et un lancement après fermeture de VeVak.</small></span></label>
+          <label><input type="checkbox" data-test-check="protection"><span><strong>11 · La protection est proposée après 2 SMS du même contact</strong><small>Un SMS de deux contacts différents ne doit rien déclencher. Après les deux premiers SMS valides d’un même contact, ferme puis rouvre VeVak : la proposition doit concerner uniquement cette personne, même si la limite anti-suivi a bloqué la seconde réponse.</small></span></label>
+          <label><input type="checkbox" data-test-check="history"><span><strong>12 · Je retrouve l’historique local</strong><small>Ouvre l’onglet Historique : les résultats datés doivent apparaître sans numéro, texte, phrase-clé ni position. Vérifie aussi le bouton d’effacement.</small></span></label>
+          <label><input type="checkbox" data-test-check="revoke"><span><strong>13 · Je révoque un contact</strong><small>Une nouvelle phrase-clé de ce contact ne doit plus obtenir la position.</small></span></label>
+          <label><input type="checkbox" data-test-check="feedback"><span><strong>14 · Je note les différences de mon téléphone</strong><small>Modèle, version Android, double-SIM, comportement écran verrouillé, Wi-Fi Maison, messages Play Protect ou permissions inhabituels.</small></span></label>
         </div>
 
         <div class="actions" data-feedback-link>

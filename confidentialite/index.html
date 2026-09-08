@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17332c">
+  <meta name="description" content="Politique de confidentialité de l’application Android VeVak.">
+  <title>Politique de confidentialité — VeVak</title>
+  <link rel="canonical" href="https://vevak.lepotager.org/confidentialite/">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/site.js"></script>
+</head>
+<body data-lang="fr">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <header class="site-header" data-site-header>
+    <div class="wrap header-inner">
+      <a class="brand" href="../" aria-label="VeVak, accueil">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span class="brand-copy"><strong>VeVak</strong><small>par Le Potager des Apps</small></span>
+      </a>
+      <div class="header-actions">
+        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Navigation principale">
+          <a href="../">Accueil</a>
+          <a href="../test/">Tester VeVak</a>
+          <a href="../soutenir/">Soutenir</a>
+        </nav>
+        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Version accessible</button>
+        <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Ouvrir le menu">
+          <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section compact">
+      <div class="wrap statement">
+        <p class="kicker">VeVak · Android</p>
+        <h1>Politique de confidentialité</h1>
+        <p class="lead-small">Dernière mise à jour : 8 septembre 2026.</p>
+        <p>VeVak est conçu pour fonctionner localement, sans compte VeVak, publicité, pisteur ni télémétrie. Le cœur de la demande et de la réponse par SMS ne dépend d’aucun serveur VeVak.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <div>
+          <h2>Données utilisées</h2>
+          <p>Avec ton autorisation Android, VeVak reçoit les SMS entrants afin de reconnaître la phrase d’un contact autorisé, envoie la réponse par SMS et utilise la localisation pour produire ou mémoriser un point. Les numéros et phrases configurés restent sur le téléphone.</p>
+          <p>VeVak conserve au maximum vingt résultats génériques datés dans son historique local. Cet historique ne contient ni numéro, ni corps de SMS, ni phrase-clé, ni coordonnée, ni indication d’utilisation de la protection.</p>
+
+          <h2>Localisation</h2>
+          <p>Lors d’une demande autorisée, VeVak peut lire une position récente ou demander un point ponctuel. Une seule dernière coordonnée est mémorisée et remplacée par la suivante : aucun trajet ni historique de positions n’est créé.</p>
+          <p>Le rafraîchissement périodique est désactivé par défaut. Si tu l’actives explicitement, VeVak peut accéder ponctuellement à la localisation lorsque l’application n’est pas affichée afin de remplacer cette dernière position. Android peut retarder ces passages. Tu peux désactiver la fonction ou retirer l’autorisation à tout moment.</p>
+          <p>L’estimation réseau/IP est également désactivée par défaut. Si tu l’actives, VeVak peut contacter beaconDB lorsque les sources locales ne suffisent pas. Le service voit alors ton adresse IP ; aucun numéro, SMS, identifiant Wi-Fi ou coordonnée locale ne lui est envoyé.</p>
+
+          <h2>Partage et destinataires</h2>
+          <p>Les réponses sont envoyées uniquement aux contacts configurés, autorisés et non expirés. L’urgence est désactivée par défaut et exige un choix local explicite de destinataires. VeVak ne contacte jamais automatiquement les services de secours.</p>
+          <p>Après les deux premiers SMS valides d’un même contact, VeVak peut mémoriser un compteur local borné afin de proposer, lors d’une ouverture ultérieure, une protection contre un usage abusif. Cette proposition n’est pas répétée systématiquement et les compteurs de contacts différents ne sont jamais additionnés.</p>
+
+          <h2>Sauvegarde et suppression</h2>
+          <p>La sauvegarde facultative est chiffrée par mot de passe et créée à l’emplacement choisi. Elle exclut l’historique et les positions mémorisées. Les contacts restaurés restent révoqués jusqu’à une nouvelle autorisation locale.</p>
+          <p>La réinitialisation de VeVak efface ses réglages, compteurs, destinataires d’urgence et historique local. La désinstallation supprime les données privées de l’application conservées par Android.</p>
+
+          <h2>Responsable et contact</h2>
+          <p>VeVak est développé en France par Jasmin Lévêque / Le Potager des Apps. Pour une question de confidentialité ou un signalement de sécurité, utilise le canal indiqué dans le dépôt public.</p>
+          <p><a class="button secondary" href="https://github.com/jasmin-abernathy/vevak/security">Sécurité et contact</a></p>
+          <p><a class="text-link" href="https://github.com/jasmin-abernathy/vevak/blob/main/PRIVACY.md">Lire la documentation technique détaillée →</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <a class="brand footer-brand" href="../"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a>
+      <div class="footer-links">
+        <a href="../">Accueil</a>
+        <a href="https://github.com/jasmin-abernathy/vevak">Code source</a>
+        <a href="../soutenir/">Soutenir</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
