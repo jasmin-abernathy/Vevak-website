@@ -20,10 +20,28 @@
     }
   }
 
-  // The tester area is protected server-side. This link only makes the entry point
-  // discoverable from the French participation section; it is not the security layer.
+  // The French home page invites Google Play users to join the first closed-test panel.
+  // Registration stays private: the tester sends the Google account address used on Google Play by email.
   if (current === 'fr') {
     const actions = document.querySelector('.participate-actions');
+
+    if (actions && !actions.querySelector('[data-play-panel-signup]')) {
+      const note = document.createElement('p');
+      note.className = 'lead-small';
+      note.dataset.playPanelSignup = 'true';
+      note.textContent = 'Vous utilisez Google Play ? Vous pouvez rejoindre le premier panel de test de VeVak avec l’adresse du compte Google rattaché à Google Play.';
+
+      const signup = document.createElement('a');
+      signup.className = 'button primary';
+      signup.href = 'mailto:contact@lepotager.org?subject=VeVak%20%E2%80%94%20inscription%20au%20panel%20Google%20Play&body=Bonjour%2C%0A%0AJe%20souhaite%20rejoindre%20le%20premier%20panel%20de%20test%20VeVak%20sur%20Google%20Play.%0A%0AAdresse%20du%20compte%20Google%20utilis%C3%A9%20sur%20Google%20Play%20%3A%20%0A%0AMerci%20!';
+      signup.dataset.playPanelSignup = 'true';
+      signup.textContent = 'S’inscrire au panel Google Play';
+
+      actions.prepend(note, signup);
+    }
+
+    // The tester area is protected server-side. This link only makes the entry point
+    // discoverable from the French participation section; it is not the security layer.
     if (actions && !actions.querySelector('[data-tester-access]')) {
       const link = document.createElement('a');
       link.className = 'text-link';
