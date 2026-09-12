@@ -2,10 +2,6 @@
   const key = 'vevak-lang';
   const root = document.documentElement;
   const current = document.body?.dataset.lang || root.lang || 'fr';
-  const isEnglish = current === 'en';
-  const betaApi = 'https://api.github.com/repos/jasmin-abernathy/vevak/releases/tags/beta';
-  const betaApkFallback = 'https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-beta.apk';
-  const betaReleasePage = 'https://github.com/jasmin-abernathy/vevak/releases/tag/beta';
 
   document.querySelectorAll('[data-lang-choice]').forEach((link) => {
     link.addEventListener('click', () => {
@@ -24,58 +20,8 @@
     }
   }
 
-  // The home page is now the normal beta distribution entry point.
-  const heroActions = document.querySelector('.hero-copy .actions');
-  if (heroActions && !heroActions.querySelector('[data-beta-download]')) {
-    const beta = document.createElement('a');
-    beta.className = 'button primary';
-    beta.href = betaApkFallback;
-    beta.dataset.betaDownload = 'true';
-    beta.rel = 'noopener noreferrer';
-    beta.referrerPolicy = 'no-referrer';
-    beta.textContent = isEnglish ? 'Download the Android beta (APK)' : 'Télécharger la bêta Android (APK)';
-
-    const githubCode = heroActions.querySelector('a[href="https://github.com/jasmin-abernathy/vevak"]');
-    if (githubCode) githubCode.className = 'button secondary';
-    heroActions.prepend(beta);
-
-    const note = document.createElement('p');
-    note.className = 'lead-small';
-    note.dataset.betaMeta = 'true';
-    note.textContent = isEnglish
-      ? 'Public FOSS beta · VeVak 0.3.14 · install outside Google Play for early real-device testing.'
-      : 'Bêta FOSS publique · VeVak 0.3.14 · installation hors Google Play pour les premiers tests sur téléphone réel.';
-    heroActions.insertAdjacentElement('afterend', note);
-
-    fetch(betaApi, {
-      cache: 'no-store',
-      headers: { Accept: 'application/vnd.github+json' }
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(`GitHub API ${response.status}`);
-        return response.json();
-      })
-      .then((release) => {
-        const assets = Array.isArray(release.assets) ? release.assets : [];
-        const stable = assets.find((asset) => asset.name === 'VeVak-beta.apk');
-        const versioned = assets.find((asset) => /^VeVak-\d+\.\d+\.\d+-foss-beta-[0-9a-f]{7}\.apk$/i.test(asset.name));
-        const apk = stable || versioned;
-        if (apk?.browser_download_url) beta.href = apk.browser_download_url;
-
-        const releaseName = release.name || (isEnglish ? 'current beta' : 'bêta actuelle');
-        note.innerHTML = isEnglish
-          ? `Public FOSS beta · <strong>${escapeHtml(releaseName)}</strong> · install outside Google Play for early real-device testing. <a href="${betaReleasePage}">Release details and checksum →</a>`
-          : `Bêta FOSS publique · <strong>${escapeHtml(releaseName)}</strong> · installation hors Google Play pour les premiers tests sur téléphone réel. <a href="${betaReleasePage}">Détails de la release et empreinte →</a>`;
-      })
-      .catch(() => {
-        const details = document.createElement('a');
-        details.href = betaReleasePage;
-        details.textContent = isEnglish ? 'Release details →' : 'Détails de la release →';
-        note.append(' ', details);
-      });
-  }
-
-  // Keep the Play closed-test signup available, but secondary to the direct APK beta.
+  // Direct APK testing now starts from the public home page. Keep the optional
+  // Google Play closed-test registration available as a secondary path.
   if (current === 'fr') {
     const actions = document.querySelector('.participate-actions');
 
@@ -93,15 +39,6 @@
 
       actions.prepend(note, signup);
     }
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
   }
 })();
 
