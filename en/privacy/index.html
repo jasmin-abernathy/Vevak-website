@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17332c">
+  <meta name="description" content="VeVak privacy policy: local data, SMS, location, encrypted backup, optional services and website privacy.">
+  <title>Privacy policy — VeVak</title>
+  <link rel="canonical" href="https://vevak.lepotager.org/en/privacy/">
+  <link rel="alternate" hreflang="fr" href="https://vevak.lepotager.org/confidentialite/">
+  <link rel="alternate" hreflang="en" href="https://vevak.lepotager.org/en/privacy/">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/site.js"></script>
+</head>
+<body data-lang="en">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" data-site-header>
+    <div class="wrap header-inner">
+      <a class="brand" href="../" aria-label="VeVak home">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span class="brand-copy"><strong>VeVak</strong><small>by Le Potager du Web</small></span>
+      </a>
+      <div class="header-actions">
+        <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Main navigation">
+          <a href="../">Home</a>
+          <a href="../../test/">Test VeVak</a>
+          <a href="../support/">Support</a>
+        </nav>
+        <a class="lang-link" data-lang-choice="fr" href="../../confidentialite/" lang="fr">FR</a>
+        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Accessible version</button>
+        <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Open menu">
+          <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section compact">
+      <div class="wrap statement">
+        <p class="kicker">VeVak · Android and website</p>
+        <h1>Privacy policy</h1>
+        <p class="lead-small">Last updated: 14 September 2026.</p>
+        <p>VeVak follows a local-first approach: no mandatory VeVak account, no advertising, no telemetry and no VeVak server required for the core SMS workflow. This page explains the data used by the app and by the public website.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="principle-grid">
+          <article class="card"><h2>No sale of personal data</h2><p>VeVak does not sell personal data and does not include advertising or profiling SDKs.</p></article>
+          <article class="card"><h2>Local storage</h2><p>Contacts, trigger phrases, settings, counters and location memories are stored in the app’s private Android storage.</p></article>
+          <article class="card"><h2>Single-slot location memory</h2><p>Each new point replaces the previous one. VeVak does not build routes, movement history or continuous tracking.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <div>
+          <h2>1. Controller and contact</h2>
+          <p>VeVak is developed in France by Jasmin Lévêque / Le Potager du Web. For privacy questions, requests relating to your data or security reports, contact <a href="mailto:contact@lepotager.org">contact@lepotager.org</a> or use the security channel of the public repository.</p>
+          <p><a class="button secondary" href="https://github.com/jasmin-abernathy/vevak/security">Security and contact</a></p>
+
+          <h2>2. Contacts and SMS</h2>
+          <p>Each trusted contact is stored locally with their phone number, trigger phrase and time-limited authorisation. Access can be revoked from the phone.</p>
+          <p>Android delivers incoming SMS messages to VeVak so the app can locally verify the sender, recognise the trigger phrase and enforce anti-tracking limits. VeVak does not keep incoming SMS bodies in its local history. Outgoing replies use Android SMS APIs and the mobile carrier network.</p>
+          <p>Acceptance of an SMS by Android or the carrier is not proof that the recipient ultimately received it.</p>
+
+          <h2>3. Location and location memory</h2>
+          <p>For an authorised request, VeVak uses a shared resolver that may rely, depending on settings and availability, on an Android location, a recognised trusted place such as “Home”, an optional network/IP estimate, and finally the last remembered coordinate.</p>
+          <p>VeVak keeps at most one last coordinate from a legitimate source for automatic replies, plus one last real/local point for stricter manual uses. A network estimate never replaces the last real point. Duress fallback coordinates are kept separate from these memories.</p>
+          <p>Each new point replaces the previous one. No route, list of positions or breadcrumb trail is created. The acquisition time is kept so a reply can honestly state how old a remembered point is.</p>
+          <p>Locations flagged as mocked by Android are rejected.</p>
+
+          <h2>4. Optional single-slot background refresh</h2>
+          <p>During a fresh setup, VeVak may present keeping one recent last point as the recommended option, with a target interval of 30 minutes. The user can turn this off or choose a target interval of 15, 30 or 60 minutes.</p>
+          <p>Obtaining a new Android location while VeVak is not visible requires a separate Android background-location permission. That permission is always granted or refused by the user through Android; VeVak does not bypass it. The core SMS feature continues to work without it.</p>
+          <p>The scheduler stores no history, does not run a permanent location service and does not use a repeating exact alarm. Android and Doze may delay refreshes. Optional restart-after-reboot behaviour may schedule the next refresh without opening the app or creating a permanent notification.</p>
+
+          <h2>5. Optional network/IP estimation</h2>
+          <p>Network estimation is optional. If enabled and local sources are insufficient, VeVak may make an HTTPS request to the public beaconDB service based on the connection’s public IP address.</p>
+          <p>VeVak does not send beaconDB phone numbers, SMS contents, trigger phrases, SSIDs, BSSIDs, raw cellular identifiers or local coordinates. The remote service necessarily sees the IP address used for the request. The result is presented as an estimate and never as a false precise GPS point.</p>
+
+          <h2>6. Trusted “Home” place</h2>
+          <p>VeVak can associate the current Wi-Fi connection with a local label such as “Home”. When the SSID is available, VeVak stores a SHA-256 fingerprint instead of the clear-text network name. If the available signals are insufficient, VeVak prefers not to recognise the place rather than risk a false positive.</p>
+          <p>The trusted place is not consulted when targeted protection requires using only the configured fallback place.</p>
+
+          <h2>7. Targeted protection against a contact</h2>
+          <p>The user can choose an authorised contact whose use of the trigger phrase may be considered abusive. For that contact only, VeVak can reply with a preconfigured fallback place instead of consulting the real location, trusted Home Wi-Fi or network estimation.</p>
+          <p>After several valid normal requests from the same contact, VeVak may keep a small bounded local counter so it can offer this protection on a later voluntary app opening. The counter contains no SMS text, phone number or location.</p>
+
+          <h2>8. Manual sharing and emergency sending</h2>
+          <p>Manual sharing requires a local action and explicit confirmation. It uses only the last real point already known.</p>
+          <p>Emergency recipients are selected locally from authorised contacts. A locally triggered emergency is not subject to the anti-tracking quota used for remote requests and uses the same location sources as normal SMS requests. A network estimate remains clearly marked as approximate.</p>
+          <p>The home-screen shortcut or Quick Settings tile first prepares the action; a second activation during the cancellation window cancels it. If Android later delays handling, the emergency can remain pending and locally cancellable until the receiver claims it. VeVak never presents an attempted send as proof of delivery.</p>
+
+          <h2>9. Local history and diagnostics</h2>
+          <p>VeVak keeps at most twenty recent generic request outcomes. This history contains no phone number, SMS body, trigger phrase, coordinates, SSID/BSSID or indication of whether the fallback place was used.</p>
+          <p>Diagnostics are redacted and should not expose coordinates, phone numbers, trigger phrases, Wi-Fi identifiers or raw cellular identifiers.</p>
+
+          <h2>10. Encrypted backup</h2>
+          <p>The optional <code>.vvk</code> export is encrypted and authenticated with AES-GCM using a key derived from the user’s password with PBKDF2-HMAC-SHA256. VeVak does not store that password.</p>
+          <p>A backup may contain configured settings and contacts, but not remembered locations or request history. After restore, contact authorisations remain revoked until they are explicitly authorised again on the device.</p>
+
+          <h2>11. FOSS and Play variants</h2>
+          <p>The FOSS variant does not use Google Play Services. The Play variant may use the Google location provider isolated in its dedicated build flavor. Processing performed by Google Play Services is also governed by the Android/Google platform policies applicable on the device.</p>
+
+          <h2>12. Android permissions</h2>
+          <p>VeVak requests only permissions needed for the selected functions: SMS reception and sending, foreground location, and optionally background location for single-slot refresh. Notifications are not required for the core workflow and VeVak does not use a permanent notification merely to stay active.</p>
+          <p>Permissions can be revoked at any time in Android settings. Some functions will then stop working, but VeVak does not attempt to bypass the operating system’s decision.</p>
+
+          <h2>13. Deletion and retention</h2>
+          <p>Settings stay on the phone until changed, reset or removed by uninstalling the app. The location memory is replaced by the next point, and local request history is capped at twenty generic outcomes.</p>
+          <p>Resetting VeVak deletes settings, counters, emergency-recipient choices and local history managed by the app. Uninstalling removes app-private data according to Android behaviour. User-created <code>.vvk</code> backup files remain where the user saved them until the user deletes them.</p>
+
+          <h2>14. The vevak.lepotager.org website</h2>
+          <p>The public website code includes no analytics platform, advertising code or marketing tracker. It only uses browser local storage, where available, to remember the selected language and whether the accessible presentation is enabled.</p>
+          <p>As with any website, hosting infrastructure may process technical connection data — for example IP address, date/time, requested URL or user-agent — in logs needed for operation and security. VeVak does not turn these logs into user profiles.</p>
+          <p>If you contact us by email or ask to join a testing panel, we receive the information you choose to send. It is used to answer your request or manage the test and may be deleted on request when no legal retention requirement applies.</p>
+
+          <h2>15. Your rights</h2>
+          <p>For data that remains only on your phone, you keep direct control through VeVak, Android, reset or uninstall. For information you send directly to us — for example by email — you may request access, correction or deletion, as well as other applicable rights under the GDPR.</p>
+          <p>You may also lodge a complaint with the competent data-protection authority. In France, this is the CNIL.</p>
+
+          <h2>16. Changes to this policy</h2>
+          <p>This policy may be updated as VeVak evolves. The date at the top identifies the published version. Any material change to collection or sharing behaviour should be reflected here before or when that change becomes available.</p>
+
+          <h2>Technical documentation</h2>
+          <p><a class="text-link" href="https://github.com/jasmin-abernathy/vevak/blob/main/PRIVACY.md">Read the technical privacy documentation →</a></p>
+          <p><a class="text-link" href="https://github.com/jasmin-abernathy/vevak">View the source code →</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <a class="brand footer-brand" href="../"><span class="brand-mark" aria-hidden="true">V</span><span>VeVak</span></a>
+        <p>Open-source project developed in France by Le Potager du Web.</p>
+      </div>
+      <div class="footer-links">
+        <a href="../">Home</a>
+        <a href="https://github.com/jasmin-abernathy/vevak">Source code</a>
+        <a href="../support/">Support</a>
+        <a href="../../confidentialite/" lang="fr">Politique de confidentialité (FR)</a>
+        <a href="https://github.com/jasmin-abernathy/vevak/blob/main/LICENSE">GPL-3.0</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
