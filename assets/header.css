@@ -1,20 +1,19 @@
-/* Header VeVak commun — le header compact de référence est partagé par toutes les pages. */
+/* Header VeVak commun. Le mobile est volontairement minimal : logo, nom, accessibilité, burger. */
 .vevak-common-header .header-inner {
-  min-height: 92px;
+  min-height: 82px;
   gap: 1rem;
 }
 
 .vevak-common-header .brand {
-  gap: .85rem;
-  font-size: 1.65rem;
+  gap: .75rem;
   line-height: 1;
 }
 
 .vevak-common-header .brand-mark {
-  width: 3.5rem;
-  height: 3.5rem;
-  flex-basis: 3.5rem;
-  border-radius: 1rem;
+  width: 3.1rem;
+  height: 3.1rem;
+  flex-basis: 3.1rem;
+  border-radius: .9rem;
 }
 
 .vevak-common-header .brand-copy small {
@@ -26,49 +25,179 @@
   gap: .55rem;
 }
 
-.vevak-common-header .lang-link {
-  width: 3.5rem;
-  height: 3.5rem;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 1.05rem;
-  font-weight: 850;
-  line-height: 1;
-  text-decoration: none;
-}
-
-/* Les actions supplémentaires restent fonctionnelles, mais adoptent le même gabarit compact. */
-.vevak-common-header .a11y-toggle {
-  min-width: 44px;
-  min-height: 44px;
-}
-
+.vevak-common-header .header-icon-button,
 .vevak-common-header .menu-toggle {
-  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
 }
 
-@media (max-width: 620px) {
+.vevak-common-header .header-icon-button::before {
+  content: none !important;
+  display: none !important;
+}
+
+.vevak-common-header .header-icon-button svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.header-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Copie de la langue placée dans le menu mobile. */
+.vevak-common-header .mobile-nav-language {
+  display: none;
+}
+
+@media (max-width: 700px) {
   .vevak-common-header .header-inner {
-    min-height: 94px;
+    min-height: 72px;
+    gap: .45rem;
+    flex-wrap: nowrap;
   }
 
   .vevak-common-header .brand {
-    font-size: 1.7rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: .55rem;
+    font-size: 1.38rem;
+    white-space: nowrap;
+  }
+
+  .vevak-common-header .brand-mark {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: .8rem;
+  }
+
+  .vevak-common-header .brand-copy {
+    min-width: 0;
+    display: block;
+  }
+
+  .vevak-common-header .brand-copy strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vevak-common-header .header-actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+    gap: .35rem;
+  }
+
+  /* Le header mobile contient exactement : logo + VeVak + accessibilité + burger. */
+  .vevak-common-header .header-actions > .lang-link:not(.mobile-nav-language) {
+    display: none !important;
+  }
+
+  .vevak-common-header .a11y-toggle,
+  .vevak-common-header .menu-toggle {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    flex: 0 0 44px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    color: var(--ink) !important;
+    border-radius: 999px !important;
+  }
+
+  .vevak-common-header .menu-toggle {
+    display: flex !important;
+    order: 3;
+  }
+
+  .vevak-common-header .a11y-toggle {
+    order: 2;
+  }
+
+  .vevak-common-header .nav {
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+    padding: .8rem 1rem 1rem;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 18px 36px rgba(23,51,44,.12);
+  }
+
+  .vevak-common-header .nav[data-open="true"] {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .25rem;
+  }
+
+  .vevak-common-header .nav a {
+    min-height: 44px;
+    display: flex !important;
+    align-items: center;
+    padding: .55rem .7rem;
+    border-radius: .6rem;
+  }
+
+  .vevak-common-header .nav .mobile-nav-language {
+    display: flex !important;
+    width: auto;
+    height: auto;
+    border-radius: .6rem;
+    border: 0;
   }
 }
 
-@media (max-width: 390px) {
-  .vevak-common-header .brand {
-    gap: .6rem;
-    font-size: 1.45rem;
+@media (max-width: 360px) {
+  .vevak-common-header .header-inner {
+    width: min(var(--max), calc(100% - 24px));
   }
 
-  .vevak-common-header .brand-mark,
-  .vevak-common-header .lang-link {
-    width: 3rem;
-    height: 3rem;
-    flex-basis: 3rem;
+  .vevak-common-header .brand {
+    font-size: 1.24rem;
+    gap: .45rem;
+  }
+
+  .vevak-common-header .brand-mark {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .vevak-common-header .a11y-toggle,
+  .vevak-common-header .menu-toggle {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    flex-basis: 42px !important;
   }
 }
