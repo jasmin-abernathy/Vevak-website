@@ -1,4 +1,19 @@
 (() => {
+  const header = document.querySelector('[data-site-header]');
+  if (!header) return;
+
+  header.classList.add('vevak-common-header');
+
+  if (!document.querySelector('link[data-vevak-common-header]')) {
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = '/assets/header.css?v=20260914-common-header';
+    stylesheet.dataset.vevakCommonHeader = 'true';
+    document.head.appendChild(stylesheet);
+  }
+})();
+
+(() => {
   const key = 'vevak-lang';
   const root = document.documentElement;
   const current = document.body?.dataset.lang || root.lang || 'fr';
