@@ -1,0 +1,74 @@
+/* Header VeVak commun — le header compact de référence est partagé par toutes les pages. */
+.vevak-common-header .header-inner {
+  min-height: 92px;
+  gap: 1rem;
+}
+
+.vevak-common-header .brand {
+  gap: .85rem;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.vevak-common-header .brand-mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-basis: 3.5rem;
+  border-radius: 1rem;
+}
+
+.vevak-common-header .brand-copy small {
+  display: none;
+}
+
+.vevak-common-header .header-actions {
+  margin-left: auto;
+  gap: .55rem;
+}
+
+.vevak-common-header .lang-link {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.05rem;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+}
+
+/* Les actions supplémentaires restent fonctionnelles, mais adoptent le même gabarit compact. */
+.vevak-common-header .a11y-toggle {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.vevak-common-header .menu-toggle {
+  border-radius: 50%;
+}
+
+@media (max-width: 620px) {
+  .vevak-common-header .header-inner {
+    min-height: 94px;
+  }
+
+  .vevak-common-header .brand {
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .vevak-common-header .brand {
+    gap: .6rem;
+    font-size: 1.45rem;
+  }
+
+  .vevak-common-header .brand-mark,
+  .vevak-common-header .lang-link {
+    width: 3rem;
+    height: 3rem;
+    flex-basis: 3rem;
+  }
+}
