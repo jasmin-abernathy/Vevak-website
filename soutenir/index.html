@@ -73,41 +73,11 @@
         </article>
 
         <section class="support-panel" id="paiement" aria-labelledby="payment-title">
-          <p class="kicker">Choisir un montant</p>
-          <h2 id="payment-title">Un petit coup de pouce 🌱</h2>
-          <p>Tu pourras bientôt choisir l’un de ces montants ou saisir le tien. Le paiement sera traité sur une infrastructure dédiée, sans exposer de secret dans le code public du site.</p>
-
-          <!--
-            Intégration paiement :
-            - ne jamais placer de clé secrète/API ici ;
-            - déclencher le paiement via un endpoint serveur distinct ;
-            - ce dépôt public ne doit contenir que l'interface cliente.
-          -->
-          <form class="support-form" action="#paiement" method="post">
-            <div class="amount-grid" aria-label="Montants suggérés">
-              <div class="amount-choice">
-                <input type="radio" id="amount-2" name="amount" value="2">
-                <label for="amount-2">2 €</label>
-              </div>
-              <div class="amount-choice">
-                <input type="radio" id="amount-5" name="amount" value="5" checked>
-                <label for="amount-5">5 €</label>
-              </div>
-              <div class="amount-choice">
-                <input type="radio" id="amount-10" name="amount" value="10">
-                <label for="amount-10">10 €</label>
-              </div>
-            </div>
-
-            <div class="custom-amount">
-              <label for="custom-amount">Ou un autre montant</label>
-              <input id="custom-amount" name="custom_amount" type="number" min="1" step="1" inputmode="decimal" placeholder="Ex. 15 €">
-            </div>
-
-            <button class="button support-submit" type="button" disabled aria-describedby="payment-status">Paiement bientôt disponible</button>
-            <p class="payment-status" id="payment-status">L’interface est prête ; le module de paiement sécurisé n’est pas encore connecté.</p>
-          </form>
-
+          <p class="kicker">Soutien ponctuel</p>
+          <h2 id="payment-title">Soutenir avec Revolut 🌱</h2>
+          <p>Le montant est libre et se choisit directement sur l’interface sécurisée de Revolut. Aucune coordonnée bancaire ni clé de paiement n’est stockée sur le site de VeVak.</p>
+          <p><a class="button primary support-submit" href="https://revolut.me/advarp" rel="noopener noreferrer">Ouvrir Revolut.me</a></p>
+          <p class="payment-status">Le lien ouvre Revolut.me. Aucun abonnement n’est créé par VeVak.</p>
           <p class="support-note">Les sommes versées sont des soutiens volontaires au projet, sans contrepartie fonctionnelle. Elles sont comptabilisées dans les recettes de l’activité qui porte le développement de VeVak.</p>
         </section>
       </div>
