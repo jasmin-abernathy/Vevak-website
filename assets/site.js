@@ -48,12 +48,17 @@
   if (!toggle) return;
   const key = 'vevak-accessible-mode';
   const isEnglish = document.documentElement.lang === 'en';
+  const labelNode = toggle.querySelector('[data-a11y-label]');
   const apply = enabled => {
-    document.documentElement.dataset.vevakAccessible = String(enabled);
-    toggle.setAttribute('aria-pressed', String(enabled));
-    toggle.textContent = enabled
+    const label = enabled
       ? (isEnglish ? 'Standard version' : 'Version standard')
       : (isEnglish ? 'Accessible version' : 'Version accessible');
+    document.documentElement.dataset.vevakAccessible = String(enabled);
+    toggle.setAttribute('aria-pressed', String(enabled));
+    toggle.setAttribute('aria-label', label);
+    toggle.setAttribute('title', label);
+    if (labelNode) labelNode.textContent = label;
+    else toggle.textContent = label;
   };
   let saved = false;
   try { saved = localStorage.getItem(key) === 'true'; } catch (_) {}

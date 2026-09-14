@@ -178,6 +178,77 @@
   color: var(--leaf-dark);
 }
 
+/* Header compact des pages Soutenir : même silhouette que l'accueil mobile. */
+.support-site-header .header-inner {
+  min-height: 92px;
+  gap: 1rem;
+}
+
+.support-site-header .brand {
+  gap: .85rem;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.support-site-header .brand-mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-basis: 3.5rem;
+  border-radius: 1rem;
+}
+
+.support-site-header .header-actions {
+  margin-left: auto;
+  gap: .55rem;
+}
+
+.support-site-header .lang-link {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.05rem;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.a11y-toggle--icon {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+}
+
+.a11y-toggle--icon::before {
+  display: none !important;
+}
+
+.a11y-toggle--icon .a11y-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 @media (max-width: 920px) {
   .support-layout {
     grid-template-columns: 1fr;
@@ -191,5 +262,33 @@
 @media (max-width: 620px) {
   .amount-grid {
     grid-template-columns: 1fr;
+  }
+
+  .support-site-header .header-inner {
+    min-height: 94px;
+  }
+
+  .support-site-header .brand {
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .support-site-header .brand {
+    gap: .6rem;
+    font-size: 1.45rem;
+  }
+
+  .support-site-header .brand-mark,
+  .support-site-header .lang-link {
+    width: 3rem;
+    height: 3rem;
+    flex-basis: 3rem;
+  }
+
+  .a11y-toggle--icon {
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
   }
 }
