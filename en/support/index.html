@@ -73,41 +73,11 @@
         </article>
 
         <section class="support-panel" id="payment" aria-labelledby="payment-title">
-          <p class="kicker">Choose an amount</p>
-          <h2 id="payment-title">A small boost 🌱</h2>
-          <p>You will soon be able to pick one of these amounts or enter your own. Payment will be handled through a dedicated server-side integration so no secret is exposed in the site's public source code.</p>
-
-          <!--
-            Payment integration:
-            - never put secret/API keys in this file;
-            - start payments through a separate server-side endpoint;
-            - this public repository must contain client-side interface code only.
-          -->
-          <form class="support-form" action="#payment" method="post">
-            <div class="amount-grid" aria-label="Suggested amounts">
-              <div class="amount-choice">
-                <input type="radio" id="amount-2" name="amount" value="2">
-                <label for="amount-2">€2</label>
-              </div>
-              <div class="amount-choice">
-                <input type="radio" id="amount-5" name="amount" value="5" checked>
-                <label for="amount-5">€5</label>
-              </div>
-              <div class="amount-choice">
-                <input type="radio" id="amount-10" name="amount" value="10">
-                <label for="amount-10">€10</label>
-              </div>
-            </div>
-
-            <div class="custom-amount">
-              <label for="custom-amount">Or another amount</label>
-              <input id="custom-amount" name="custom_amount" type="number" min="1" step="1" inputmode="decimal" placeholder="e.g. €15">
-            </div>
-
-            <button class="button support-submit" type="button" disabled aria-describedby="payment-status">Payment coming soon</button>
-            <p class="payment-status" id="payment-status">The interface is ready; the secure payment module has not been connected yet.</p>
-          </form>
-
+          <p class="kicker">One-off support</p>
+          <h2 id="payment-title">Support with Revolut 🌱</h2>
+          <p>Choose any amount directly on Revolut's secure interface. VeVak does not store banking details or payment secrets.</p>
+          <p><a class="button primary support-submit" href="https://revolut.me/jasumino" rel="noopener noreferrer">Open Revolut.me</a></p>
+          <p class="payment-status">The link opens Revolut.me. VeVak does not create a subscription.</p>
           <p class="support-note">Payments are voluntary support for the project, with no functional reward. They are recorded as revenue by the business carrying VeVak's development.</p>
         </section>
       </div>
