@@ -7,9 +7,40 @@
   if (!document.querySelector('link[data-vevak-common-header]')) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = '/assets/header.css?v=20260914-common-header';
+    stylesheet.href = '/assets/header.css?v=20260914-mobile-header-v3';
     stylesheet.dataset.vevakCommonHeader = 'true';
     document.head.appendChild(stylesheet);
+  }
+
+  const actions = header.querySelector('.header-actions');
+  const nav = header.querySelector('[data-site-nav]');
+  const accessibility = header.querySelector('[data-vevak-accessibility-toggle]');
+  const menu = header.querySelector('[data-site-menu-toggle]');
+  const language = header.querySelector('.lang-link[data-lang-choice]');
+
+  if (accessibility) {
+    accessibility.classList.add('header-icon-button');
+    accessibility.innerHTML = `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="9"></circle>
+        <circle cx="12" cy="7" r="1.6"></circle>
+        <path d="M7.5 10h9"></path>
+        <path d="M12 10v4.2"></path>
+        <path d="M12 14.2l-3 4"></path>
+        <path d="M12 14.2l3 4"></path>
+      </svg>
+      <span class="header-visually-hidden" data-a11y-label></span>`;
+  }
+
+  if (nav && language && !nav.querySelector('.mobile-nav-language')) {
+    const mobileLanguage = language.cloneNode(true);
+    mobileLanguage.classList.add('mobile-nav-language');
+    nav.appendChild(mobileLanguage);
+  }
+
+  if (actions && menu) {
+    if (accessibility) actions.insertBefore(accessibility, menu);
+    actions.appendChild(menu);
   }
 })();
 
@@ -73,7 +104,6 @@
     toggle.setAttribute('aria-label', label);
     toggle.setAttribute('title', label);
     if (labelNode) labelNode.textContent = label;
-    else toggle.textContent = label;
   };
   let saved = false;
   try { saved = localStorage.getItem(key) === 'true'; } catch (_) {}
@@ -97,6 +127,9 @@
     toggle.addEventListener('click', () => {
       const open = toggle.getAttribute('aria-expanded') !== 'true';
       toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open
+        ? (document.documentElement.lang === 'en' ? 'Close menu' : 'Fermer le menu')
+        : (document.documentElement.lang === 'en' ? 'Open menu' : 'Ouvrir le menu'));
       nav.dataset.open = String(open);
     });
     nav.addEventListener('click', (event) => {
