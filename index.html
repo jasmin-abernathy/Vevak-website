@@ -10,9 +10,11 @@
   <link rel="canonical" href="https://vevak.lepotager.org/">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/tester-form.css?v=20260915">
   <link rel="alternate" hreflang="fr" href="https://vevak.lepotager.org/">
   <link rel="alternate" hreflang="en" href="https://vevak.lepotager.org/en/">
   <script defer src="assets/site.js?v=20260912-beta-home"></script>
+  <script defer src="assets/tester-form.js?v=20260915"></script>
 </head>
 <body data-lang="fr">
   <a class="skip-link" href="#main">Aller au contenu</a>
@@ -52,11 +54,11 @@
           <h1>Demander une position par SMS.<br><span>Sans compte cloud obligatoire.</span></h1>
           <p class="lead">VeVak permet à plusieurs contacts de confiance, autorisés individuellement et pour une durée limitée, de demander votre position par SMS. Vous pouvez aussi partager vous-même une position unique. Le traitement reste local sur le téléphone et VeVak ne suit pas vos déplacements en permanence.</p>
           <div class="actions">
-            <a class="button primary" href="https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-beta.apk" rel="noopener noreferrer" referrerpolicy="no-referrer">Télécharger la bêta Android (APK)</a>
+            <a class="button primary" href="#devenir-testeur">Devenir testeur</a>
             <a class="button secondary" href="https://github.com/jasmin-abernathy/vevak">Voir le code sur GitHub</a>
             <a class="button secondary" href="#fonctionnement">Comprendre en 1 minute</a>
           </div>
-          <p class="lead-small">Bêta FOSS publique · VeVak 0.3.14 · installation hors Google Play pour les premiers tests sur téléphone réel. <a href="https://github.com/jasmin-abernathy/vevak/releases/tag/beta">Détails de la release et empreinte →</a></p>
+          <p class="lead-small">VeVak entre dans une phase de tests sur Google Play. L’inscription au panel se fait directement plus bas sur cette page.</p>
           <ul class="chips" aria-label="Principes clés">
             <li>Open source</li>
             <li>Local-first</li>
@@ -234,7 +236,8 @@
           <p>Les contributions les plus utiles aujourd’hui concernent les tests Android, les SMS, les appareils double-SIM, l’accessibilité, les restrictions constructeurs, la sécurité et la documentation.</p>
         </div>
         <div class="participate-actions">
-          <a class="button primary" href="https://github.com/jasmin-abernathy/vevak/issues">Voir les tâches ouvertes</a>
+          <a class="button primary" href="#devenir-testeur" data-play-panel-signup>Devenir testeur Google Play</a>
+          <a class="button secondary" href="https://github.com/jasmin-abernathy/vevak/issues">Voir les tâches ouvertes</a>
           <a class="button secondary" href="https://github.com/jasmin-abernathy/vevak/blob/main/CONTRIBUTING.md">Guide de contribution</a>
           <a class="button secondary" href="./soutenir/">Soutenir financièrement VeVak</a>
           <a class="text-link" href="https://github.com/jasmin-abernathy/vevak/blob/main/PRIVACY.md">Lire les principes de confidentialité →</a>
@@ -242,14 +245,42 @@
       </div>
     </section>
 
-    <section class="section final-cta">
-      <div class="wrap final-card">
-        <p class="kicker">Version actuelle · bêta 0.3.14</p>
-        <h2>Vous pouvez maintenant tester VeVak directement sur Android.</h2>
-        <p>Cette APK FOSS est une préversion destinée aux essais sur appareils réels. Android peut demander d’autoriser temporairement l’installation depuis votre navigateur ou gestionnaire de fichiers. Ne désactivez pas Play Protect.</p>
-        <div class="actions">
-          <a class="button primary" href="https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-beta.apk" rel="noopener noreferrer" referrerpolicy="no-referrer">Télécharger VeVak 0.3.14 bêta</a>
-          <a class="button secondary" href="https://github.com/jasmin-abernathy/vevak/releases/tag/beta">Voir la release GitHub</a>
+    <section class="section final-cta tester-signup-section" id="devenir-testeur">
+      <div class="wrap tester-signup-grid">
+        <div>
+          <p class="kicker">Tests Google Play</p>
+          <h2>Deviens testeur de VeVak</h2>
+          <p>Tu souhaites essayer VeVak sur Android et aider à l’améliorer ? Laisse l’adresse e-mail du compte Google que tu utilises dans Google Play pour demander à rejoindre les tests.</p>
+          <p class="tester-followup"><strong>L’envoi de ce formulaire ne donne pas immédiatement accès au test.</strong> Une fois ta demande traitée, tu recevras les indications pour rejoindre le programme sur Google Play.</p>
+        </div>
+
+        <div class="tester-card">
+          <form class="tester-form" action="/assets/tester-submit.php" method="post" data-tester-form novalidate>
+            <div class="tester-field">
+              <label for="tester-email">Adresse e-mail de ton compte Google Play</label>
+              <input id="tester-email" name="email" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" maxlength="254" aria-describedby="tester-email-help" required>
+              <p class="tester-help-text" id="tester-email-help">Utilise l’adresse du compte sélectionné dans le Play Store sur ton téléphone. Elle n’est pas forcément une adresse Gmail.</p>
+            </div>
+
+            <details class="tester-help">
+              <summary>Où trouver cette adresse ?</summary>
+              <p>Ouvre Google Play sur ton téléphone, touche ta photo de profil ou ton initiale en haut à droite, puis ouvre le sélecteur de compte. L’adresse du compte utilisé par le Play Store y est affichée. VeVak ne vérifie pas l’existence d’un compte Google à partir de l’adresse saisie.</p>
+            </details>
+
+            <label class="tester-consent">
+              <input type="checkbox" name="consent" value="1" required>
+              <span>J’accepte que mon adresse soit utilisée pour gérer ma participation aux tests de VeVak et me contacter à ce sujet.</span>
+            </label>
+
+            <div class="tester-trap" aria-hidden="true">
+              <label for="tester-website">Site web</label>
+              <input id="tester-website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <button class="button primary" type="submit">Demander à rejoindre les tests</button>
+            <p class="tester-status" data-tester-status role="status" aria-live="polite" hidden></p>
+            <p class="tester-privacy-note">Cette adresse sert uniquement à gérer le test : aucun abonnement marketing ni ajout automatique à une campagne. <a href="./confidentialite/">Lire la politique de confidentialité</a>.</p>
+          </form>
         </div>
       </div>
     </section>
