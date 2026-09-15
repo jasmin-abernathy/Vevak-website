@@ -1,15 +1,114 @@
 (() => {
-  const WIZARD_KEY = 'vevak-tester-install-v2';
+  const WIZARD_KEY = 'vevak-tester-install-v3';
   const TEST_KEY = 'vevak-tester-checklist-v2';
   const BETA_RELEASE_API = 'https://api.github.com/repos/jasmin-abernathy/vevak/releases/tags/beta';
   const BETA_APK_FALLBACK = 'https://github.com/jasmin-abernathy/vevak/releases/download/beta/VeVak-beta.apk';
+
+  document.documentElement.classList.add('js');
+
+  if (!document.querySelector('link[data-tester-layout]')) {
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = 'test-layout.css?v=20260915';
+    stylesheet.dataset.testerLayout = 'true';
+    document.head.appendChild(stylesheet);
+  }
+
+  const downloadSection = document.getElementById('telechargement');
+  const downloadCard = downloadSection?.querySelector('.download-card');
+  const firstStepCopy = document.querySelector('[data-step][data-short-title="Télécharger le fichier"] .step-copy');
+  const currentApkCopy = document.querySelector('[data-current-apk-copy]');
+  const openApkCopy = document.querySelector('[data-open-apk-copy]');
+
+  if (downloadCard && firstStepCopy) {
+    downloadCard.classList.add('download-card-inline');
+
+    const kicker = downloadCard.querySelector('.kicker');
+    const heading = downloadCard.querySelector('h2');
+    const lead = downloadCard.querySelector('.lead-small');
+    const redundantLink = downloadCard.querySelector('.actions .button.secondary');
+
+    if (kicker) kicker.textContent = 'APK bêta officielle';
+    if (heading) heading.textContent = 'Télécharger VeVak';
+    if (lead) lead.textContent = 'Télécharge ici la dernière APK FOSS publiée sur la release bêta officielle. Le bouton est mis à jour automatiquement.';
+    redundantLink?.remove();
+
+    const androidMessage = firstStepCopy.querySelector('.android-message');
+    firstStepCopy.insertBefore(downloadCard, androidMessage || null);
+    downloadSection.remove();
+
+    const firstNavLink = document.querySelector('[data-site-nav] a[href="#telechargement"]');
+    if (firstNavLink) {
+      firstNavLink.href = '#installation';
+      firstNavLink.textContent = 'Installer';
+    }
+
+    const pills = document.querySelector('.hero-pills');
+    if (pills) {
+      pills.innerHTML = '<span>1 · Installer</span><span>2 · Paramétrer</span><span>3 · Tester</span>';
+    }
+  }
+
+  if (currentApkCopy) {
+    currentApkCopy.innerHTML = 'Commence par télécharger l’APK directement dans cette étape. Le fichier porte un nom versionné du type <code>VeVak-x.y.z-foss-beta-xxxxxxx.apk</code>.';
+  }
+
+  // Mise à jour du tutoriel : un avertissement de provenance ou une analyse Play Protect
+  // n’est pas équivalent à une détection de logiciel malveillant.
+  const installStep = document.querySelector('[data-step][data-short-title="Installer VeVak"]');
+  const playProtectStep = document.querySelector('[data-step][data-short-title="Vérifier Play Protect"]');
+
+  if (installStep) {
+    const message = installStep.querySelector('.android-message');
+    if (message) {
+      message.innerHTML = '<span aria-hidden="true">🛡️</span><div><strong>Play Protect peut analyser l’APK ou rappeler qu’elle vient d’une source externe.</strong><br>Laisse l’analyse se terminer. Si Android ne détecte aucune menace et propose ensuite <strong>Installer</strong> ou <strong>Installer quand même</strong>, tu peux poursuivre.</div>';
+    }
+  }
+
+  if (playProtectStep) {
+    const title = playProtectStep.querySelector('h3');
+    const ok = playProtectStep.querySelector('.decision.ok');
+    const stop = playProtectStep.querySelector('.decision.stop');
+    if (title) title.textContent = 'Lis le message avant de décider';
+    if (ok) ok.innerHTML = '<strong>✅ Source externe / application inconnue / analyse proposée ou terminée sans menace</strong><span>Tu peux continuer avec l’action d’installation qu’Android te propose.</span>';
+    if (stop) stop.innerHTML = '<strong>🛑 Application dangereuse, malveillante ou menace détectée</strong><span>Arrête le test, ne désactive pas Play Protect et fais une capture du message.</span>';
+  }
+
+  // L’onboarding actuel contient Maison puis 6 étapes, dont l’urgence facultative.
+  const setupHeading = document.querySelector('#parametrage .section-heading h2');
+  if (setupHeading) setupHeading.textContent = 'Le parcours actuel : Maison, puis 6 étapes.';
+
+  const setupCards = [...document.querySelectorAll('#parametrage .permission-card')];
+  if (setupCards.length >= 6) {
+    const permissionsCard = setupCards[4];
+    const consentCard = setupCards[5];
+    const permissionsTitle = permissionsCard.querySelector('h3');
+    const permissionsText = permissionsCard.querySelector('p');
+    const consentTitle = consentCard.querySelector('h3');
+    const consentText = consentCard.querySelector('p');
+
+    if (permissionsTitle) permissionsTitle.textContent = '4/6 · Autorisations';
+    if (permissionsText) permissionsText.innerHTML = 'SMS et localisation ponctuelle. Les notifications ne sont jamais nécessaires au fonctionnement normal. Si la mémoire mono-point est activée, Android peut aussi demander explicitement la localisation en arrière-plan.';
+
+    const emergencyCard = document.createElement('article');
+    emergencyCard.className = 'card permission-card';
+    emergencyCard.innerHTML = '<span aria-hidden="true">🆘</span><h3>5/6 · Urgence facultative</h3><p>Choisis explicitement les destinataires de l’urgence. Le raccourci d’accueil et la tuile Android sont facultatifs. Tu peux aussi continuer sans activer l’urgence.</p>';
+    consentCard.before(emergencyCard);
+
+    if (consentTitle) consentTitle.textContent = '6/6 · Autorisation du contact';
+    if (consentText) consentText.textContent = 'Choisis 24 h, 7 jours ou 30 jours puis confirme explicitement l’accès. VeVak devient actif seulement après cette validation.';
+  }
+
+  const manualCheck = document.querySelector('[data-test-check="manual"]')?.closest('label');
+  const manualSmall = manualCheck?.querySelector('small');
+  if (manualSmall) {
+    manualSmall.textContent = 'Le partage volontaire demande confirmation et utilise le même resolver que les SMS : position Android, Maison, estimation réseau si activée, puis mémoire mono-point.';
+  }
 
   const downloadLink = document.querySelector('[data-download]');
   const betaStatus = document.querySelector('[data-beta-status]');
   const downloadMeta = document.querySelector('[data-download-meta]');
   const digestMeta = document.querySelector('[data-download-digest]');
-  const currentApkCopy = document.querySelector('[data-current-apk-copy]');
-  const openApkCopy = document.querySelector('[data-open-apk-copy]');
 
   if (downloadLink) {
     fetch(BETA_RELEASE_API, {
@@ -48,7 +147,7 @@
         }
 
         if (currentApkCopy) {
-          currentApkCopy.innerHTML = `Utilise le bouton de téléchargement plus haut. Pour cette bêta, le fichier attendu est <code>${escapeHtml(apk.name)}</code>.`;
+          currentApkCopy.innerHTML = `Télécharge l’APK ci-dessous. Pour cette bêta, le fichier attendu est <code>${escapeHtml(apk.name)}</code>.`;
         }
         if (openApkCopy) {
           openApkCopy.innerHTML = `Ouvre la notification de téléchargement ou le dossier <strong>Téléchargements</strong>, puis touche <code>${escapeHtml(apk.name)}</code>.`;
@@ -56,16 +155,15 @@
       })
       .catch(() => {
         downloadLink.href = BETA_APK_FALLBACK;
-        downloadLink.textContent = '📱 Télécharger directement VeVak 0.3.13';
-        if (betaStatus) betaStatus.innerHTML = '<strong>Dernière bêta :</strong> VeVak 0.3.13';
-        if (downloadMeta) downloadMeta.innerHTML = '<strong>Version :</strong> VeVak 0.3.13 · APK FOSS validée par la CI<br><strong>Source :</strong> release GitHub officielle <code>beta</code>.';
+        downloadLink.textContent = '📱 Télécharger la bêta VeVak';
+        if (betaStatus) betaStatus.innerHTML = '<strong>Dernière bêta :</strong> release GitHub <code>beta</code>';
+        if (downloadMeta) downloadMeta.innerHTML = '<strong>Source :</strong> release GitHub officielle <code>beta</code>.';
         if (digestMeta) digestMeta.textContent = '';
       });
   }
 
   const wizard = document.querySelector('[data-wizard]');
   if (wizard) {
-    document.documentElement.classList.add('js');
     const steps = [...wizard.querySelectorAll('[data-step]')];
     const prev = wizard.querySelector('[data-prev]');
     const next = wizard.querySelector('[data-next]');
