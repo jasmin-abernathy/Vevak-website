@@ -47,7 +47,7 @@ jobs:
           ! grep -q 'VeVak-beta.apk' index.html
           ! grep -q 'VeVak-beta.apk' en/index.html
           grep -q 'REMOTE_USER' test/admin-testers.php
-          grep -q 'testeurs-google-play' confidentialite/testeurs-google-play.html
+          grep -q 'Confidentialité des demandes de test' confidentialite/testeurs-google-play.html
 
       - name: Storage, duplicate and delete test
         run: |
@@ -84,7 +84,7 @@ jobs:
 
           code=$(curl -sS -o /tmp/valid.json -w '%{http_code}' -H 'Accept: application/json' -X POST -d 'email=tester-ci@proton.me&consent=1' http://127.0.0.1:8099/assets/tester-submit.php)
           test "$code" = '200'
-          grep -q 'demande a bien été prise en compte\|demande a bien' /tmp/valid.json || grep -q 'demande a bien' /tmp/valid.json
+          grep -q 'demande a bien été prise en compte' /tmp/valid.json
 
           code=$(curl -sS -o /tmp/duplicate.json -w '%{http_code}' -H 'Accept: application/json' -X POST -d 'email=tester-ci@proton.me&consent=1' http://127.0.0.1:8099/assets/tester-submit.php)
           test "$code" = '200'
