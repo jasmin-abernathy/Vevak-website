@@ -1,0 +1,243 @@
+/* Correctifs de mise en page de la page test VeVak.
+   Chargé par test.js pour préserver le fallback HTML sans JavaScript. */
+
+#installation .wizard-wrap,
+#parametrage .test-flow,
+#test .test-flow {
+  min-width: 0;
+}
+
+.install-step,
+.step-copy,
+.download-card,
+.android-message > div,
+.path-box > div,
+.decision,
+.tester-checklist label,
+.tester-checklist label span {
+  min-width: 0;
+}
+
+.step-copy code,
+.tester-meta code,
+.android-message code,
+.path-box code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.download-card.download-card-inline {
+  margin: 1.25rem 0;
+  padding: 1.2rem;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.download-card.download-card-inline h2 {
+  max-width: none;
+  margin-bottom: .65rem;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+}
+
+.download-card.download-card-inline .lead-small {
+  margin-top: 0;
+  font-size: .98rem;
+}
+
+.download-card.download-card-inline .actions {
+  margin: 1rem 0;
+}
+
+.download-card.download-card-inline .download-button {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .tester-hero {
+    padding: 2.6rem 0 2rem;
+  }
+
+  .tester-hero h1 {
+    max-width: 100%;
+    font-size: clamp(2.35rem, 12vw, 3.4rem);
+  }
+
+  .tester-hero .lead {
+    margin-bottom: 1.35rem;
+    font-size: 1rem;
+  }
+
+  .hero-pills {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem;
+    margin-top: 1.15rem;
+  }
+
+  .hero-pills span {
+    min-width: 0;
+    padding: .55rem .65rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  #installation.section,
+  #parametrage.section,
+  #test.section {
+    padding: 2.75rem 0;
+  }
+
+  .wizard-heading,
+  .section-heading {
+    margin-bottom: 1.5rem;
+  }
+
+  .wizard-heading h2,
+  .section-heading h2 {
+    font-size: clamp(1.9rem, 9vw, 2.65rem);
+  }
+
+  .wizard-shell {
+    border-radius: 16px;
+  }
+
+  .wizard-stage {
+    min-height: 0 !important;
+  }
+
+  .install-step,
+  .js .install-step.is-active {
+    grid-template-columns: 1fr;
+    gap: .65rem;
+    padding: 1.15rem;
+  }
+
+  .step-visual {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: .7rem;
+    padding-top: 0;
+  }
+
+  .step-visual > span:first-child {
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+
+  .step-copy h3 {
+    font-size: clamp(1.55rem, 7vw, 2.15rem);
+  }
+
+  .android-message,
+  .normal-box,
+  .path-box,
+  .help-box {
+    margin: .8rem 0;
+    padding: .9rem;
+  }
+
+  .wizard-topbar {
+    padding: .9rem 1rem;
+  }
+
+  .wizard-controls {
+    gap: .65rem;
+    padding: .85rem;
+  }
+
+  .wizard-controls .button {
+    min-width: 0;
+    padding-inline: .65rem;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .tester-callout,
+  .tester-warning {
+    padding: 1rem;
+  }
+
+  .tester-checklist label {
+    padding: .9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-pills {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-topbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .55rem;
+  }
+
+  .wizard-reset {
+    justify-self: start;
+    padding: 0;
+  }
+
+  .wizard-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-dots {
+    grid-column: 1;
+    grid-row: auto;
+    order: 0;
+    margin-bottom: .15rem;
+  }
+
+  .wizard-back,
+  .wizard-next {
+    width: 100%;
+  }
+
+  .download-card.download-card-inline {
+    margin-inline: 0;
+    padding: 1rem;
+  }
+
+  .download-card.download-card-inline .actions,
+  .download-card.download-card-inline .actions .button {
+    width: 100%;
+  }
+
+  .android-message,
+  .path-box {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .6rem;
+  }
+
+  .test-progress-card > div:first-child {
+    display: grid;
+    gap: .25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .install-step,
+  .js .install-step.is-active {
+    padding: .95rem;
+  }
+
+  .wizard-controls {
+    padding: .75rem;
+  }
+
+  .tester-checklist label {
+    grid-template-columns: 1.15rem minmax(0, 1fr);
+    gap: .7rem;
+  }
+
+  .tester-checklist input {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}
