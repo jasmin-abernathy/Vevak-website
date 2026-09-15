@@ -53,8 +53,6 @@
     currentApkCopy.innerHTML = 'Commence par télécharger l’APK directement dans cette étape. Le fichier porte un nom versionné du type <code>VeVak-x.y.z-foss-beta-xxxxxxx.apk</code>.';
   }
 
-  // Mise à jour du tutoriel : un avertissement de provenance ou une analyse Play Protect
-  // n’est pas équivalent à une détection de logiciel malveillant.
   const installStep = document.querySelector('[data-step][data-short-title="Installer VeVak"]');
   const playProtectStep = document.querySelector('[data-step][data-short-title="Vérifier Play Protect"]');
 
@@ -74,7 +72,6 @@
     if (stop) stop.innerHTML = '<strong>🛑 Application dangereuse, malveillante ou menace détectée</strong><span>Arrête le test, ne désactive pas Play Protect et fais une capture du message.</span>';
   }
 
-  // L’onboarding actuel contient Maison puis 6 étapes, dont l’urgence facultative.
   const setupHeading = document.querySelector('#parametrage .section-heading h2');
   if (setupHeading) setupHeading.textContent = 'Le parcours actuel : Maison, puis 6 étapes.';
 
@@ -132,9 +129,12 @@
         downloadLink.setAttribute('referrerpolicy', 'no-referrer');
 
         const releaseName = release.name || 'VeVak bêta';
-        if (betaStatus) betaStatus.innerHTML = `<strong>Dernière bêta :</strong> ${escapeHtml(releaseName)}`;
+        const releaseDateSource = apk.created_at || release.updated_at || release.published_at || release.created_at;
+        const releaseDate = formatReleaseDate(releaseDateSource);
+
+        if (betaStatus) betaStatus.innerHTML = `<strong>Dernière bêta :</strong> ${escapeHtml(releaseName)}${releaseDate ? ` · ${escapeHtml(releaseDate)}` : ''}`;
         if (downloadMeta) {
-          downloadMeta.innerHTML = `<strong>Release :</strong> ${escapeHtml(releaseName)}<br><strong>Fichier exact :</strong> <code>${escapeHtml(apk.name)}</code>`;
+          downloadMeta.innerHTML = `<strong>Release :</strong> ${escapeHtml(releaseName)}${releaseDate ? `<br><strong>Date de release :</strong> ${escapeHtml(releaseDate)}` : ''}<br><strong>Fichier exact :</strong> <code>${escapeHtml(apk.name)}</code>`;
         }
 
         const digest = typeof apk.digest === 'string' && apk.digest.startsWith('sha256:')
@@ -290,6 +290,18 @@
     }
 
     renderChecks();
+  }
+
+  function formatReleaseDate(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/Paris'
+    }).format(date);
   }
 
   function escapeHtml(value) {
