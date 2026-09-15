@@ -1,0 +1,104 @@
+name: Tester registration CI
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'assets/tester-*'
+      - 'test/admin-testers.php'
+      - 'confidentialite/testeurs-google-play.html'
+      - 'TESTER_REGISTRATION.md'
+      - '.github/workflows/tester-registration-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'assets/tester-*'
+      - 'test/admin-testers.php'
+      - 'confidentialite/testeurs-google-play.html'
+      - 'TESTER_REGISTRATION.md'
+      - '.github/workflows/tester-registration-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  tester-registration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax checks
+        run: |
+          php -l assets/tester-storage.php
+          php -l assets/tester-submit.php
+          php -l test/admin-testers.php
+          node --check assets/tester-form.js
+
+      - name: Homepage contract
+        run: |
+          grep -q 'id="devenir-testeur"' index.html
+          grep -q 'name="email" type="email"' index.html
+          grep -q 'name="consent" value="1"' index.html
+          grep -q 'data-play-panel-signup' index.html
+          ! grep -q 'VeVak-beta.apk' index.html
+          ! grep -q 'VeVak-beta.apk' en/index.html
+          grep -q 'REMOTE_USER' test/admin-testers.php
+          grep -q 'Confidentialité des demandes de test' confidentialite/testeurs-google-play.html
+
+      - name: Storage, duplicate and delete test
+        run: |
+          tmpdir="$(mktemp -d)"
+          export VEVAK_TESTERS_STORAGE_DIR="$tmpdir"
+          php -r '
+            require "assets/tester-storage.php";
+            vv_register_tester("tester+ci@proton.me");
+            vv_register_tester("tester+ci@proton.me");
+            $rows = vv_get_testers();
+            if (count($rows) !== 1) { fwrite(STDERR, "duplicate failure\n"); exit(1); }
+            if ($rows[0]["email"] !== "tester+ci@proton.me") { fwrite(STDERR, "email altered\n"); exit(1); }
+            if (!vv_delete_tester($rows[0]["key"])) { fwrite(STDERR, "delete failure\n"); exit(1); }
+            if (count(vv_get_testers()) !== 0) { fwrite(STDERR, "cleanup failure\n"); exit(1); }
+          '
+          rm -rf "$tmpdir"
+
+      - name: HTTP behaviour without external messages
+        run: |
+          tmpdir="$(mktemp -d)"
+          export VEVAK_TESTERS_STORAGE_DIR="$tmpdir"
+          php -S 127.0.0.1:8099 -t . >/tmp/vevak-php.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid 2>/dev/null || true; rm -rf "$tmpdir"' EXIT
+          sleep 1
+
+          code=$(curl -sS -o /tmp/invalid.json -w '%{http_code}' -H 'Accept: application/json' -X POST -d 'email=not-an-email&consent=1' http://127.0.0.1:8099/assets/tester-submit.php)
+          test "$code" = '422'
+          grep -q 'Vérifie ton adresse e-mail' /tmp/invalid.json
+
+          code=$(curl -sS -o /tmp/missing.json -w '%{http_code}' -H 'Accept: application/json' -X POST -d 'email=tester-ci@proton.me' http://127.0.0.1:8099/assets/tester-submit.php)
+          test "$code" = '422'
+          grep -q 'Confirme que tu souhaites' /tmp/missing.json
+
+          code=$(curl -sS -o /tmp/valid.json -w '%{http_code}' -H 'Accept: application/json' -X POST -d 'email=tester-ci@proton.me&consent=1' http://127.0.0.1:8099/assets/tester-submit.php)
+          test "$code" = '200'
+          grep -q 'demande a bien été prise en compte' /tmp/valid.json
+
+          code=$(curl -sS -o /tmp/duplicate.json -w '%{http_code}' -H 'Accept: application/json' -X POST -d 'email=tester-ci@proton.me&consent=1' http://127.0.0.1:8099/assets/tester-submit.php)
+          test "$code" = '200'
+
+          code=$(curl -sS -o /tmp/nojs.html -w '%{http_code}' -X POST -d 'email=tester-ci@proton.me&consent=1' http://127.0.0.1:8099/assets/tester-submit.php)
+          test "$code" = '200'
+          grep -q 'Demande enregistrée' /tmp/nojs.html
+
+          code=$(curl -sS -o /tmp/admin.txt -w '%{http_code}' http://127.0.0.1:8099/test/admin-testers.php)
+          test "$code" = '403'
+
+          VEVAK_TESTERS_STORAGE_DIR="$tmpdir" php -r '
+            require "assets/tester-storage.php";
+            $rows = vv_get_testers();
+            if (count($rows) !== 1) { fwrite(STDERR, "HTTP duplicate failure\n"); exit(1); }
+            vv_delete_tester($rows[0]["key"]);
+          '
