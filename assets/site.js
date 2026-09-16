@@ -4,10 +4,15 @@
 
   header.classList.add('vevak-common-header');
 
+  const pagePath = location.pathname.replace(/\/index\.html$/, '/');
+  if (pagePath === '/' || pagePath === '/en/') {
+    header.querySelector('[data-site-context]')?.remove();
+  }
+
   if (!document.querySelector('link[data-vevak-common-header]')) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = '/assets/header.css?v=20260914-mobile-header-v3';
+    stylesheet.href = '/assets/header.css?v=20260916-header-v4';
     stylesheet.dataset.vevakCommonHeader = 'true';
     document.head.appendChild(stylesheet);
   }
@@ -22,12 +27,10 @@
     accessibility.classList.add('header-icon-button');
     accessibility.innerHTML = `
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <circle cx="12" cy="12" r="9"></circle>
-        <circle cx="12" cy="7" r="1.6"></circle>
-        <path d="M7.5 10h9"></path>
-        <path d="M12 10v4.2"></path>
-        <path d="M12 14.2l-3 4"></path>
-        <path d="M12 14.2l3 4"></path>
+        <circle cx="12" cy="5.4" r="1.65"></circle>
+        <path d="M5.6 9.25c1.85 1 4.02 1.5 6.4 1.5s4.55-.5 6.4-1.5"></path>
+        <path d="M12 10.75v3.1"></path>
+        <path d="M9.15 19.25 12 13.85l2.85 5.4"></path>
       </svg>
       <span class="header-visually-hidden" data-a11y-label></span>`;
   }
@@ -66,8 +69,7 @@
     }
   }
 
-  // Direct APK testing now starts from the public home page. Keep the optional
-  // Google Play closed-test registration available as a secondary path.
+  // Keep Google Play tester registration available as the public testing path.
   if (current === 'fr') {
     const actions = document.querySelector('.participate-actions');
 
