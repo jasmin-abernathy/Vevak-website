@@ -70,6 +70,7 @@ if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
 fi
 
 STAGE="$(mktemp -d "$HOME/.cache/vevak-stage.XXXXXX")"
+chmod 755 "$STAGE"
 trap 'rm -rf "$STAGE"' EXIT
 
 for path in index.html .nojekyll robots.txt sitemap.xml assets en soutenir test; do
