@@ -292,3 +292,28 @@
     min-height: 42px;
   }
 }
+
+
+/* Stancer contribution form */
+.amount-button{
+  min-height:76px;
+  border:1px solid rgba(255,255,255,.32);
+  border-radius:var(--radius-sm);
+  background:rgba(255,255,255,.06);
+  color:var(--white);
+  font:inherit;
+  font-size:1.2rem;
+  font-weight:850;
+  cursor:pointer;
+}
+.amount-button:hover,.amount-button:focus-visible{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.7);
+  outline:3px solid var(--signal);
+  outline-offset:3px;
+}
+.custom-amount small{display:block;margin-top:.45rem;color:rgba(255,255,255,.62)}
+.support-submit{cursor:pointer;opacity:1}
+.support-alt{margin-top:1rem!important;font-size:.88rem}
+.support-alt a{color:#d8efe6;text-underline-offset:3px}
+.contribution-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}

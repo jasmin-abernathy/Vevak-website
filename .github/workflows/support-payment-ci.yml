@@ -1,0 +1,39 @@
+name: Support payment CI
+
+on:
+  push:
+    paths:
+      - 'soutenir/**'
+      - 'en/support/**'
+      - 'assets/support.css'
+      - '.github/workflows/support-payment-ci.yml'
+  pull_request:
+    paths:
+      - 'soutenir/**'
+      - 'en/support/**'
+      - 'assets/support.css'
+      - '.github/workflows/support-payment-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  support-payment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - name: PHP syntax
+        run: find soutenir -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Shared Stancer contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "/home/sc1leja3715/stancer-private/private/stancer-config.php" soutenir/stancer-contribution.php
+          grep -Fq "payment.stancer.com" soutenir/paiement.php
+          grep -Fq 'placeholder="1"' soutenir/index.html
+          ! grep -RInE 's(test|prod)_[A-Za-z0-9]{20,}' soutenir en/support
