@@ -86,6 +86,5 @@ mv "$STATE.tmp" "$STATE"
 chmod 600 "$STATE"
 
 rmdir "$BACKUP_DIR" 2>/dev/null || true
-find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
 
 log "VeVak déployé: ${COMMIT:0:12}"
