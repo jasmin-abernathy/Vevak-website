@@ -31,6 +31,15 @@ fail() {
   exit 1
 }
 
+check_http() {
+  command -v curl >/dev/null 2>&1 || return 0
+  for url in "$SITE_URL/" "$SITE_URL/soutenir/"; do
+    code="$(curl -LsS --max-time 20 -o /dev/null -w '%{http_code}' "$url" || true)"
+    [[ "$code" == "200" ]] || fail "$url répond HTTP $code."
+  done
+  log "Contrôle HTTP: OK"
+}
+
 [[ -d "$REPO/.git" ]] || fail "Dépôt Git introuvable: $REPO"
 [[ -d "$LIVE" ]] || fail "DocumentRoot introuvable: $LIVE"
 [[ "$LIVE" == "$HOME/public_html/VeVak" ]] || fail "Destination inattendue: $LIVE"
@@ -55,6 +64,7 @@ fi
 
 COMMIT="$(git -C "$REPO" rev-parse HEAD)"
 if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
+  check_http
   log "Aucun nouveau commit."
   exit 0
 fi
@@ -74,12 +84,7 @@ mkdir -p "$BACKUP_DIR"
 log "Déploiement sécurisé vers $LIVE..."
 rsync -a --delete-delay   --backup --backup-dir="$BACKUP_DIR"   --exclude='.htaccess'   --exclude='.htpasswd'   --exclude='.well-known/'   --exclude='api/'   --exclude='cgi-bin/'   --exclude='test/files/'   "$STAGE/" "$LIVE/"
 
-if command -v curl >/dev/null 2>&1; then
-  for url in "$SITE_URL/" "$SITE_URL/soutenir/"; do
-    code="$(curl -LsS --max-time 20 -o /dev/null -w '%{http_code}' "$url" || true)"
-    [[ "$code" == "200" ]] || fail "$url répond HTTP $code après déploiement."
-  done
-fi
+check_http
 
 printf '%s\n' "$COMMIT" > "$STATE.tmp"
 mv "$STATE.tmp" "$STATE"
