@@ -9,10 +9,12 @@
   <title>VeVak — Location by SMS, under your control</title>
   <link rel="canonical" href="https://vevak.lepotager.org/en/">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260918-a11y-v2">
+  <link rel="stylesheet" href="../assets/header.css?v=20260918-a11y-v2" data-vevak-common-header>
   <link rel="alternate" hreflang="fr" href="https://vevak.lepotager.org/">
   <link rel="alternate" hreflang="en" href="https://vevak.lepotager.org/en/">
-  <script defer src="../assets/site.js?v=20260912-beta-home"></script>
+  <script>try{if(localStorage.getItem("vevak-accessible-mode")==="true")document.documentElement.dataset.vevakAccessible="true"}catch(e){}</script>
+  <script defer src="../assets/site.js?v=20260918-a11y-v2"></script>
 </head>
 <body data-lang="en">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -21,10 +23,7 @@
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="VeVak home">
         <span class="brand-mark" aria-hidden="true">V</span>
-        <span class="brand-copy">
-          <strong>VeVak</strong>
-          <small data-site-context data-context-default="by Le Potager du Web">by Le Potager du Web</small>
-        </span>
+        <span class="brand-copy"><strong>VeVak</strong></span>
       </a>
       <div class="header-actions">
         <nav class="nav" id="vevak-navigation" data-site-nav data-open="false" aria-label="Main navigation">
@@ -36,7 +35,15 @@
         <a href="./support/">Support</a>
         </nav>
         <a class="lang-link" data-lang-choice="fr" href="../" lang="fr">FR</a>
-        <button class="a11y-toggle" type="button" data-vevak-accessibility-toggle aria-pressed="false">Accessible version</button>
+        <button class="a11y-toggle header-icon-button" type="button" data-vevak-accessibility-toggle aria-pressed="false" aria-label="Accessible version" title="Accessible version">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="5.4" r="1.65"></circle>
+            <path d="M5.6 9.25c1.85 1 4.02 1.5 6.4 1.5s4.55-.5 6.4-1.5"></path>
+            <path d="M12 10.75v3.1"></path>
+            <path d="M9.15 19.25 12 13.85l2.85 5.4"></path>
+          </svg>
+          <span class="header-visually-hidden" data-a11y-label>Accessible version</span>
+        </button>
         <button class="menu-toggle" type="button" data-site-menu-toggle aria-expanded="false" aria-controls="vevak-navigation" aria-label="Open menu">
           <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
         </button>
