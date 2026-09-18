@@ -64,31 +64,16 @@ Le rsync exclut notamment :
 
 Cela protège notamment le backend Stancer et les protections cPanel.
 
-## SSH dédié
+## Accès Git au dépôt
 
-Le clone o2switch doit utiliser un alias SSH propre :
-
-```ssh
-Host github-vevak
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/vevak_github_deploy
-    IdentitiesOnly yes
-```
-
-Puis :
+Le dépôt `Vevak-website` est public. Pour le clone de production o2switch, le remote canonique utilise donc HTTPS en lecture seule :
 
 ```bash
 git -C "$HOME/repositories/Vevak-website" remote set-url origin \
-  git@github-vevak:jasmin-abernathy/Vevak-website.git
+  https://github.com/jasmin-abernathy/Vevak-website.git
 ```
 
-Avant la bascule, tester la clé sans modifier le dépôt :
-
-```bash
-GIT_SSH_COMMAND="ssh -i $HOME/.ssh/vevak_github_deploy -o IdentitiesOnly=yes -o BatchMode=yes" \
-git ls-remote git@github.com:jasmin-abernathy/Vevak-website.git HEAD
-```
+Cette configuration évite de dépendre d'une clé SSH pour un dépôt qui n'en a pas besoin. Le serveur de production ne pousse jamais vers GitHub.
 
 ## Premier passage
 
