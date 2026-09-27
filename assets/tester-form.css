@@ -40,7 +40,9 @@
   color: #17332c;
 }
 
-.tester-field input[type="email"] {
+.tester-field input[type="email"],
+.tester-field input[type="text"],
+.tester-field select {
   width: 100%;
   min-height: 3rem;
   box-sizing: border-box;
@@ -53,6 +55,8 @@
 }
 
 .tester-field input[type="email"]:focus-visible,
+.tester-field input[type="text"]:focus-visible,
+.tester-field select:focus-visible,
 .tester-consent input:focus-visible,
 .tester-form button:focus-visible,
 .tester-help summary:focus-visible {
@@ -154,7 +158,9 @@
   margin: 1.5rem 0;
 }
 
-.tester-fallback-form input[type="email"] {
+.tester-fallback-form input[type="email"],
+.tester-fallback-form input[type="text"],
+.tester-fallback-form select {
   width: 100%;
   box-sizing: border-box;
   min-height: 3rem;

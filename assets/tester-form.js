@@ -5,7 +5,11 @@
   if (!form || !window.fetch || !window.FormData) return;
 
   const email = form.querySelector('input[name="email"]');
+  const deviceModel = form.querySelector('input[name="device_model"]');
+  const androidVersion = form.querySelector('input[name="android_version"]');
+  const simSetup = form.querySelector('select[name="sim_setup"]');
   const consent = form.querySelector('input[name="consent"]');
+  const feedbackConsent = form.querySelector('input[name="feedback_consent"]');
   const submit = form.querySelector('button[type="submit"]');
   const status = form.querySelector('[data-tester-status]');
   const defaultLabel = submit ? submit.textContent : '';
@@ -13,7 +17,9 @@
 
   const messages = {
     invalid: 'Vérifie ton adresse e-mail avant de continuer.',
-    consent: 'Confirme que tu souhaites utiliser cette adresse pour participer aux tests.',
+    profile: 'Indique le modèle du téléphone, la version Android et la configuration SIM.',
+    consent: 'Confirme que tu souhaites utiliser ces informations pour participer aux tests.',
+    feedback: 'Confirme que tu participeras au questionnaire de retour après le test.',
     server: 'Ta demande n’a pas pu être enregistrée. Réessaie dans un instant.'
   };
 
@@ -49,9 +55,25 @@
       email?.focus();
       return;
     }
+    if (
+      !deviceModel || !deviceModel.value.trim()
+      || !androidVersion || !androidVersion.value.trim()
+      || !simSetup || !simSetup.value
+    ) {
+      announce(messages.profile);
+      if (!deviceModel?.value.trim()) deviceModel?.focus();
+      else if (!androidVersion?.value.trim()) androidVersion?.focus();
+      else simSetup?.focus();
+      return;
+    }
     if (!consent || !consent.checked) {
       announce(messages.consent);
       consent?.focus();
+      return;
+    }
+    if (!feedbackConsent || !feedbackConsent.checked) {
+      announce(messages.feedback);
+      feedbackConsent?.focus();
       return;
     }
 

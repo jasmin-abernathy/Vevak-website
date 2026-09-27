@@ -11,12 +11,12 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/styles.css?v=20260918-a11y-v2">
   <link rel="stylesheet" href="assets/header.css?v=20260918-a11y-v2" data-vevak-common-header>
-  <link rel="stylesheet" href="assets/tester-form.css?v=20260915">
+  <link rel="stylesheet" href="assets/tester-form.css?v=20260927">
   <link rel="alternate" hreflang="fr" href="https://vevak.lepotager.org/">
   <link rel="alternate" hreflang="en" href="https://vevak.lepotager.org/en/">
   <script>try{if(localStorage.getItem("vevak-accessible-mode")==="true")document.documentElement.dataset.vevakAccessible="true"}catch(e){}</script>
   <script defer src="assets/site.js?v=20260918-a11y-v2"></script>
-  <script defer src="assets/tester-form.js?v=20260915"></script>
+  <script defer src="assets/tester-form.js?v=20260927"></script>
 </head>
 <body data-lang="fr">
   <a class="skip-link" href="#main">Aller au contenu</a>
@@ -258,8 +258,8 @@
         <div>
           <p class="kicker">Tests Google Play</p>
           <h2>Deviens testeur de VeVak</h2>
-          <p>Tu souhaites essayer VeVak sur Android et aider à l’améliorer ? Laisse l’adresse e-mail du compte Google que tu utilises dans Google Play pour demander à rejoindre les tests.</p>
-          <p class="tester-followup"><strong>L’envoi de ce formulaire ne donne pas immédiatement accès au test.</strong> Une fois ta demande traitée, tu recevras les indications pour rejoindre le programme sur Google Play.</p>
+          <p>Tu souhaites essayer VeVak sur Android et aider à l’améliorer ? Laisse l’adresse e-mail du compte Google que tu utilises dans Google Play et quelques informations sur le téléphone qui servira au test.</p>
+          <p class="tester-followup"><strong>L’envoi de ce formulaire ne donne pas immédiatement accès au test.</strong> Une fois ta demande traitée, tu recevras les indications pour rejoindre le programme sur Google Play. Les testeurs retenus pourront ensuite créer eux-mêmes leur mot de passe pour l’espace privé de retours.</p>
         </div>
 
         <div class="tester-card">
@@ -275,9 +275,36 @@
               <p>Ouvre Google Play sur ton téléphone, touche ta photo de profil ou ton initiale en haut à droite, puis ouvre le sélecteur de compte. L’adresse du compte utilisé par le Play Store y est affichée. VeVak ne vérifie pas l’existence d’un compte Google à partir de l’adresse saisie.</p>
             </details>
 
+            <div class="tester-field">
+              <label for="tester-device">Marque et modèle du téléphone testé</label>
+              <input id="tester-device" name="device_model" type="text" autocomplete="off" maxlength="120" placeholder="Ex. Pixel 8a, Samsung Galaxy A54…" required>
+              <p class="tester-help-text">Cela permet de repérer les problèmes propres à certains constructeurs.</p>
+            </div>
+
+            <div class="tester-field">
+              <label for="tester-android">Version Android</label>
+              <input id="tester-android" name="android_version" type="text" autocomplete="off" maxlength="80" placeholder="Ex. Android 15" required>
+            </div>
+
+            <div class="tester-field">
+              <label for="tester-sim">Configuration SIM</label>
+              <select id="tester-sim" name="sim_setup" required>
+                <option value="">Choisir…</option>
+                <option value="single">Une SIM / eSIM</option>
+                <option value="dual">Deux SIM / eSIM</option>
+                <option value="unknown">Je ne sais pas</option>
+              </select>
+              <p class="tester-help-text">VeVak utilise les SMS : la configuration SIM peut changer le comportement selon le téléphone.</p>
+            </div>
+
             <label class="tester-consent">
               <input type="checkbox" name="consent" value="1" required>
-              <span>J’accepte que mon adresse soit utilisée pour gérer ma participation aux tests de VeVak et me contacter à ce sujet.</span>
+              <span>J’accepte que mon adresse et les informations sur mon téléphone soient utilisées pour gérer ma participation aux tests de VeVak et me contacter à ce sujet.</span>
+            </label>
+
+            <label class="tester-consent">
+              <input type="checkbox" name="feedback_consent" value="1" required>
+              <span>Je m’engage à remplir ensuite le questionnaire de retour de VeVak. Je pourrai y reprendre mes réponses et ajouter un commentaire libre à chaque question.</span>
             </label>
 
             <div class="tester-trap" aria-hidden="true">
@@ -287,7 +314,7 @@
 
             <button class="button primary" type="submit">Demander à rejoindre les tests</button>
             <p class="tester-status" data-tester-status role="status" aria-live="polite" hidden></p>
-            <p class="tester-privacy-note">Cette adresse sert uniquement à gérer le test : aucun abonnement marketing ni ajout automatique à une campagne. <a href="./confidentialite/">Lire la politique de confidentialité</a>.</p>
+            <p class="tester-privacy-note">Ces informations servent uniquement à organiser le test et à interpréter les retours : aucun abonnement marketing ni ajout automatique à une campagne. <a href="./confidentialite/testeurs-google-play.html">Détails sur les données du panel</a>.</p>
           </form>
         </div>
       </div>

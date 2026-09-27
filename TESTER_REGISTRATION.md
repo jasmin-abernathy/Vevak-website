@@ -68,3 +68,79 @@ L’interface permet :
 ## Conservation
 
 La politique publique ne fixe pas une durée arbitraire. Les demandes doivent être supprimées lorsqu’elles ne sont plus nécessaires à la gestion du panel ou lorsqu’une personne demande leur suppression, sous réserve des obligations légales applicables. Définir une durée opérationnelle précise avant la fin de la campagne et l’aligner avec le texte public.
+
+
+## Profil du téléphone et engagement de retour
+
+À partir du 27 septembre 2026, l'inscription demande également :
+
+- marque et modèle du téléphone ;
+- version Android ;
+- configuration SIM (une SIM/eSIM, deux SIM/eSIM, ou inconnue) ;
+- accord obligatoire pour participer ensuite au questionnaire de retour si la personne est retenue.
+
+Ces champs servent à interpréter les différences de comportement Android/constructeur et ne sont jamais inclus dans l'export Google Play.
+
+## Espace privé de retours
+
+URL :
+
+`https://vevak.lepotager.org/retours/`
+
+Le fonctionnement est distinct de la protection cPanel de `/test/` :
+
+1. la personne s'inscrit sur le formulaire public et accepte le questionnaire ;
+2. Jasmin la retient comme testeur ;
+3. dans `/test/admin-testers.php`, utiliser **Autoriser les retours** ;
+4. la personne ouvre `/retours/`, saisit son e-mail autorisé et crée elle-même un mot de passe d'au moins 12 caractères ;
+5. les connexions suivantes utilisent e-mail + mot de passe ;
+6. le questionnaire sauvegarde les réponses côté serveur et permet une reprise après reconnexion.
+
+Le mot de passe est enregistré uniquement avec `password_hash()`. Aucun mot de passe en clair n'est conservé.
+
+L'administration peut :
+
+- autoriser/suspendre l'accès aux retours ;
+- voir si un mot de passe a déjà été créé ;
+- voir si un questionnaire est en brouillon ou envoyé ;
+- réinitialiser le mot de passe (suppression du hash : le testeur en crée alors un nouveau) ;
+- exporter les réponses ;
+- supprimer l'inscription, ce qui supprime également le compte et les réponses.
+
+## Questionnaire
+
+Le questionnaire reprend le principe des questionnaires Jardinier/TDAH :
+
+- mobile-first ;
+- une question par écran ;
+- 12 questions courtes ;
+- choix simples avec possibilité `Non testé` lorsque pertinent ;
+- sauvegarde automatique ;
+- reprise après déconnexion/reconnexion ;
+- **un commentaire libre facultatif pour chaque question**.
+
+Les commentaires ne doivent contenir aucune donnée sensible (coordonnées GPS, numéros, phrase-clé, SSID/BSSID ou identité d'un contact).
+
+### Export des réponses
+
+`/test/admin-testers.php?export=feedback` produit `vevak-retours-test.csv`.
+
+Il contient :
+
+- e-mail du testeur ;
+- modèle / Android / SIM ;
+- dates de mise à jour et d'envoi ;
+- réponse à chaque question ;
+- commentaire libre associé à chaque question.
+
+Cet export n'est pas destiné à Google Play.
+
+## Stockage privé supplémentaire
+
+Toujours sous `~/.vevak-private/` (ou `VEVAK_TESTERS_STORAGE_DIR` en test) :
+
+- `tester-feedback-accounts.json` : hashes des mots de passe ;
+- `tester-feedback-answers.json` : réponses et dates ;
+- `tester-feedback-rate-limits.json` : empreintes temporaires anti-bruteforce.
+
+La suppression d'un testeur nettoie ses entrées dans les deux premiers fichiers.

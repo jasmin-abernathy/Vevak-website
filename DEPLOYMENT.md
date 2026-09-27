@@ -46,6 +46,7 @@ Le staging ne prend que :
 - `en/` ;
 - `soutenir/` ;
 - `test/` ;
+- `retours/` ;
 - `robots.txt` ;
 - `sitemap.xml`.
 
@@ -135,3 +136,18 @@ Tant que le déploiement tiré depuis o2switch est le mécanisme de production, 
 ## APK
 
 Le site web et l’APK restent séparés. Le déploiement décrit ici ne publie pas l’application Android.
+
+
+## Espace retours testeurs
+
+Le dossier public `retours/` est maintenant inclus dans le staging du déploiement pull o2switch.
+
+Il contient uniquement le code du portail et du questionnaire. Les comptes, hashes de mots de passe et réponses ne vivent jamais dans le DocumentRoot : ils restent sous `~/.vevak-private/` via `assets/tester-storage.php`.
+
+Contrôle après déploiement :
+
+```bash
+curl -LsS https://vevak.lepotager.org/retours/ | grep -q 'Questionnaire de retour'
+```
+
+Le résultat doit être la page de connexion/création de mot de passe, jamais les réponses d'un testeur.

@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /test/
+Disallow: /retours/
 
 Sitemap: https://vevak.lepotager.org/sitemap.xml

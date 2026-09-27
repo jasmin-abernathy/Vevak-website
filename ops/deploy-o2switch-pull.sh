@@ -33,7 +33,7 @@ fail() {
 
 check_http() {
   command -v curl >/dev/null 2>&1 || return 0
-  for url in "$SITE_URL/" "$SITE_URL/soutenir/"; do
+  for url in "$SITE_URL/" "$SITE_URL/soutenir/" "$SITE_URL/retours/"; do
     code="$(curl -LsS --max-time 20 -o /dev/null -w '%{http_code}' "$url" || true)"
     [[ "$code" == "200" ]] || fail "$url répond HTTP $code."
   done
@@ -73,7 +73,7 @@ STAGE="$(mktemp -d "$HOME/.cache/vevak-stage.XXXXXX")"
 chmod 755 "$STAGE"
 trap 'rm -rf "$STAGE"' EXIT
 
-for path in index.html .nojekyll robots.txt sitemap.xml assets en soutenir test; do
+for path in index.html .nojekyll robots.txt sitemap.xml assets en soutenir test retours; do
   [[ -e "$REPO/$path" ]] || continue
   rsync -a "$REPO/$path" "$STAGE/"
 done

@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/tester-storage.php';
 
-const VEVAK_TESTER_SUCCESS = 'Merci ! Ta demande a bien été prise en compte. Si cette adresse est déjà inscrite, elle sera conservée une seule fois. Les indications pour rejoindre le test seront envoyées après traitement des demandes.';
+const VEVAK_TESTER_SUCCESS = 'Merci ! Ta demande a bien été prise en compte. Si cette adresse est déjà inscrite, elle sera conservée une seule fois. Après sélection, tu recevras les indications pour rejoindre le test ; l’espace de retours restera fermé tant que ton accès n’aura pas été autorisé.';
 const VEVAK_TESTER_INVALID_EMAIL = 'Vérifie ton adresse e-mail avant de continuer.';
 const VEVAK_TESTER_MISSING_CONSENT = 'Confirme que tu souhaites utiliser cette adresse pour participer aux tests.';
+const VEVAK_TESTER_MISSING_PROFILE = 'Indique le modèle du téléphone, la version Android et le type de SIM utilisé pour le test.';
+const VEVAK_TESTER_MISSING_FEEDBACK_CONSENT = 'Confirme que tu participeras au questionnaire de retour après le test.';
 const VEVAK_TESTER_SERVER_ERROR = 'Ta demande n’a pas pu être enregistrée. Réessaie dans un instant.';
 
 function vv_is_json_request(): bool
@@ -15,7 +17,17 @@ function vv_is_json_request(): bool
     return str_contains($accept, 'application/json') || $requestedWith === 'xmlhttprequest';
 }
 
-function vv_reply(string $message, int $status, bool $success, string $email = '', bool $consent = false): never
+function vv_reply(
+    string $message,
+    int $status,
+    bool $success,
+    string $email = '',
+    bool $consent = false,
+    string $deviceModel = '',
+    string $androidVersion = '',
+    string $simSetup = '',
+    bool $feedbackConsent = false
+): never
 {
     http_response_code($status);
     header('Cache-Control: no-store');
@@ -30,7 +42,13 @@ function vv_reply(string $message, int $status, bool $success, string $email = '
     header('Content-Type: text/html; charset=utf-8');
     $safeMessage = htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $safeEmail = htmlspecialchars($email, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $safeDeviceModel = htmlspecialchars($deviceModel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $safeAndroidVersion = htmlspecialchars($androidVersion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $checked = $consent ? ' checked' : '';
+    $feedbackChecked = $feedbackConsent ? ' checked' : '';
+    $singleSelected = $simSetup === 'single' ? ' selected' : '';
+    $dualSelected = $simSetup === 'dual' ? ' selected' : '';
+    $unknownSelected = $simSetup === 'unknown' ? ' selected' : '';
     $title = $success ? 'Demande enregistrée' : 'Vérification nécessaire';
     $form = '';
     if (!$success) {
@@ -38,7 +56,22 @@ function vv_reply(string $message, int $status, bool $success, string $email = '
         <form method="post" action="/assets/tester-submit.php" class="tester-fallback-form">
           <label for="tester-email">Adresse e-mail de ton compte Google Play</label>
           <input id="tester-email" name="email" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="254" required value="{$safeEmail}">
+          <label>Marque et modèle du téléphone
+            <input name="device_model" type="text" maxlength="120" required value="{$safeDeviceModel}" placeholder="Ex. Pixel 8a, Galaxy A54…">
+          </label>
+          <label>Version Android
+            <input name="android_version" type="text" maxlength="80" required value="{$safeAndroidVersion}" placeholder="Ex. Android 15">
+          </label>
+          <label>Configuration SIM
+            <select name="sim_setup" required>
+              <option value="">Choisir…</option>
+              <option value="single"{$singleSelected}>Une SIM / eSIM</option>
+              <option value="dual"{$dualSelected}>Deux SIM / eSIM</option>
+              <option value="unknown"{$unknownSelected}>Je ne sais pas</option>
+            </select>
+          </label>
           <label class="tester-fallback-consent"><input type="checkbox" name="consent" value="1" required{$checked}> J’accepte que mon adresse soit utilisée pour gérer ma participation aux tests de VeVak et me contacter à ce sujet.</label>
+          <label class="tester-fallback-consent"><input type="checkbox" name="feedback_consent" value="1" required{$feedbackChecked}> Je m’engage à remplir le questionnaire de retour après avoir testé VeVak.</label>
           <div class="tester-trap" aria-hidden="true"><label>Site web <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
           <button type="submit">Demander à rejoindre les tests</button>
         </form>
@@ -84,12 +117,16 @@ if ($contentLength > 8192) {
 }
 
 $email = trim((string) ($_POST['email'] ?? ''));
+$deviceModel = trim((string) ($_POST['device_model'] ?? ''));
+$androidVersion = trim((string) ($_POST['android_version'] ?? ''));
+$simSetup = trim((string) ($_POST['sim_setup'] ?? ''));
 $consent = (string) ($_POST['consent'] ?? '') === '1';
+$feedbackConsent = (string) ($_POST['feedback_consent'] ?? '') === '1';
 $honeypot = trim((string) ($_POST['website'] ?? ''));
 
 try {
     if (!vv_rate_limit((string) ($_SERVER['REMOTE_ADDR'] ?? ''))) {
-        vv_reply(VEVAK_TESTER_SERVER_ERROR, 429, false, $email, $consent);
+        vv_reply(VEVAK_TESTER_SERVER_ERROR, 429, false, $email, $consent, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
     }
 
     if ($honeypot !== '') {
@@ -97,15 +134,27 @@ try {
     }
 
     if ($email === '' || strlen($email) > 254 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-        vv_reply(VEVAK_TESTER_INVALID_EMAIL, 422, false, $email, $consent);
-    }
-    if (!$consent) {
-        vv_reply(VEVAK_TESTER_MISSING_CONSENT, 422, false, $email, false);
+        vv_reply(VEVAK_TESTER_INVALID_EMAIL, 422, false, $email, $consent, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
     }
 
-    vv_register_tester($email);
+    $allowedSimSetups = ['single', 'dual', 'unknown'];
+    if (
+        $deviceModel === '' || strlen($deviceModel) > 120
+        || $androidVersion === '' || strlen($androidVersion) > 80
+        || !in_array($simSetup, $allowedSimSetups, true)
+    ) {
+        vv_reply(VEVAK_TESTER_MISSING_PROFILE, 422, false, $email, $consent, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
+    }
+    if (!$consent) {
+        vv_reply(VEVAK_TESTER_MISSING_CONSENT, 422, false, $email, false, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
+    }
+    if (!$feedbackConsent) {
+        vv_reply(VEVAK_TESTER_MISSING_FEEDBACK_CONSENT, 422, false, $email, $consent, $deviceModel, $androidVersion, $simSetup, false);
+    }
+
+    vv_register_tester($email, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
     vv_reply(VEVAK_TESTER_SUCCESS, 200, true);
 } catch (Throwable $error) {
     error_log('VeVak tester registration storage error: ' . get_class($error));
-    vv_reply(VEVAK_TESTER_SERVER_ERROR, 500, false, $email, $consent);
+    vv_reply(VEVAK_TESTER_SERVER_ERROR, 500, false, $email, $consent, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
 }

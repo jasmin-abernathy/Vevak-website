@@ -6,7 +6,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
     exit;
 }
 
-const VEVAK_TESTER_CONSENT_VERSION = 'google-play-tester-v1-2026-09-15';
+const VEVAK_TESTER_CONSENT_VERSION = 'google-play-tester-v2-2026-09-27';
 const VEVAK_TESTER_RATE_LIMIT = 8;
 const VEVAK_TESTER_RATE_WINDOW = 3600;
 
@@ -58,6 +58,21 @@ function vv_data_file(): string
 function vv_rate_file(): string
 {
     return vv_private_dir() . '/tester-rate-limits.json';
+}
+
+function vv_feedback_accounts_file(): string
+{
+    return vv_private_dir() . '/tester-feedback-accounts.json';
+}
+
+function vv_feedback_answers_file(): string
+{
+    return vv_private_dir() . '/tester-feedback-answers.json';
+}
+
+function vv_feedback_rate_file(): string
+{
+    return vv_private_dir() . '/tester-feedback-rate-limits.json';
 }
 
 function vv_rate_secret(): string
@@ -127,31 +142,79 @@ function vv_normalize_email_key(string $email): string
     return $local . '@' . strtolower($domain);
 }
 
-function vv_register_tester(string $email): array
-{
+function vv_register_tester(
+    string $email,
+    string $deviceModel = '',
+    string $androidVersion = '',
+    string $simSetup = '',
+    bool $feedbackConsent = false
+): array {
     $now = gmdate('Y-m-d\TH:i:s\Z');
     $key = vv_normalize_email_key($email);
     $created = false;
 
-    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $email, $now, &$created): void {
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use (
+        $key,
+        $email,
+        $deviceModel,
+        $androidVersion,
+        $simSetup,
+        $feedbackConsent,
+        $now,
+        &$created
+    ): void {
         if (!isset($data['testers']) || !is_array($data['testers'])) {
             $data['testers'] = [];
         }
-        if (isset($data['testers'][$key]) && is_array($data['testers'][$key])) {
-            $data['testers'][$key]['last_requested_at'] = $now;
-            $data['testers'][$key]['consent_version'] = VEVAK_TESTER_CONSENT_VERSION;
-            return;
-        }
+
+        $existing = isset($data['testers'][$key]) && is_array($data['testers'][$key])
+            ? $data['testers'][$key]
+            : [];
+
         $data['testers'][$key] = [
             'email' => $email,
-            'created_at' => $now,
+            'device_model' => $deviceModel,
+            'android_version' => $androidVersion,
+            'sim_setup' => $simSetup,
+            'feedback_consent' => $feedbackConsent,
+            'feedback_consent_at' => $feedbackConsent ? $now : ($existing['feedback_consent_at'] ?? ''),
+            'feedback_enabled' => (bool) ($existing['feedback_enabled'] ?? false),
+            'created_at' => $existing['created_at'] ?? $now,
             'last_requested_at' => $now,
             'consent_version' => VEVAK_TESTER_CONSENT_VERSION,
         ];
-        $created = true;
+
+        $created = $existing === [];
     });
 
     return ['created' => $created, 'timestamp' => $now];
+}
+
+function vv_get_tester(string $email): ?array
+{
+    $key = vv_normalize_email_key($email);
+    return vv_with_json_file(vv_data_file(), ['testers' => []], false, function ($data) use ($key): ?array {
+        $row = $data['testers'][$key] ?? null;
+        if (!is_array($row) || empty($row['email'])) {
+            return null;
+        }
+        $row['key'] = $key;
+        return $row;
+    });
+}
+
+function vv_set_feedback_enabled(string $key, bool $enabled): bool
+{
+    $updated = false;
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $enabled, &$updated): void {
+        if (!isset($data['testers'][$key]) || !is_array($data['testers'][$key])) {
+            return;
+        }
+        $data['testers'][$key]['feedback_enabled'] = $enabled;
+        $data['testers'][$key]['feedback_enabled_at'] = $enabled ? gmdate('Y-m-d\TH:i:s\Z') : '';
+        $updated = true;
+    });
+    return $updated;
 }
 
 function vv_get_testers(): array
@@ -173,13 +236,205 @@ function vv_get_testers(): array
 function vv_delete_tester(string $key): bool
 {
     $deleted = false;
-    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, &$deleted): void {
+    $email = '';
+
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, &$deleted, &$email): void {
         if (isset($data['testers'][$key])) {
+            $row = $data['testers'][$key];
+            $email = is_array($row) ? (string) ($row['email'] ?? '') : '';
             unset($data['testers'][$key]);
             $deleted = true;
         }
     });
+
+    if ($deleted && $email !== '') {
+        vv_delete_feedback_data($email);
+    }
+
     return $deleted;
+}
+
+function vv_feedback_account_exists(string $email): bool
+{
+    $key = vv_normalize_email_key($email);
+    return vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], false, function ($data) use ($key): bool {
+        $row = $data['accounts'][$key] ?? null;
+        return is_array($row) && !empty($row['password_hash']);
+    });
+}
+
+function vv_feedback_create_account(string $email, string $password): array
+{
+    $tester = vv_get_tester($email);
+    if (
+        $tester === null
+        || empty($tester['feedback_consent'])
+        || empty($tester['feedback_enabled'])
+    ) {
+        return ['ok' => false, 'reason' => 'not_allowed'];
+    }
+
+    if (strlen($password) < 12) {
+        return ['ok' => false, 'reason' => 'weak'];
+    }
+
+    $key = vv_normalize_email_key($email);
+    $created = false;
+
+    vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], true, function (&$data) use ($key, $password, &$created): void {
+        if (!isset($data['accounts']) || !is_array($data['accounts'])) {
+            $data['accounts'] = [];
+        }
+        if (isset($data['accounts'][$key]) && is_array($data['accounts'][$key]) && !empty($data['accounts'][$key]['password_hash'])) {
+            return;
+        }
+
+        $data['accounts'][$key] = [
+            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'created_at' => gmdate('Y-m-d\TH:i:s\Z'),
+            'updated_at' => gmdate('Y-m-d\TH:i:s\Z'),
+        ];
+        $created = true;
+    });
+
+    return $created
+        ? ['ok' => true, 'reason' => null]
+        : ['ok' => false, 'reason' => 'exists'];
+}
+
+function vv_feedback_verify_password(string $email, string $password): bool
+{
+    $tester = vv_get_tester($email);
+    if (
+        $tester === null
+        || empty($tester['feedback_consent'])
+        || empty($tester['feedback_enabled'])
+    ) {
+        return false;
+    }
+
+    $key = vv_normalize_email_key($email);
+    return vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], false, function ($data) use ($key, $password): bool {
+        $row = $data['accounts'][$key] ?? null;
+        if (!is_array($row) || empty($row['password_hash'])) {
+            return false;
+        }
+        return password_verify($password, (string) $row['password_hash']);
+    });
+}
+
+function vv_feedback_reset_password(string $email): bool
+{
+    $key = vv_normalize_email_key($email);
+    $deleted = false;
+    vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], true, function (&$data) use ($key, &$deleted): void {
+        if (isset($data['accounts'][$key])) {
+            unset($data['accounts'][$key]);
+            $deleted = true;
+        }
+    });
+    return $deleted;
+}
+
+function vv_feedback_get_answers(string $email): array
+{
+    $key = vv_normalize_email_key($email);
+    return vv_with_json_file(vv_feedback_answers_file(), ['responses' => []], false, function ($data) use ($key): array {
+        $row = $data['responses'][$key] ?? [];
+        return is_array($row) ? $row : [];
+    });
+}
+
+function vv_get_feedback_responses(): array
+{
+    return vv_with_json_file(vv_feedback_answers_file(), ['responses' => []], false, function ($data): array {
+        $rows = [];
+        foreach (($data['responses'] ?? []) as $emailKey => $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $row['email'] = (string) $emailKey;
+            $rows[] = $row;
+        }
+        usort(
+            $rows,
+            static fn(array $a, array $b): int => strcmp(
+                (string) ($b['updated_at'] ?? ''),
+                (string) ($a['updated_at'] ?? '')
+            )
+        );
+        return $rows;
+    });
+}
+
+function vv_feedback_save_answers(string $email, array $answers, bool $submitted = false): void
+{
+    $key = vv_normalize_email_key($email);
+    $now = gmdate('Y-m-d\TH:i:s\Z');
+
+    vv_with_json_file(vv_feedback_answers_file(), ['responses' => []], true, function (&$data) use ($key, $answers, $submitted, $now): void {
+        if (!isset($data['responses']) || !is_array($data['responses'])) {
+            $data['responses'] = [];
+        }
+
+        $existing = isset($data['responses'][$key]) && is_array($data['responses'][$key])
+            ? $data['responses'][$key]
+            : [];
+
+        $data['responses'][$key] = [
+            'answers' => $answers,
+            'created_at' => $existing['created_at'] ?? $now,
+            'updated_at' => $now,
+            'submitted_at' => $submitted ? $now : ($existing['submitted_at'] ?? ''),
+        ];
+    });
+}
+
+function vv_delete_feedback_data(string $email): void
+{
+    $key = vv_normalize_email_key($email);
+
+    vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], true, function (&$data) use ($key): void {
+        if (isset($data['accounts'][$key])) {
+            unset($data['accounts'][$key]);
+        }
+    });
+
+    vv_with_json_file(vv_feedback_answers_file(), ['responses' => []], true, function (&$data) use ($key): void {
+        if (isset($data['responses'][$key])) {
+            unset($data['responses'][$key]);
+        }
+    });
+}
+
+function vv_feedback_rate_limit(string $ip, string $email): bool
+{
+    $identity = strtolower(trim($ip)) . '|' . vv_normalize_email_key($email);
+    $fingerprint = hash_hmac('sha256', $identity, vv_rate_secret());
+    $now = time();
+    $allowed = true;
+
+    vv_with_json_file(vv_feedback_rate_file(), ['clients' => []], true, function (&$data) use ($fingerprint, $now, &$allowed): void {
+        if (!isset($data['clients']) || !is_array($data['clients'])) {
+            $data['clients'] = [];
+        }
+        foreach ($data['clients'] as $hash => $entry) {
+            $start = (int) ($entry['window_start'] ?? 0);
+            if ($start < $now - 1800) {
+                unset($data['clients'][$hash]);
+            }
+        }
+
+        $entry = $data['clients'][$fingerprint] ?? ['window_start' => $now, 'hits' => 0];
+        if ((int) $entry['window_start'] <= $now - 900) {
+            $entry = ['window_start' => $now, 'hits' => 0];
+        }
+        $entry['hits'] = (int) $entry['hits'] + 1;
+        $allowed = $entry['hits'] <= 10;
+        $data['clients'][$fingerprint] = $entry;
+    });
+
+    return $allowed;
 }
 
 function vv_rate_limit(string $ip): bool

@@ -10,6 +10,7 @@ on:
       - "confidentialite/**"
       - "soutenir/**"
       - "test/**"
+      - "retours/**"
       - "robots.txt"
       - "sitemap.xml"
       - ".github/workflows/deploy-o2switch.yml"
@@ -83,6 +84,7 @@ jobs:
           cp -R confidentialite .deploy/
           cp -R soutenir .deploy/
           cp -R test .deploy/
+          cp -R retours .deploy/
 
           # APK distribution is handled by the rolling GitHub beta release.
           # Keep obsolete server-side test/files content outside this deployment.
@@ -96,6 +98,7 @@ jobs:
           test -f .deploy/test/index.html
           test -f .deploy/test/test.css
           test -f .deploy/test/test.js
+          test -f .deploy/retours/index.php
           test -f .deploy/robots.txt
           test -f .deploy/sitemap.xml
 
@@ -175,7 +178,7 @@ jobs:
           SSH="ssh -i $HOME/.ssh/vevak_deploy_key -p 22 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
           REMOTE="$DEPLOY_USER@$DEPLOY_HOST"
 
-          $SSH "$REMOTE" "mkdir -p '$DEPLOY_PATH/assets' '$DEPLOY_PATH/en' '$DEPLOY_PATH/confidentialite' '$DEPLOY_PATH/soutenir' '$DEPLOY_PATH/test'"
+          $SSH "$REMOTE" "mkdir -p '$DEPLOY_PATH/assets' '$DEPLOY_PATH/en' '$DEPLOY_PATH/confidentialite' '$DEPLOY_PATH/soutenir' '$DEPLOY_PATH/test' '$DEPLOY_PATH/retours'"
 
           # Root files only: preserve server-owned .htaccess, .well-known, /api and other server config.
           rsync -az --checksum -e "$SSH" \
@@ -187,6 +190,7 @@ jobs:
           rsync -az --checksum --delete -e "$SSH" .deploy/en/ "$REMOTE:$DEPLOY_PATH/en/"
           rsync -az --checksum --delete -e "$SSH" .deploy/confidentialite/ "$REMOTE:$DEPLOY_PATH/confidentialite/"
           rsync -az --checksum --delete -e "$SSH" .deploy/soutenir/ "$REMOTE:$DEPLOY_PATH/soutenir/"
+          rsync -az --checksum --delete -e "$SSH" .deploy/retours/ "$REMOTE:$DEPLOY_PATH/retours/"
 
           # Preserve cPanel directory-protection files and the obsolete local APK folder.
           rsync -az --checksum --delete \
@@ -205,6 +209,7 @@ jobs:
           curl -fsSL --max-time 20 https://vevak.lepotager.org/ | grep -q '<title>VeVak'
           curl -fsSL --max-time 20 https://vevak.lepotager.org/confidentialite/ | grep -q '<title>Politique de confidentialité'
           curl -fsSL --max-time 20 https://vevak.lepotager.org/soutenir/ >/dev/null
+          curl -fsSL --max-time 20 https://vevak.lepotager.org/retours/ | grep -q 'Questionnaire de retour'
 
           TEST_STATUS="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 https://vevak.lepotager.org/test/ || true)"
           if [ "$TEST_STATUS" != "401" ]; then
