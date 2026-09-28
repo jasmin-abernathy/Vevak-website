@@ -24,7 +24,12 @@
   const language = header.querySelector('.lang-link[data-lang-choice]');
 
   if (accessibility) {
+    const fallbackLabel = accessibility.getAttribute('aria-label')
+      || accessibility.textContent.trim()
+      || (document.documentElement.lang === 'en' ? 'Accessible version' : 'Version accessible');
     accessibility.classList.add('header-icon-button');
+    accessibility.setAttribute('aria-label', fallbackLabel);
+    accessibility.setAttribute('title', accessibility.getAttribute('title') || fallbackLabel);
     accessibility.innerHTML = `
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <circle cx="12" cy="5.4" r="1.65"></circle>
@@ -32,7 +37,7 @@
         <path d="M12 10.75v3.1"></path>
         <path d="M9.15 19.25 12 13.85l2.85 5.4"></path>
       </svg>
-      <span class="header-visually-hidden" data-a11y-label></span>`;
+      <span class="header-visually-hidden" data-a11y-label>${fallbackLabel}</span>`;
   }
 
   if (nav && language && !nav.querySelector('.mobile-nav-language')) {
