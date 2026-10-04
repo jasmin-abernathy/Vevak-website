@@ -178,8 +178,13 @@ function vv_register_tester(
             'android_version' => $androidVersion,
             'sim_setup' => $simSetup,
             'feedback_consent' => $feedbackConsent,
-            'feedback_consent_at' => $feedbackConsent ? $now : ($existing['feedback_consent_at'] ?? ''),
+            'feedback_consent_at' => $feedbackConsent
+                ? ($existing['feedback_consent_at'] ?? $now)
+                : ($existing['feedback_consent_at'] ?? ''),
             'feedback_enabled' => (bool) ($existing['feedback_enabled'] ?? false),
+            'feedback_enabled_at' => $existing['feedback_enabled_at'] ?? '',
+            'feedback_invite_hash' => $existing['feedback_invite_hash'] ?? '',
+            'feedback_invite_created_at' => (int) ($existing['feedback_invite_created_at'] ?? 0),
             'created_at' => $existing['created_at'] ?? $now,
             'last_requested_at' => $now,
             'consent_version' => VEVAK_TESTER_CONSENT_VERSION,
