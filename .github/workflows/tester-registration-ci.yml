@@ -55,6 +55,9 @@ jobs:
           ! grep -q 'VeVak-beta.apk' index.html
           ! grep -q 'VeVak-beta.apk' en/index.html
           grep -q 'REMOTE_USER' test/admin-testers.php
+          grep -q 'VEVAK_FEEDBACK_INVITE_TTL' assets/tester-storage.php
+          grep -q 'feedback_invite_hash' assets/tester-storage.php
+          grep -q 'name="referrer" content="no-referrer"' retours/index.php
           grep -q 'Confidentialité des demandes de test' confidentialite/testeurs-google-play.html
 
       - name: Storage, duplicate and delete test
@@ -70,8 +73,14 @@ jobs:
             if ($rows[0]["email"] !== "tester+ci@proton.me") { fwrite(STDERR, "email altered\n"); exit(1); }
             if (empty($rows[0]["feedback_consent"])) { fwrite(STDERR, "feedback consent missing\n"); exit(1); }
             vv_set_feedback_enabled($rows[0]["key"], true);
-            $created = vv_feedback_create_account("tester+ci@proton.me", "un-mot-de-passe-test-2026");
+            $invite = vv_feedback_issue_invite($rows[0]["key"]);
+            if ($invite === null) { fwrite(STDERR, "invite creation failure\n"); exit(1); }
+            if (vv_feedback_invite_email($invite) !== "tester+ci@proton.me") { fwrite(STDERR, "invite binding failure\n"); exit(1); }
+            $wrong = vv_feedback_create_account("tester+ci@proton.me", "un-mot-de-passe-test-2026", str_repeat("a", 64));
+            if (!empty($wrong["ok"])) { fwrite(STDERR, "invalid invite accepted\n"); exit(1); }
+            $created = vv_feedback_create_account("tester+ci@proton.me", "un-mot-de-passe-test-2026", $invite);
             if (empty($created["ok"])) { fwrite(STDERR, "account creation failure\n"); exit(1); }
+            if (vv_feedback_invite_email($invite) !== null) { fwrite(STDERR, "invite replay remained valid\n"); exit(1); }
             if (!vv_feedback_verify_password("tester+ci@proton.me", "un-mot-de-passe-test-2026")) { fwrite(STDERR, "password verify failure\n"); exit(1); }
             vv_feedback_save_answers("tester+ci@proton.me", ["q1_launch" => "very_clear", "comment_q1_launch" => "RAS"], true);
             $feedback = vv_feedback_get_answers("tester+ci@proton.me");
