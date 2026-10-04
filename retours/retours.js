@@ -94,6 +94,11 @@
 
   root.querySelectorAll('[data-feedback-next]').forEach((button) => {
     button.addEventListener('click', async () => {
+      if (answerFor(steps[current]) === '') {
+        saveState.textContent = 'Choisis une réponse avant de continuer.';
+        steps[current]?.querySelector('input[type="radio"]')?.focus();
+        return;
+      }
       await save(false);
       show(current + 1);
     });
@@ -111,6 +116,13 @@
   });
 
   root.querySelector('[data-feedback-finish]')?.addEventListener('click', async () => {
+    const missing = steps.findIndex((step) => answerFor(step) === '');
+    if (missing >= 0) {
+      saveState.textContent = 'Il reste au moins une question sans réponse.';
+      show(missing);
+      steps[missing]?.querySelector('input[type="radio"]')?.focus();
+      return;
+    }
     const ok = await save(true);
     if (!ok) return;
     steps.forEach((step) => { step.hidden = true; });

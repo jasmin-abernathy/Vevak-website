@@ -9,6 +9,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
 const VEVAK_TESTER_CONSENT_VERSION = 'google-play-tester-v2-2026-09-27';
 const VEVAK_TESTER_RATE_LIMIT = 8;
 const VEVAK_TESTER_RATE_WINDOW = 3600;
+const VEVAK_FEEDBACK_INVITE_TTL = 14 * 24 * 3600;
 
 function vv_private_dir(): string
 {
@@ -177,8 +178,13 @@ function vv_register_tester(
             'android_version' => $androidVersion,
             'sim_setup' => $simSetup,
             'feedback_consent' => $feedbackConsent,
-            'feedback_consent_at' => $feedbackConsent ? $now : ($existing['feedback_consent_at'] ?? ''),
+            'feedback_consent_at' => $feedbackConsent
+                ? ($existing['feedback_consent_at'] ?? $now)
+                : ($existing['feedback_consent_at'] ?? ''),
             'feedback_enabled' => (bool) ($existing['feedback_enabled'] ?? false),
+            'feedback_enabled_at' => $existing['feedback_enabled_at'] ?? '',
+            'feedback_invite_hash' => $existing['feedback_invite_hash'] ?? '',
+            'feedback_invite_created_at' => (int) ($existing['feedback_invite_created_at'] ?? 0),
             'created_at' => $existing['created_at'] ?? $now,
             'last_requested_at' => $now,
             'consent_version' => VEVAK_TESTER_CONSENT_VERSION,
@@ -212,6 +218,10 @@ function vv_set_feedback_enabled(string $key, bool $enabled): bool
         }
         $data['testers'][$key]['feedback_enabled'] = $enabled;
         $data['testers'][$key]['feedback_enabled_at'] = $enabled ? gmdate('Y-m-d\TH:i:s\Z') : '';
+        if (!$enabled) {
+            $data['testers'][$key]['feedback_invite_hash'] = '';
+            $data['testers'][$key]['feedback_invite_created_at'] = 0;
+        }
         $updated = true;
     });
     return $updated;
@@ -254,6 +264,106 @@ function vv_delete_tester(string $key): bool
     return $deleted;
 }
 
+function vv_feedback_issue_invite(string $key): ?string
+{
+    $token = bin2hex(random_bytes(32));
+    $hash = hash('sha256', $token);
+    $createdAt = time();
+    $issued = false;
+
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $hash, $createdAt, &$issued): void {
+        $row = $data['testers'][$key] ?? null;
+        if (
+            !is_array($row)
+            || empty($row['feedback_consent'])
+            || empty($row['feedback_enabled'])
+        ) {
+            return;
+        }
+
+        $data['testers'][$key]['feedback_invite_hash'] = $hash;
+        $data['testers'][$key]['feedback_invite_created_at'] = $createdAt;
+        $issued = true;
+    });
+
+    return $issued ? $token : null;
+}
+
+function vv_feedback_invite_email(string $token): ?string
+{
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+        return null;
+    }
+
+    $candidate = hash('sha256', $token);
+    $now = time();
+
+    return vv_with_json_file(vv_data_file(), ['testers' => []], false, function ($data) use ($candidate, $now): ?string {
+        foreach (($data['testers'] ?? []) as $row) {
+            if (!is_array($row) || empty($row['email']) || empty($row['feedback_invite_hash'])) {
+                continue;
+            }
+            $createdAt = (int) ($row['feedback_invite_created_at'] ?? 0);
+            if ($createdAt <= 0 || ($createdAt + VEVAK_FEEDBACK_INVITE_TTL) < $now) {
+                continue;
+            }
+            if (hash_equals((string) $row['feedback_invite_hash'], $candidate)) {
+                return (string) $row['email'];
+            }
+        }
+        return null;
+    });
+}
+
+function vv_feedback_consume_invite(string $email, string $token): bool
+{
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+        return false;
+    }
+
+    $key = vv_normalize_email_key($email);
+    $candidate = hash('sha256', $token);
+    $consumed = false;
+    $now = time();
+
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $candidate, $now, &$consumed): void {
+        $row = $data['testers'][$key] ?? null;
+        if (
+            !is_array($row)
+            || empty($row['feedback_consent'])
+            || empty($row['feedback_enabled'])
+            || empty($row['feedback_invite_hash'])
+        ) {
+            return;
+        }
+
+        $createdAt = (int) ($row['feedback_invite_created_at'] ?? 0);
+        if ($createdAt <= 0 || ($createdAt + VEVAK_FEEDBACK_INVITE_TTL) < $now) {
+            return;
+        }
+        if (!hash_equals((string) $row['feedback_invite_hash'], $candidate)) {
+            return;
+        }
+
+        $data['testers'][$key]['feedback_invite_hash'] = '';
+        $data['testers'][$key]['feedback_invite_created_at'] = 0;
+        $consumed = true;
+    });
+
+    return $consumed;
+}
+
+function vv_feedback_clear_invite(string $key): void
+{
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key): void {
+        if (!isset($data['testers'][$key]) || !is_array($data['testers'][$key])) {
+            return;
+        }
+        $data['testers'][$key]['feedback_invite_hash'] = '';
+        $data['testers'][$key]['feedback_invite_created_at'] = 0;
+    });
+}
+
 function vv_feedback_account_exists(string $email): bool
 {
     $key = vv_normalize_email_key($email);
@@ -263,7 +373,7 @@ function vv_feedback_account_exists(string $email): bool
     });
 }
 
-function vv_feedback_create_account(string $email, string $password): array
+function vv_feedback_create_account(string $email, string $password, string $inviteToken): array
 {
     $tester = vv_get_tester($email);
     if (
@@ -276,6 +386,14 @@ function vv_feedback_create_account(string $email, string $password): array
 
     if (strlen($password) < 12) {
         return ['ok' => false, 'reason' => 'weak'];
+    }
+    if (strlen($password) > 256) {
+        return ['ok' => false, 'reason' => 'too_long'];
+    }
+
+    $expectedEmail = vv_feedback_invite_email($inviteToken);
+    if ($expectedEmail === null || !hash_equals(vv_normalize_email_key($expectedEmail), vv_normalize_email_key($email))) {
+        return ['ok' => false, 'reason' => 'invite'];
     }
 
     $key = vv_normalize_email_key($email);
@@ -297,9 +415,16 @@ function vv_feedback_create_account(string $email, string $password): array
         $created = true;
     });
 
-    return $created
-        ? ['ok' => true, 'reason' => null]
-        : ['ok' => false, 'reason' => 'exists'];
+    if (!$created) {
+        return ['ok' => false, 'reason' => 'exists'];
+    }
+
+    if (!vv_feedback_consume_invite($email, $inviteToken)) {
+        vv_feedback_reset_password($email);
+        return ['ok' => false, 'reason' => 'invite'];
+    }
+
+    return ['ok' => true, 'reason' => null];
 }
 
 function vv_feedback_verify_password(string $email, string $password): bool

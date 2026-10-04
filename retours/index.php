@@ -152,6 +152,20 @@ $notice = '';
 $action = (string) ($_POST['action'] ?? '');
 $requestMethod = (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
+$inviteFromUrl = trim((string) ($_GET['invite'] ?? ''));
+if ($requestMethod === 'GET' && $inviteFromUrl !== '') {
+    $inviteEmail = vv_feedback_invite_email($inviteFromUrl);
+    if ($inviteEmail === null) {
+        unset($_SESSION['vevak_feedback_invite'], $_SESSION['vevak_feedback_invite_email']);
+        $error = 'Ce lien d’activation est invalide, expiré ou a déjà été remplacé.';
+    } else {
+        $_SESSION['vevak_feedback_invite'] = $inviteFromUrl;
+        $_SESSION['vevak_feedback_invite_email'] = vv_normalize_email_key($inviteEmail);
+        header('Location: ./?activate=1');
+        exit;
+    }
+}
+
 if ($requestMethod === 'POST' && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 65536) {
     http_response_code(413);
     if (vf_json_request()) {
@@ -173,6 +187,8 @@ try {
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
         $confirm = (string) ($_POST['password_confirm'] ?? '');
+        $inviteToken = (string) ($_SESSION['vevak_feedback_invite'] ?? '');
+        $inviteEmail = (string) ($_SESSION['vevak_feedback_invite_email'] ?? '');
 
         if (!vv_feedback_rate_limit((string) ($_SERVER['REMOTE_ADDR'] ?? ''), $email)) {
             throw new RuntimeException('Trop de tentatives. Réessaie dans quelques minutes.');
@@ -186,9 +202,17 @@ try {
         if (strlen($password) > 256) {
             throw new RuntimeException('Le mot de passe est trop long.');
         }
+        if (
+            $inviteToken === ''
+            || $inviteEmail === ''
+            || !hash_equals($inviteEmail, vv_normalize_email_key($email))
+        ) {
+            throw new RuntimeException('Ce lien d’activation ne correspond pas à cette adresse ou a expiré.');
+        }
 
-        $result = vv_feedback_create_account($email, $password);
+        $result = vv_feedback_create_account($email, $password, $inviteToken);
         if (!empty($result['ok'])) {
+            unset($_SESSION['vevak_feedback_invite'], $_SESSION['vevak_feedback_invite_email']);
             vf_mark_logged($email);
             header('Location: ./');
             exit;
@@ -197,8 +221,10 @@ try {
         $reason = (string) ($result['reason'] ?? '');
         $error = match ($reason) {
             'weak' => 'Choisis un mot de passe d’au moins 12 caractères.',
+            'too_long' => 'Le mot de passe est trop long.',
             'exists' => 'Un mot de passe existe déjà pour cette adresse. Utilise la connexion.',
-            default => 'Cette adresse n’est pas encore autorisée pour l’espace de retours.',
+            'invite' => 'Ce lien d’activation est invalide, expiré ou ne correspond pas à cette adresse.',
+            default => 'Cette adresse n’est pas autorisée pour l’espace de retours.',
         };
     }
 
@@ -206,6 +232,10 @@ try {
         vf_check_csrf();
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
+
+        if (strlen($password) > 256) {
+            throw new RuntimeException('Adresse ou mot de passe incorrect.');
+        }
 
         if (!vv_feedback_rate_limit((string) ($_SERVER['REMOTE_ADDR'] ?? ''), $email)) {
             throw new RuntimeException('Trop de tentatives. Réessaie dans quelques minutes.');
@@ -304,6 +334,8 @@ try {
 $loggedEmail = vf_logged_email();
 $tester = $loggedEmail !== '' ? vv_get_tester($loggedEmail) : null;
 $stored = $loggedEmail !== '' ? vv_feedback_get_answers($loggedEmail) : [];
+$activationEmail = (string) ($_SESSION['vevak_feedback_invite_email'] ?? '');
+$activationPending = $activationEmail !== '' && !empty($_SESSION['vevak_feedback_invite']);
 $answers = is_array($stored['answers'] ?? null) ? $stored['answers'] : [];
 $submittedAt = (string) ($stored['submitted_at'] ?? '');
 
@@ -330,6 +362,7 @@ $totalQuestions = count($questions);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#17332c">
   <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
   <title>Retours testeurs — VeVak</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css?v=20260918-a11y-v2">
@@ -375,7 +408,7 @@ $totalQuestions = count($questions);
                 <input type="email" name="email" autocomplete="username" required>
               </label>
               <label>Mot de passe
-                <input type="password" name="password" autocomplete="current-password" required>
+                <input type="password" name="password" autocomplete="current-password" maxlength="256" required>
               </label>
               <button class="button primary" type="submit">Se connecter</button>
             </form>
@@ -383,21 +416,26 @@ $totalQuestions = count($questions);
 
           <section class="feedback-auth-box">
             <h2>Première connexion</h2>
-            <p>Ton adresse doit d’abord avoir été autorisée dans le panel de test.</p>
-            <form method="post">
-              <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
-              <input type="hidden" name="action" value="create_account">
-              <label>E-mail utilisé pour le test
-                <input type="email" name="email" autocomplete="username" required>
-              </label>
-              <label>Choisir un mot de passe
-                <input type="password" name="password" autocomplete="new-password" minlength="12" required>
-              </label>
-              <label>Confirmer le mot de passe
-                <input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required>
-              </label>
-              <button class="button secondary" type="submit">Créer mon mot de passe</button>
-            </form>
+            <?php if ($activationPending): ?>
+              <p>Ton lien d’activation est reconnu. Confirme ton adresse puis choisis ton mot de passe.</p>
+              <form method="post">
+                <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
+                <input type="hidden" name="action" value="create_account">
+                <label>E-mail utilisé pour le test
+                  <input type="email" name="email" autocomplete="username" required value="<?= vf_e($activationEmail) ?>">
+                </label>
+                <label>Choisir un mot de passe
+                  <input type="password" name="password" autocomplete="new-password" minlength="12" maxlength="256" required>
+                </label>
+                <label>Confirmer le mot de passe
+                  <input type="password" name="password_confirm" autocomplete="new-password" minlength="12" maxlength="256" required>
+                </label>
+                <button class="button secondary" type="submit">Créer mon mot de passe</button>
+              </form>
+            <?php else: ?>
+              <p>Pour créer ton mot de passe, ouvre le lien d’activation individuel transmis après validation de ta participation.</p>
+              <p><strong>Tu as été retenu mais tu n’as plus le lien ?</strong> Demande simplement qu’un nouveau lien soit généré.</p>
+            <?php endif; ?>
           </section>
         </div>
 

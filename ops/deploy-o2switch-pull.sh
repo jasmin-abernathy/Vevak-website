@@ -63,6 +63,46 @@ if [[ "$LOCAL" != "$REMOTE" ]]; then
 fi
 
 COMMIT="$(git -C "$REPO" rev-parse HEAD)"
+
+log "Contrôles locaux avant déploiement..."
+for php_file in   "$REPO/assets/tester-storage.php"   "$REPO/assets/tester-submit.php"   "$REPO/test/admin-testers.php"   "$REPO/retours/index.php"; do
+  [[ -f "$php_file" ]] || fail "Fichier PHP attendu introuvable: $php_file"
+  php -l "$php_file" >/dev/null || fail "Syntaxe PHP invalide: $php_file"
+done
+
+if command -v node >/dev/null 2>&1; then
+  node --check "$REPO/assets/tester-form.js" >/dev/null || fail "Syntaxe JS invalide: assets/tester-form.js"
+  node --check "$REPO/retours/retours.js" >/dev/null || fail "Syntaxe JS invalide: retours/retours.js"
+fi
+
+SELFTEST_DIR="$(mktemp -d "$HOME/.cache/vevak-feedback-selftest.XXXXXX")"
+chmod 700 "$SELFTEST_DIR"
+if ! VEVAK_TESTERS_STORAGE_DIR="$SELFTEST_DIR" php -r '
+  require $argv[1];
+  vv_register_tester("deploy-selftest@example.org", "Pixel test", "Android test", "single", true);
+  $rows = vv_get_testers();
+  if (count($rows) !== 1) { exit(10); }
+  $key = (string) $rows[0]["key"];
+  if (!vv_set_feedback_enabled($key, true)) { exit(11); }
+  $invite = vv_feedback_issue_invite($key);
+  if ($invite === null || vv_feedback_invite_email($invite) !== "deploy-selftest@example.org") { exit(12); }
+  $created = vv_feedback_create_account("deploy-selftest@example.org", "mot-de-passe-de-test-2026", $invite);
+  if (empty($created["ok"])) { exit(13); }
+  if (vv_feedback_invite_email($invite) !== null) { exit(14); }
+  if (!vv_feedback_verify_password("deploy-selftest@example.org", "mot-de-passe-de-test-2026")) { exit(15); }
+  vv_feedback_save_answers("deploy-selftest@example.org", ["q1_launch" => "very_clear", "comment_q1_launch" => "RAS"], true);
+  $answers = vv_feedback_get_answers("deploy-selftest@example.org");
+  if (($answers["answers"]["q1_launch"] ?? "") !== "very_clear") { exit(16); }
+  if (!vv_delete_tester($key)) { exit(17); }
+  if (vv_feedback_account_exists("deploy-selftest@example.org")) { exit(18); }
+  if (vv_feedback_get_answers("deploy-selftest@example.org") !== []) { exit(19); }
+' "$REPO/assets/tester-storage.php"; then
+  rm -rf "$SELFTEST_DIR"
+  fail "Auto-test du portail testeurs en échec."
+fi
+rm -rf "$SELFTEST_DIR"
+log "Contrôles locaux: OK"
+
 if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
   check_http
   log "Aucun nouveau commit."

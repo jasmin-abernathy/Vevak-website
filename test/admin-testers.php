@@ -23,6 +23,11 @@ if (empty($_SESSION['vevak_testers_csrf'])) {
 }
 $csrf = (string) $_SESSION['vevak_testers_csrf'];
 
+function vv_admin_spreadsheet_safe_cell(string $value): string
+{
+    return preg_match('/^[=+\\-@]/u', $value) === 1 ? "'" . $value : $value;
+}
+
 function vv_admin_csv_download(string $filename, array $lines): never
 {
     header('Content-Type: text/csv; charset=utf-8');
@@ -46,10 +51,10 @@ try {
         $lines = ['email;device_model;android_version;sim_setup;feedback_consent;feedback_enabled'];
         foreach ($rows as $row) {
             $values = [
-                vv_spreadsheet_safe_email((string) $row['email']),
-                (string) ($row['device_model'] ?? ''),
-                (string) ($row['android_version'] ?? ''),
-                (string) ($row['sim_setup'] ?? ''),
+                vv_admin_spreadsheet_safe_cell((string) $row['email']),
+                vv_admin_spreadsheet_safe_cell((string) ($row['device_model'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($row['android_version'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($row['sim_setup'] ?? '')),
                 !empty($row['feedback_consent']) ? 'oui' : 'non',
                 !empty($row['feedback_enabled']) ? 'oui' : 'non',
             ];
@@ -79,15 +84,15 @@ try {
             $tester = vv_get_tester($email) ?? [];
             $answers = is_array($response['answers'] ?? null) ? $response['answers'] : [];
             $values = [
-                vv_spreadsheet_safe_email($email),
-                (string) ($response['updated_at'] ?? ''),
-                (string) ($response['submitted_at'] ?? ''),
-                (string) ($tester['device_model'] ?? ''),
-                (string) ($tester['android_version'] ?? ''),
-                (string) ($tester['sim_setup'] ?? ''),
+                vv_admin_spreadsheet_safe_cell($email),
+                vv_admin_spreadsheet_safe_cell((string) ($response['updated_at'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($response['submitted_at'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($tester['device_model'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($tester['android_version'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($tester['sim_setup'] ?? '')),
             ];
             foreach (array_merge($answerKeys, $commentKeys) as $key) {
-                $values[] = (string) ($answers[$key] ?? '');
+                $values[] = vv_admin_spreadsheet_safe_cell((string) ($answers[$key] ?? ''));
             }
             $lines[] = implode(';', array_map(
                 static fn(string $value): string => '"' . str_replace('"', '""', $value) . '"',
@@ -99,6 +104,7 @@ try {
     }
 
     $notice = '';
+    $inviteLink = '';
     if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $token = (string) ($_POST['csrf'] ?? '');
         if (!hash_equals($csrf, $token)) {
@@ -128,9 +134,28 @@ try {
                 $notice = 'Ce testeur n’a pas accepté de participer au questionnaire.';
             } else {
                 vv_set_feedback_enabled($key, $enabled);
-                $notice = $enabled
-                    ? 'Accès au questionnaire autorisé. Le testeur peut maintenant créer son mot de passe.'
-                    : 'Accès au questionnaire suspendu.';
+                if (!$enabled) {
+                    $notice = 'Accès au questionnaire suspendu.';
+                } elseif (vv_feedback_account_exists((string) $target['email'])) {
+                    $notice = 'Accès au questionnaire réactivé. Le mot de passe existant reste valable.';
+                } else {
+                    $invite = vv_feedback_issue_invite($key);
+                    if ($invite === null) {
+                        throw new RuntimeException('Impossible de créer le lien d’activation.');
+                    }
+                    $inviteLink = 'https://vevak.lepotager.org/retours/?invite=' . rawurlencode($invite);
+                    $notice = 'Accès autorisé. Envoie le lien d’activation ci-dessous au testeur.';
+                }
+            }
+            $rows = vv_get_testers();
+        } elseif ($action === 'new_feedback_invite') {
+            $key = (string) ($_POST['key'] ?? '');
+            $invite = vv_feedback_issue_invite($key);
+            if ($invite === null) {
+                $notice = 'Impossible de créer un lien : vérifie que l’accès est autorisé et que le consentement est présent.';
+            } else {
+                $inviteLink = 'https://vevak.lepotager.org/retours/?invite=' . rawurlencode($invite);
+                $notice = 'Nouveau lien d’activation créé. L’ancien lien n’est plus valable.';
             }
             $rows = vv_get_testers();
         } elseif ($action === 'reset_feedback_password') {
@@ -142,9 +167,16 @@ try {
                     break;
                 }
             }
-            $notice = $targetEmail !== '' && vv_feedback_reset_password($targetEmail)
-                ? 'Mot de passe de l’espace retours réinitialisé. Le testeur pourra en créer un nouveau.'
-                : 'Aucun mot de passe actif à réinitialiser.';
+            if ($targetEmail === '' || !vv_feedback_reset_password($targetEmail)) {
+                $notice = 'Aucun mot de passe actif à réinitialiser.';
+            } else {
+                $invite = vv_feedback_issue_invite($key);
+                if ($invite === null) {
+                    throw new RuntimeException('Mot de passe supprimé, mais impossible de créer le nouveau lien d’activation.');
+                }
+                $inviteLink = 'https://vevak.lepotager.org/retours/?invite=' . rawurlencode($invite);
+                $notice = 'Mot de passe réinitialisé. Envoie le nouveau lien d’activation au testeur.';
+            }
             $rows = vv_get_testers();
         }
     }
@@ -168,7 +200,7 @@ function e(string $value): string
   <title>Testeurs Google Play — VeVak</title>
   <link rel="stylesheet" href="../assets/styles.css">
   <style>
-    .admin-wrap{width:min(1100px,calc(100% - 2rem));margin:2rem auto 4rem}.admin-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0 1.5rem}.admin-table-wrap{overflow-x:auto;border:1px solid #d8e3de;border-radius:1rem;background:#fff}.admin-table{width:100%;border-collapse:collapse;min-width:760px}.admin-table th,.admin-table td{padding:.8rem;border-bottom:1px solid #e6ece9;text-align:left;vertical-align:top}.admin-table th{background:#eef5f1;color:#17332c}.admin-table code{font-size:.82rem}.danger{border-color:#b24b43!important;color:#7a211b!important}.admin-notice{padding:.8rem 1rem;background:#eef5f1;border-radius:.7rem}.admin-meta{color:#526760}.delete-form{margin:0 0 .45rem}.admin-table td .button{white-space:nowrap}
+    .admin-wrap{width:min(1100px,calc(100% - 2rem));margin:2rem auto 4rem}.admin-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0 1.5rem}.admin-invite{display:grid;gap:.45rem;margin:1rem 0;padding:1rem;border:1px solid #9fcab6;border-radius:.8rem;background:#eef8f3}.admin-invite input{width:100%;box-sizing:border-box;padding:.7rem;border:1px solid #c8d8d1;border-radius:.55rem;font:inherit}.admin-table-wrap{overflow-x:auto;border:1px solid #d8e3de;border-radius:1rem;background:#fff}.admin-table{width:100%;border-collapse:collapse;min-width:760px}.admin-table th,.admin-table td{padding:.8rem;border-bottom:1px solid #e6ece9;text-align:left;vertical-align:top}.admin-table th{background:#eef5f1;color:#17332c}.admin-table code{font-size:.82rem}.danger{border-color:#b24b43!important;color:#7a211b!important}.admin-notice{padding:.8rem 1rem;background:#eef5f1;border-radius:.7rem}.admin-meta{color:#526760}.delete-form{margin:0 0 .45rem}.admin-table td .button{white-space:nowrap}
   </style>
 </head>
 <body>
@@ -177,6 +209,13 @@ function e(string $value): string
   <h1>Demandes de test Google Play</h1>
   <p class="admin-meta">Connecté via la protection du dossier <code>/test/</code> : <?= e($authenticatedUser) ?>. <?= count($rows) ?> inscription(s).</p>
   <?php if ($notice !== ''): ?><p class="admin-notice" role="status"><?= e($notice) ?></p><?php endif; ?>
+  <?php if (($inviteLink ?? '') !== ''): ?>
+    <div class="admin-invite" role="status">
+      <strong>Lien d’activation à envoyer au testeur</strong>
+      <input type="text" readonly value="<?= e($inviteLink) ?>" onclick="this.select()">
+      <small>Usage unique, valable 14 jours. Un nouveau lien invalide le précédent.</small>
+    </div>
+  <?php endif; ?>
   <div class="admin-actions">
     <a class="button primary" href="?export=play">Exporter pour Google Play</a>
     <a class="button secondary" href="?export=spreadsheet">Exporter pour tableur</a>
@@ -221,8 +260,16 @@ function e(string $value): string
                 <button class="button secondary" type="submit"><?= $feedbackEnabled ? 'Suspendre les retours' : 'Autoriser les retours' ?></button>
               </form>
             <?php endif; ?>
+            <?php if ($feedbackEnabled && !$feedbackAccount): ?>
+              <form method="post" class="delete-form">
+                <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+                <input type="hidden" name="action" value="new_feedback_invite">
+                <input type="hidden" name="key" value="<?= e((string) $row['key']) ?>">
+                <button class="button secondary" type="submit">Nouveau lien d’activation</button>
+              </form>
+            <?php endif; ?>
             <?php if ($feedbackAccount): ?>
-              <form method="post" class="delete-form" onsubmit="return confirm('Réinitialiser le mot de passe de ce testeur ?');">
+              <form method="post" class="delete-form" onsubmit="return confirm('Réinitialiser le mot de passe de ce testeur ? Un nouveau lien d’activation sera créé.');">
                 <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
                 <input type="hidden" name="action" value="reset_feedback_password">
                 <input type="hidden" name="key" value="<?= e((string) $row['key']) ?>">

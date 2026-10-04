@@ -4,7 +4,7 @@ Le formulaire public est intégré à l’accueil :
 
 `https://vevak.lepotager.org/#devenir-testeur`
 
-Il collecte uniquement l’adresse e-mail du compte Google utilisé dans Google Play, après accord explicite. Il n’inscrit pas automatiquement la personne dans Play Console et n’envoie aucun e-mail.
+Il collecte l’adresse e-mail du compte Google utilisé dans Google Play, le modèle du téléphone, la version Android, la configuration SIM et l’accord explicite à participer au questionnaire de retour si la personne est retenue. Il n’inscrit pas automatiquement la personne dans Play Console et n’envoie aucun e-mail.
 
 ## Stockage
 
@@ -92,9 +92,13 @@ Le fonctionnement est distinct de la protection cPanel de `/test/` :
 1. la personne s'inscrit sur le formulaire public et accepte le questionnaire ;
 2. Jasmin la retient comme testeur ;
 3. dans `/test/admin-testers.php`, utiliser **Autoriser les retours** ;
-4. la personne ouvre `/retours/`, saisit son e-mail autorisé et crée elle-même un mot de passe d'au moins 12 caractères ;
-5. les connexions suivantes utilisent e-mail + mot de passe ;
-6. le questionnaire sauvegarde les réponses côté serveur et permet une reprise après reconnexion.
+4. l’administration génère un **lien d’activation individuel à usage unique**, valable 14 jours ;
+5. Jasmin transmet ce lien au testeur retenu ;
+6. le lien est retiré de l’URL dès son ouverture et conservé temporairement dans la session ;
+7. la personne confirme son e-mail et crée elle-même un mot de passe d’au moins 12 caractères ;
+8. le lien est consommé dès la création du compte et ne peut plus être rejoué ;
+9. les connexions suivantes utilisent e-mail + mot de passe ;
+10. le questionnaire sauvegarde les réponses côté serveur et permet une reprise après reconnexion.
 
 Le mot de passe est enregistré uniquement avec `password_hash()`. Aucun mot de passe en clair n'est conservé.
 
@@ -103,7 +107,8 @@ L'administration peut :
 - autoriser/suspendre l'accès aux retours ;
 - voir si un mot de passe a déjà été créé ;
 - voir si un questionnaire est en brouillon ou envoyé ;
-- réinitialiser le mot de passe (suppression du hash : le testeur en crée alors un nouveau) ;
+- générer/remplacer un lien d’activation avant la première connexion ;
+- réinitialiser le mot de passe : le hash est supprimé et un nouveau lien d’activation est généré ;
 - exporter les réponses ;
 - supprimer l'inscription, ce qui supprime également le compte et les réponses.
 
@@ -144,3 +149,21 @@ Toujours sous `~/.vevak-private/` (ou `VEVAK_TESTERS_STORAGE_DIR` en test) :
 - `tester-feedback-rate-limits.json` : empreintes temporaires anti-bruteforce.
 
 La suppression d'un testeur nettoie ses entrées dans les deux premiers fichiers.
+
+
+### Sécurité du lien d’activation
+
+Le simple fait de connaître l’adresse e-mail d’un testeur ne permet pas de créer son compte.
+
+Le lien d’activation :
+
+- contient un jeton aléatoire de 256 bits ;
+- n’est stocké côté serveur que sous forme de SHA-256 ;
+- est lié à l’adresse déjà autorisée ;
+- expire après 14 jours ;
+- est invalidé si un nouveau lien est généré ;
+- est consommé après création du mot de passe ;
+- est retiré de l’URL par redirection avant l’affichage du formulaire ;
+- n’est jamais réutilisé pour les connexions normales.
+
+La page `/retours/` envoie aussi une politique `no-referrer` afin d’éviter qu’un lien d’activation ne soit transmis comme référent à une destination extérieure.
