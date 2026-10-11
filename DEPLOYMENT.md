@@ -151,3 +151,10 @@ curl -LsS https://vevak.lepotager.org/retours/ | grep -q 'Questionnaire de retou
 ```
 
 Le résultat doit être la page de connexion/création de mot de passe, jamais les réponses d'un testeur.
+
+
+## Communiqué de presse — octobre 2026
+
+Le communiqué est disponible dans `presse/index.html` et le PDF dans `assets/vevak-communique-presse-2026-10-11.pdf`. L'URL du PDF GitHub (accessible même si le cron o2switch n'a pas encore synchronisé) est `https://raw.githubusercontent.com/jasmin-abernathy/Vevak-website/main/assets/vevak-communique-presse-2026-10-11.pdf`.
+
+Si la page `/presse/` n'apparaît pas malgré des modifications habituelles du site, vérifier que la crontab invoque bien `ops/deploy-o2switch-pull.sh` et pas l'ancien `~/bin/deploy-vevak.sh` : une ancienne liste de fichiers autorisés peut omettre `presse/`. Consulter les logs `~/logs/vevak-cron.log` et `~/logs/vevak-deploy.log`. Ne pas déduire un déploiement du simple statut vert GitHub Actions, car le workflow historique est volontairement inactif sans ses secrets.

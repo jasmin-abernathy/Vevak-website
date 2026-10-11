@@ -1,0 +1,107 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 4617 >>
+stream
+0.14 0.38 0.29 rg 542 799 20 3 re f
+0.15 0.40 0.30 rg BT /F2 9 Tf 1 0 0 1 51.0 785.0 Tm (VeVak / COMMUNIQUE DE PRESSE) Tj ET
+0.10 0.21 0.18 rg BT /F2 21 Tf 1 0 0 1 51.0 760.0 Tm (VeVak recherche des testeurs Android pour) Tj ET
+0.10 0.21 0.18 rg BT /F2 21 Tf 1 0 0 1 51.0 733.0 Tm (partager une position par SMS, sans Internet) Tj ET
+0.30 0.42 0.37 rg BT /F1 11 Tf 1 0 0 1 51.0 692.0 Tm (Une application libre developpee a Metz explore une autre approche du partage de localisation : une) Tj ET
+0.30 0.42 0.37 rg BT /F1 11 Tf 1 0 0 1 51.0 675.5 Tm (demande par SMS entre proches autorises, sans donnees mobiles ni serveur de suivi obligatoire.) Tj ET
+0.15 0.40 0.30 rg BT /F2 9 Tf 1 0 0 1 51.0 644.0 Tm (Metz, le 11 octobre 2026 - Projet Android en beta) Tj ET
+0.85 0.90 0.86 RG 0.8 w 51 619.0 m 544 619.0 l S
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 606.0 Tm (Que devient le partage de position lorsqu'aucun Wi-Fi ni acces aux donnees mobiles n'est disponible ? C'est a) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 591.2 Tm (cette question que s'interesse VeVak, un projet d'application Android open source en phase de tests sur des) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 576.4 Tm (telephones reels. La priorite est de recruter des volontaires, pas d'annoncer un produit fini.) Tj ET
+0.10 0.21 0.18 rg BT /F2 13 Tf 1 0 0 1 51.0 540.6 Tm (Une demande de localisation, par un simple SMS) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 516.6 Tm (La personne utilisatrice choisit a l'avance des proches autorises et definit des autorisations limitees dans le) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 501.8 Tm (temps. Un proche envoie une phrase-cle par SMS ; VeVak verifie ces droits localement, recherche la meilleure) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 487.0 Tm (information de localisation disponible, puis tente de repondre par SMS. Le coeur de ce mecanisme ne necessite) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 472.2 Tm (ni compte VeVak, ni connexion Internet, ni serveur de suivi centralise.) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 448.4 Tm (Lorsque le telephone ne peut pas obtenir de nouvelle position, VeVak peut, selon les donnees disponibles et les) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 433.6 Tm (preferences definies, communiquer une derniere position connue en indiquant son anciennete, ou signaler que) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 418.8 Tm (la localisation n'est pas disponible. Il ne peut pas inventer une position GPS si Android desactive la) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 404.0 Tm (localisation.) Tj ET
+0.10 0.21 0.18 rg BT /F2 13 Tf 1 0 0 1 51.0 368.2 Tm (La vie privee comme contrainte de conception) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 344.2 Tm (Le projet privilegie les contacts explicitement choisis, les autorisations temporaires et revocables, le) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 329.4 Tm (traitement local et des limites aux reponses automatiques pour reduire les risques de surveillance. Dans son) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 314.6 Tm (fonctionnement principal, VeVak ne suit pas les trajets en continu. Le code source est public, sans publicite) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 299.8 Tm (ni compte obligatoire.) Tj ET
+0.10 0.21 0.18 rg BT /F2 13 Tf 1 0 0 1 51.0 264.0 Tm (Pourquoi des testeurs Android ?) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 240.0 Tm (Les fabricants et les versions d'Android ne gerent pas tous les SMS et les taches en arriere-plan de la meme) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 225.2 Tm (facon. Les essais doivent notamment porter sur :) Tj ET
+0.10 0.21 0.18 rg BT /F1 9.7 Tf 1 0 0 1 60.0 201.4 Tm (- La reception et la reponse a un SMS lorsque l'ecran est eteint ou verrouille.) Tj ET
+0.10 0.21 0.18 rg BT /F1 9.7 Tf 1 0 0 1 60.0 182.9 Tm (- Le fonctionnement sans Wi-Fi ni donnees mobiles, lorsqu'un reseau SMS reste disponible.) Tj ET
+0.10 0.21 0.18 rg BT /F1 9.7 Tf 1 0 0 1 60.0 164.4 Tm (- Les differents modeles de telephones, versions d'Android et operateurs.) Tj ET
+0.10 0.21 0.18 rg BT /F1 9.7 Tf 1 0 0 1 60.0 145.9 Tm (- Les telephones a double SIM ou utilisant une eSIM.) Tj ET
+0.10 0.21 0.18 rg BT /F1 9.7 Tf 1 0 0 1 60.0 127.4 Tm (- La clarte des ecrans, des autorisations et des protections contre les abus.) Tj ET
+0.85 0.90 0.86 RG 0.7 w 51 48 m 544 48 l S
+0.35 0.43 0.40 rg BT /F1 8 Tf 1 0 0 1 51.0 34.0 Tm (VeVak  -  Communique de presse  -  11 octobre 2026) Tj ET
+0.35 0.43 0.40 rg BT /F1 8 Tf 1 0 0 1 505.0 34.0 Tm (Page 1) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 2463 >>
+stream
+0.14 0.38 0.29 rg 542 799 20 3 re f
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 785.0 Tm (Aucune competence en developpement n'est necessaire. Les retours sur les etapes incomprehensibles et les) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 770.2 Tm (erreurs rencontrees sont aussi precieux que les rapports techniques.) Tj ET
+0.10 0.21 0.18 rg BT /F2 13 Tf 1 0 0 1 51.0 734.4 Tm (APPEL A TESTEURS - INSCRIPTIONS OUVERTES) Tj ET
+0.15 0.40 0.30 rg BT /F2 11 Tf 1 0 0 1 51.0 710.4 Tm (https://vevak.lepotager.org/#devenir-testeur) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 682.4 Tm (Le formulaire demande notamment l'adresse du compte Google Play et le modele du telephone. Il s'agit d'une) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 667.6 Tm (candidature : les instructions d'acces seront communiquees aux personnes selectionnees.) Tj ET
+0.10 0.21 0.18 rg BT /F2 13 Tf 1 0 0 1 51.0 631.8 Tm (Les limites a connaitre) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 607.8 Tm (Sans Internet ne signifie pas sans reseau : un service cellulaire permettant d'echanger des SMS reste) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 593.0 Tm (necessaire. La reception, la reponse et la fraicheur d'une position dependent du reseau, d'Android et des) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 578.2 Tm (reglages. VeVak reste experimental : il ne remplace ni les services d'urgence ni les fonctions officielles de) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 563.4 Tm (secours.) Tj ET
+0.10 0.21 0.18 rg BT /F2 13 Tf 1 0 0 1 51.0 527.6 Tm (Informations et contact presse) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 503.6 Tm (VeVak - Application Android open source developpee a Metz \(Moselle\) avec Le Potager du Web.) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 479.8 Tm (Communique en ligne : https://vevak.lepotager.org/presse/) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 456.0 Tm (Code source : https://github.com/jasmin-abernathy/vevak) Tj ET
+0.10 0.21 0.18 rg BT /F1 10 Tf 1 0 0 1 51.0 432.2 Tm (Contact presse : contact@lepotager.org) Tj ET
+0.30 0.42 0.37 rg BT /F1 8.9 Tf 1 0 0 1 51.0 408.4 Tm (Captures d'ecran, explications techniques et demonstrations disponibles sur demande.) Tj ET
+0.85 0.90 0.86 RG 0.7 w 51 48 m 544 48 l S
+0.35 0.43 0.40 rg BT /F1 8 Tf 1 0 0 1 51.0 34.0 Tm (VeVak  -  Communique de presse  -  11 octobre 2026) Tj ET
+0.35 0.43 0.40 rg BT /F1 8 Tf 1 0 0 1 505.0 34.0 Tm (Page 2) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Title (VeVak - Communique de presse - 11 octobre 2026) /Author (Le Potager du Web) >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000224 00000 n 
+0000000326 00000 n 
+0000000462 00000 n 
+0000005130 00000 n 
+0000005266 00000 n 
+0000007780 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R /Info 9 0 R >>
+startxref
+7885
+%%EOF
