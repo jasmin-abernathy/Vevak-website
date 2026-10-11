@@ -40,6 +40,30 @@ check_http() {
   log "Contrôle HTTP: OK"
 }
 
+check_press_pdf() {
+  # Vérifier la copie locale ET le PDF effectivement servi, pas seulement un HTTP 200.
+  local filename="vevak-communique-presse-2026-10-11-v2.pdf"
+  local expected="$REPO/assets/$filename"
+  local published="$LIVE/assets/$filename"
+  [[ -s "$expected" ]] || fail "PDF source absent : $expected"
+  [[ -s "$published" ]] || fail "PDF public absent : $published"
+  cmp -s "$expected" "$published" || fail "Le PDF sur le DocumentRoot diffère du PDF GitHub ($filename)."
+  if command -v curl >/dev/null 2>&1; then
+    local tmp
+    tmp="$(mktemp "$HOME/.cache/vevak-pdf-XXXXXX")"
+    if ! curl -fsSL --max-time 30 -o "$tmp" "$SITE_URL/assets/$filename"; then
+      rm -f "$tmp"
+      fail "Impossible de lire le PDF public : $SITE_URL/assets/$filename"
+    fi
+    if ! cmp -s "$expected" "$tmp"; then
+      rm -f "$tmp"
+      fail "PDF public différent de GitHub : possible cache HTTP, réécriture ou mauvais DocumentRoot ($filename)."
+    fi
+    rm -f "$tmp"
+  fi
+  log "Contrôle PDF public : mêmes octets que le dépôt."
+}
+
 [[ -d "$REPO/.git" ]] || fail "Dépôt Git introuvable: $REPO"
 [[ -d "$LIVE" ]] || fail "DocumentRoot introuvable: $LIVE"
 [[ "$LIVE" == "$HOME/public_html/VeVak" ]] || fail "Destination inattendue: $LIVE"
@@ -105,6 +129,7 @@ log "Contrôles locaux: OK"
 
 if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
   check_http
+  check_press_pdf
   log "Aucun nouveau commit."
   exit 0
 fi
@@ -126,6 +151,7 @@ log "Déploiement sécurisé vers $LIVE..."
 rsync -a --delete-delay   --backup --backup-dir="$BACKUP_DIR"   --exclude='.htaccess'   --exclude='.htpasswd'   --exclude='.well-known/'   --exclude='api/'   --exclude='cgi-bin/'   --exclude='test/files/'   "$STAGE/" "$LIVE/"
 
 check_http
+check_press_pdf
 
 printf '%s\n' "$COMMIT" > "$STATE.tmp"
 mv "$STATE.tmp" "$STATE"

@@ -158,3 +158,10 @@ Le résultat doit être la page de connexion/création de mot de passe, jamais l
 Le communiqué est disponible dans `presse/index.html` et le PDF dans `assets/vevak-communique-presse-2026-10-11.pdf`. L'URL du PDF GitHub (accessible même si le cron o2switch n'a pas encore synchronisé) est `https://raw.githubusercontent.com/jasmin-abernathy/Vevak-website/main/assets/vevak-communique-presse-2026-10-11.pdf`.
 
 Si la page `/presse/` n'apparaît pas malgré des modifications habituelles du site, vérifier que la crontab invoque bien `ops/deploy-o2switch-pull.sh` et pas l'ancien `~/bin/deploy-vevak.sh` : une ancienne liste de fichiers autorisés peut omettre `presse/`. Consulter les logs `~/logs/vevak-cron.log` et `~/logs/vevak-deploy.log`. Ne pas déduire un déploiement du simple statut vert GitHub Actions, car le workflow historique est volontairement inactif sans ses secrets.
+
+
+## Version PDF à URL distincte — 11 octobre 2026
+
+Un nouveau chemin `assets/vevak-communique-presse-2026-10-11-v2.pdf` reprend exactement le PDF éditorial de 107 233 octets (blob Git `9f3a37281ebdc49063db24ef8da80730a7bb0c4a`). La page `presse/index.html` pointe désormais vers ce nouveau nom pour éviter toute ancienne copie en cache de l'URL précédente. L'ancien nom reste disponible pour compatibilité mais n'est plus la cible affichée.
+
+Le script de déploiement vérifie maintenant que le PDF dans le DocumentRoot a les mêmes octets que celui du dépôt, puis que la réponse HTTP publique correspond aussi, y compris lorsqu'aucun nouveau commit n'est détecté. En cas de divergence, consulter `~/logs/vevak-deploy.log` : la cause n'est plus imputée aveuglément à la synchronisation ; il peut s'agir du cache ou d'une copie concurrente.
