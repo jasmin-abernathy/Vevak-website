@@ -56,3 +56,5 @@
 .feedback-account-actions form{margin:0}
 @media(max-width:900px){.feedback-layout{grid-template-columns:1fr}.feedback-nav{position:static}.feedback-nav ol{grid-template-columns:repeat(4,minmax(0,1fr))}.feedback-nav button{text-align:center}.feedback-intro-grid{grid-template-columns:1fr}.feedback-profile{min-width:0}}
 @media(max-width:680px){.feedback-auth-grid,.feedback-choices{grid-template-columns:1fr}.feedback-nav ol{grid-template-columns:repeat(2,minmax(0,1fr))}.feedback-question-head{grid-template-columns:1fr}.feedback-number{width:2.6rem;height:2.6rem}.feedback-actions .button,.feedback-actions .right{width:100%}.feedback-actions .right{display:grid}.feedback-account-actions{justify-content:flex-start}}
+
+.feedback-auth-box form+form{margin-top:1rem}.feedback-auth-box strong{overflow-wrap:anywhere}

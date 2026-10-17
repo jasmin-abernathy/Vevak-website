@@ -92,25 +92,21 @@ Le fonctionnement est distinct de la protection cPanel de `/test/` :
 1. la personne s'inscrit sur le formulaire public et accepte le questionnaire ;
 2. Jasmin la retient comme testeur ;
 3. dans `/test/admin-testers.php`, utiliser **Autoriser les retours** ;
-4. l’administration génère un **lien d’activation individuel à usage unique**, valable 14 jours ;
-5. Jasmin transmet ce lien au testeur retenu ;
-6. le lien est retiré de l’URL dès son ouverture et conservé temporairement dans la session ;
-7. la personne confirme son e-mail et crée elle-même un mot de passe d’au moins 12 caractères ;
-8. le lien est consommé dès la création du compte et ne peut plus être rejoué ;
-9. les connexions suivantes utilisent e-mail + mot de passe ;
-10. le questionnaire sauvegarde les réponses côté serveur et permet une reprise après reconnexion.
+4. la personne ouvre `/retours/` et demande un code à son adresse autorisée ;
+5. elle saisit les 8 chiffres reçus par e-mail (validité dix minutes, une seule utilisation) ;
+6. le questionnaire retrouve les réponses déjà enregistrées pour cette adresse.
 
-Le mot de passe est enregistré uniquement avec `password_hash()`. Aucun mot de passe en clair n'est conservé.
+Les anciens mots de passe et liens d’activation ne permettent plus de se connecter. Les anciens liens mènent au nouveau formulaire, sans authentifier leur porteur. Les réponses restent inchangées.
 
-L'administration peut :
+L'administration autorise ou suspend l'accès, consulte l'état des réponses et permet leur export ou la suppression du testeur. Elle n'a plus à créer de lien ni réinitialiser de mot de passe.
 
-- autoriser/suspendre l'accès aux retours ;
-- voir si un mot de passe a déjà été créé ;
-- voir si un questionnaire est en brouillon ou envoyé ;
-- générer/remplacer un lien d’activation avant la première connexion ;
-- réinitialiser le mot de passe : le hash est supprimé et un nouveau lien d’activation est généré ;
-- exporter les réponses ;
-- supprimer l'inscription, ce qui supprime également le compte et les réponses.
+### Envoi des codes
+
+Le serveur o2switch utilise PHP `mail()` et son transport local sendmail, avec expéditeur/enveloppe `contact@lepotager.org`. Aucun secret de messagerie n'est placé dans Git. Une erreur de transport est journalisée sans adresse ni code. L'acceptation par sendmail ne garantit pas la réception dans la boîte finale.
+
+La réponse publique est identique pour une adresse autorisée ou inconnue. Seules les adresses autorisées avec consentement reçoivent un message. Délai minimal de 60 secondes entre deux envois, maximum 5 demandes par adresse et 20 par IP en 15 minutes. Chaque code accepte au plus cinq essais, complétés par des limites indépendantes par adresse et IP. Renvoi, vérification et consommation sont protégés par verrou exclusif ; les empreintes sont des HMAC avec secret local privé. Un échec de transport conserve le code précédent.
+
+Le test `ops/test-feedback-code.php`, exécuté en CI et avant chaque déploiement avec un répertoire privé temporaire, ne transmet aucun e-mail réel.
 
 ## Questionnaire
 
@@ -144,26 +140,9 @@ Cet export n'est pas destiné à Google Play.
 
 Toujours sous `~/.vevak-private/` (ou `VEVAK_TESTERS_STORAGE_DIR` en test) :
 
-- `tester-feedback-accounts.json` : hashes des mots de passe ;
+- `testers.json` : contient aussi l’empreinte HMAC du dernier code, son expiration et le compteur d’essais ;
 - `tester-feedback-answers.json` : réponses et dates ;
-- `tester-feedback-rate-limits.json` : empreintes temporaires anti-bruteforce.
+- `tester-feedback-rate-limits.json` : empreintes temporaires anti-abus ;
+- `tester-feedback-accounts.json` : ancien fichier de mots de passe, désormais inutilisé pour l’authentification. Ses entrées sont supprimées lors de la suppression d’un testeur ; le fichier historique peut être vidé lors de la migration après sauvegarde privée.
 
-La suppression d'un testeur nettoie ses entrées dans les deux premiers fichiers.
-
-
-### Sécurité du lien d’activation
-
-Le simple fait de connaître l’adresse e-mail d’un testeur ne permet pas de créer son compte.
-
-Le lien d’activation :
-
-- contient un jeton aléatoire de 256 bits ;
-- n’est stocké côté serveur que sous forme de SHA-256 ;
-- est lié à l’adresse déjà autorisée ;
-- expire après 14 jours ;
-- est invalidé si un nouveau lien est généré ;
-- est consommé après création du mot de passe ;
-- est retiré de l’URL par redirection avant l’affichage du formulaire ;
-- n’est jamais réutilisé pour les connexions normales.
-
-La page `/retours/` envoie aussi une politique `no-referrer` afin d’éviter qu’un lien d’activation ne soit transmis comme référent à une destination extérieure.
+La suppression d'un testeur retire également son code et ses réponses. La page applique `no-referrer` et `no-store`.

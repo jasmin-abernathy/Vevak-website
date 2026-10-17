@@ -142,7 +142,7 @@ Le site web et l’APK restent séparés. Le déploiement décrit ici ne publie 
 
 Le dossier public `retours/` est maintenant inclus dans le staging du déploiement pull o2switch.
 
-Il contient uniquement le code du portail et du questionnaire. Les comptes, hashes de mots de passe et réponses ne vivent jamais dans le DocumentRoot : ils restent sous `~/.vevak-private/` via `assets/tester-storage.php`.
+Il contient uniquement le code du portail et du questionnaire. Les codes de connexion (empreintes uniquement) et réponses ne vivent jamais dans le DocumentRoot : ils restent sous `~/.vevak-private/` via `assets/tester-storage.php`.
 
 Contrôle après déploiement :
 
@@ -150,7 +150,7 @@ Contrôle après déploiement :
 curl -LsS https://vevak.lepotager.org/retours/ | grep -q 'Questionnaire de retour'
 ```
 
-Le résultat doit être la page de connexion/création de mot de passe, jamais les réponses d'un testeur.
+Le résultat doit être la page de connexion par code e-mail, jamais les réponses d'un testeur.
 
 
 ## Communiqué de presse — octobre 2026

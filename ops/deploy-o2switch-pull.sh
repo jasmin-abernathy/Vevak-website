@@ -101,26 +101,7 @@ fi
 
 SELFTEST_DIR="$(mktemp -d "$HOME/.cache/vevak-feedback-selftest.XXXXXX")"
 chmod 700 "$SELFTEST_DIR"
-if ! VEVAK_TESTERS_STORAGE_DIR="$SELFTEST_DIR" php -r '
-  require $argv[1];
-  vv_register_tester("deploy-selftest@example.org", "Pixel test", "Android test", "single", true);
-  $rows = vv_get_testers();
-  if (count($rows) !== 1) { exit(10); }
-  $key = (string) $rows[0]["key"];
-  if (!vv_set_feedback_enabled($key, true)) { exit(11); }
-  $invite = vv_feedback_issue_invite($key);
-  if ($invite === null || vv_feedback_invite_email($invite) !== "deploy-selftest@example.org") { exit(12); }
-  $created = vv_feedback_create_account("deploy-selftest@example.org", "mot-de-passe-de-test-2026", $invite);
-  if (empty($created["ok"])) { exit(13); }
-  if (vv_feedback_invite_email($invite) !== null) { exit(14); }
-  if (!vv_feedback_verify_password("deploy-selftest@example.org", "mot-de-passe-de-test-2026")) { exit(15); }
-  vv_feedback_save_answers("deploy-selftest@example.org", ["q1_launch" => "very_clear", "comment_q1_launch" => "RAS"], true);
-  $answers = vv_feedback_get_answers("deploy-selftest@example.org");
-  if (($answers["answers"]["q1_launch"] ?? "") !== "very_clear") { exit(16); }
-  if (!vv_delete_tester($key)) { exit(17); }
-  if (vv_feedback_account_exists("deploy-selftest@example.org")) { exit(18); }
-  if (vv_feedback_get_answers("deploy-selftest@example.org") !== []) { exit(19); }
-' "$REPO/assets/tester-storage.php"; then
+if ! VEVAK_TESTERS_STORAGE_DIR="$SELFTEST_DIR" php "$REPO/ops/test-feedback-code.php"; then
   rm -rf "$SELFTEST_DIR"
   fail "Auto-test du portail testeurs en échec."
 fi
@@ -138,7 +119,7 @@ STAGE="$(mktemp -d "$HOME/.cache/vevak-stage.XXXXXX")"
 chmod 755 "$STAGE"
 trap 'rm -rf "$STAGE"' EXIT
 
-for path in index.html .nojekyll robots.txt sitemap.xml assets en soutenir test retours presse; do
+for path in index.html .nojekyll robots.txt sitemap.xml assets en confidentialite soutenir test retours presse; do
   [[ -e "$REPO/$path" ]] || continue
   rsync -a "$REPO/$path" "$STAGE/"
 done

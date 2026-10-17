@@ -152,19 +152,14 @@ $notice = '';
 $action = (string) ($_POST['action'] ?? '');
 $requestMethod = (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
-$inviteFromUrl = trim((string) ($_GET['invite'] ?? ''));
-if ($requestMethod === 'GET' && $inviteFromUrl !== '') {
-    $inviteEmail = vv_feedback_invite_email($inviteFromUrl);
-    if ($inviteEmail === null) {
-        unset($_SESSION['vevak_feedback_invite'], $_SESSION['vevak_feedback_invite_email']);
-        $error = 'Ce lien d’activation est invalide, expiré ou a déjà été remplacé.';
-    } else {
-        $_SESSION['vevak_feedback_invite'] = $inviteFromUrl;
-        $_SESSION['vevak_feedback_invite_email'] = vv_normalize_email_key($inviteEmail);
-        header('Location: ./?activate=1');
-        exit;
-    }
+// Old invitation links still land here, but never authenticate anyone.
+if ($requestMethod === 'GET' && isset($_GET['invite'])) {
+    unset($_SESSION['vevak_feedback_invite'], $_SESSION['vevak_feedback_invite_email']);
+    header('Location: ./');
+    exit;
 }
+header('Cache-Control: no-store');
+header('X-Content-Type-Options: nosniff');
 
 if ($requestMethod === 'POST' && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 65536) {
     http_response_code(413);
@@ -182,72 +177,34 @@ try {
         exit;
     }
 
-    if ($requestMethod === 'POST' && $action === 'create_account') {
+    if ($requestMethod === 'POST' && $action === 'request_code') {
         vf_check_csrf();
         $email = trim((string) ($_POST['email'] ?? ''));
-        $password = (string) ($_POST['password'] ?? '');
-        $confirm = (string) ($_POST['password_confirm'] ?? '');
-        $inviteToken = (string) ($_SESSION['vevak_feedback_invite'] ?? '');
-        $inviteEmail = (string) ($_SESSION['vevak_feedback_invite_email'] ?? '');
-
-        if (!vv_feedback_rate_limit((string) ($_SERVER['REMOTE_ADDR'] ?? ''), $email)) {
-            throw new RuntimeException('Trop de tentatives. Réessaie dans quelques minutes.');
-        }
-        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            throw new RuntimeException('Vérifie ton adresse e-mail.');
-        }
-        if ($password !== $confirm) {
-            throw new RuntimeException('Les deux mots de passe ne correspondent pas.');
-        }
-        if (strlen($password) > 256) {
-            throw new RuntimeException('Le mot de passe est trop long.');
-        }
-        if (
-            $inviteToken === ''
-            || $inviteEmail === ''
-            || !hash_equals($inviteEmail, vv_normalize_email_key($email))
-        ) {
-            throw new RuntimeException('Ce lien d’activation ne correspond pas à cette adresse ou a expiré.');
-        }
-
-        $result = vv_feedback_create_account($email, $password, $inviteToken);
-        if (!empty($result['ok'])) {
-            unset($_SESSION['vevak_feedback_invite'], $_SESSION['vevak_feedback_invite_email']);
-            vf_mark_logged($email);
-            header('Location: ./');
-            exit;
-        }
-
-        $reason = (string) ($result['reason'] ?? '');
-        $error = match ($reason) {
-            'weak' => 'Choisis un mot de passe d’au moins 12 caractères.',
-            'too_long' => 'Le mot de passe est trop long.',
-            'exists' => 'Un mot de passe existe déjà pour cette adresse. Utilise la connexion.',
-            'invite' => 'Ce lien d’activation est invalide, expiré ou ne correspond pas à cette adresse.',
-            default => 'Cette adresse n’est pas autorisée pour l’espace de retours.',
-        };
+        vv_feedback_request_code($email, (string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+        $_SESSION['vevak_feedback_pending_email'] = vv_normalize_email_key($email);
+        $_SESSION['vevak_feedback_code_notice'] = true;
+        header('Location: ./');
+        exit;
     }
 
-    if ($requestMethod === 'POST' && $action === 'login') {
+    if ($requestMethod === 'POST' && $action === 'change_email') {
         vf_check_csrf();
-        $email = trim((string) ($_POST['email'] ?? ''));
-        $password = (string) ($_POST['password'] ?? '');
+        unset($_SESSION['vevak_feedback_pending_email']);
+        header('Location: ./');
+        exit;
+    }
 
-        if (strlen($password) > 256) {
-            throw new RuntimeException('Adresse ou mot de passe incorrect.');
-        }
-
-        if (!vv_feedback_rate_limit((string) ($_SERVER['REMOTE_ADDR'] ?? ''), $email)) {
-            throw new RuntimeException('Trop de tentatives. Réessaie dans quelques minutes.');
-        }
-
-        if ($email !== '' && vv_feedback_verify_password($email, $password)) {
+    if ($requestMethod === 'POST' && $action === 'verify_code') {
+        vf_check_csrf();
+        $email = (string) ($_SESSION['vevak_feedback_pending_email'] ?? '');
+        $code = trim((string) ($_POST['code'] ?? ''));
+        if ($email !== '' && vv_feedback_verify_code($email, $code, (string) ($_SERVER['REMOTE_ADDR'] ?? ''))) {
+            unset($_SESSION['vevak_feedback_pending_email']);
             vf_mark_logged($email);
             header('Location: ./');
             exit;
         }
-
-        $error = 'Adresse ou mot de passe incorrect.';
+        $error = 'Code incorrect ou expiré. Après cinq essais, demande un nouveau code.';
     }
 
     $loggedEmail = vf_logged_email();
@@ -334,8 +291,11 @@ try {
 $loggedEmail = vf_logged_email();
 $tester = $loggedEmail !== '' ? vv_get_tester($loggedEmail) : null;
 $stored = $loggedEmail !== '' ? vv_feedback_get_answers($loggedEmail) : [];
-$activationEmail = (string) ($_SESSION['vevak_feedback_invite_email'] ?? '');
-$activationPending = $activationEmail !== '' && !empty($_SESSION['vevak_feedback_invite']);
+$pendingEmail = (string) ($_SESSION['vevak_feedback_pending_email'] ?? '');
+if (!empty($_SESSION['vevak_feedback_code_notice'])) {
+    $notice = 'Si cette adresse est autorisée, tu recevras un code par e-mail. Vérifie aussi les courriers indésirables. Pour un nouvel envoi, attends une minute.';
+    unset($_SESSION['vevak_feedback_code_notice']);
+}
 $answers = is_array($stored['answers'] ?? null) ? $stored['answers'] : [];
 $submittedAt = (string) ($stored['submitted_at'] ?? '');
 
@@ -366,7 +326,7 @@ $totalQuestions = count($questions);
   <title>Retours testeurs — VeVak</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css?v=20260918-a11y-v2">
-  <link rel="stylesheet" href="./retours.css?v=20260927">
+  <link rel="stylesheet" href="./retours.css?v=20261017-code">
   <script defer src="../assets/site.js?v=20260918-a11y-v2"></script>
   <?php if ($loggedEmail !== ''): ?><script defer src="./retours.js?v=20260927"></script><?php endif; ?>
 </head>
@@ -393,53 +353,48 @@ $totalQuestions = count($questions);
       <div class="feedback-auth-card">
         <p class="eyebrow"><span class="status-dot"></span> Espace privé · testeurs VeVak</p>
         <h1>Questionnaire de retour</h1>
-        <p class="lead-small">Cet espace est réservé aux testeurs retenus. Une fois ton adresse autorisée, tu crées toi-même ton mot de passe. Tes réponses restent enregistrées pour pouvoir reprendre le questionnaire plus tard.</p>
+        <p class="lead-small">Cet espace est réservé aux testeurs retenus. Connecte-toi avec un code à usage unique envoyé à ton adresse e-mail autorisée. Tes réponses restent enregistrées pour pouvoir reprendre le questionnaire plus tard.</p>
 
         <?php if ($error !== ''): ?><p class="feedback-notice error" role="alert"><?= vf_e($error) ?></p><?php endif; ?>
         <?php if ($notice !== ''): ?><p class="feedback-notice success" role="status"><?= vf_e($notice) ?></p><?php endif; ?>
 
-        <div class="feedback-auth-grid">
-          <section class="feedback-auth-box">
-            <h2>J’ai déjà un mot de passe</h2>
+        <section class="feedback-auth-box">
+          <?php if ($pendingEmail === ''): ?>
+            <h2>Recevoir mon code de connexion</h2>
             <form method="post">
               <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
-              <input type="hidden" name="action" value="login">
-              <label>E-mail utilisé pour le test
-                <input type="email" name="email" autocomplete="username" required>
+              <input type="hidden" name="action" value="request_code">
+              <label>Adresse e-mail utilisée pour le test
+                <input type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required value="<?= vf_e((string) ($_POST['email'] ?? '')) ?>">
               </label>
-              <label>Mot de passe
-                <input type="password" name="password" autocomplete="current-password" maxlength="256" required>
+              <button class="button primary" type="submit">Recevoir mon code</button>
+            </form>
+          <?php else: ?>
+            <h2>Saisir mon code</h2>
+            <p>Adresse : <strong><?= vf_e($pendingEmail) ?></strong></p>
+            <form method="post">
+              <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
+              <input type="hidden" name="action" value="verify_code">
+              <label>Code à 8 chiffres
+                <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{8}" minlength="8" maxlength="8" aria-describedby="code-help" required autofocus>
               </label>
+              <p id="code-help">Valable 10 minutes, pour une seule connexion. Seul le code du dernier e-mail reçu fonctionne.</p>
               <button class="button primary" type="submit">Se connecter</button>
             </form>
-          </section>
-
-          <section class="feedback-auth-box">
-            <h2>Première connexion</h2>
-            <?php if ($activationPending): ?>
-              <p>Ton lien d’activation est reconnu. Confirme ton adresse puis choisis ton mot de passe.</p>
-              <form method="post">
-                <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
-                <input type="hidden" name="action" value="create_account">
-                <label>E-mail utilisé pour le test
-                  <input type="email" name="email" autocomplete="username" required value="<?= vf_e($activationEmail) ?>">
-                </label>
-                <label>Choisir un mot de passe
-                  <input type="password" name="password" autocomplete="new-password" minlength="12" maxlength="256" required>
-                </label>
-                <label>Confirmer le mot de passe
-                  <input type="password" name="password_confirm" autocomplete="new-password" minlength="12" maxlength="256" required>
-                </label>
-                <button class="button secondary" type="submit">Créer mon mot de passe</button>
-              </form>
-            <?php else: ?>
-              <p>Pour créer ton mot de passe, ouvre le lien d’activation individuel transmis après validation de ta participation.</p>
-              <p><strong>Tu as été retenu mais tu n’as plus le lien ?</strong> Demande simplement qu’un nouveau lien soit généré.</p>
-            <?php endif; ?>
-          </section>
-        </div>
-
-        <p class="feedback-warning"><strong>Mot de passe oublié ?</strong> Demande une réinitialisation à <a href="mailto:contact@lepotager.org">contact@lepotager.org</a>. Aucun mot de passe n’est envoyé ou conservé en clair.</p>
+            <form method="post">
+              <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
+              <input type="hidden" name="action" value="request_code">
+              <input type="hidden" name="email" value="<?= vf_e($pendingEmail) ?>">
+              <button class="button secondary" type="submit">Recevoir un nouveau code</button>
+            </form>
+            <form method="post">
+              <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
+              <input type="hidden" name="action" value="change_email">
+              <button class="button secondary" type="submit">Changer d’adresse e-mail</button>
+            </form>
+          <?php endif; ?>
+        </section>
+        <p class="feedback-warning">L’accès reste réservé aux testeurs autorisés. Aucun mot de passe à créer. Si tu ne reçois pas ton code, contacte <a href="mailto:contact@lepotager.org">contact@lepotager.org</a>.</p>
       </div>
     </section>
   <?php else: ?>

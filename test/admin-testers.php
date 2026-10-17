@@ -104,7 +104,6 @@ try {
     }
 
     $notice = '';
-    $inviteLink = '';
     if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $token = (string) ($_POST['csrf'] ?? '');
         if (!hash_equals($csrf, $token)) {
@@ -134,48 +133,9 @@ try {
                 $notice = 'Ce testeur n’a pas accepté de participer au questionnaire.';
             } else {
                 vv_set_feedback_enabled($key, $enabled);
-                if (!$enabled) {
-                    $notice = 'Accès au questionnaire suspendu.';
-                } elseif (vv_feedback_account_exists((string) $target['email'])) {
-                    $notice = 'Accès au questionnaire réactivé. Le mot de passe existant reste valable.';
-                } else {
-                    $invite = vv_feedback_issue_invite($key);
-                    if ($invite === null) {
-                        throw new RuntimeException('Impossible de créer le lien d’activation.');
-                    }
-                    $inviteLink = 'https://vevak.lepotager.org/retours/?invite=' . rawurlencode($invite);
-                    $notice = 'Accès autorisé. Envoie le lien d’activation ci-dessous au testeur.';
-                }
-            }
-            $rows = vv_get_testers();
-        } elseif ($action === 'new_feedback_invite') {
-            $key = (string) ($_POST['key'] ?? '');
-            $invite = vv_feedback_issue_invite($key);
-            if ($invite === null) {
-                $notice = 'Impossible de créer un lien : vérifie que l’accès est autorisé et que le consentement est présent.';
-            } else {
-                $inviteLink = 'https://vevak.lepotager.org/retours/?invite=' . rawurlencode($invite);
-                $notice = 'Nouveau lien d’activation créé. L’ancien lien n’est plus valable.';
-            }
-            $rows = vv_get_testers();
-        } elseif ($action === 'reset_feedback_password') {
-            $key = (string) ($_POST['key'] ?? '');
-            $targetEmail = '';
-            foreach ($rows as $row) {
-                if (hash_equals((string) ($row['key'] ?? ''), $key)) {
-                    $targetEmail = (string) ($row['email'] ?? '');
-                    break;
-                }
-            }
-            if ($targetEmail === '' || !vv_feedback_reset_password($targetEmail)) {
-                $notice = 'Aucun mot de passe actif à réinitialiser.';
-            } else {
-                $invite = vv_feedback_issue_invite($key);
-                if ($invite === null) {
-                    throw new RuntimeException('Mot de passe supprimé, mais impossible de créer le nouveau lien d’activation.');
-                }
-                $inviteLink = 'https://vevak.lepotager.org/retours/?invite=' . rawurlencode($invite);
-                $notice = 'Mot de passe réinitialisé. Envoie le nouveau lien d’activation au testeur.';
+                $notice = $enabled
+                    ? 'Accès autorisé. Le testeur peut recevoir son code par e-mail sur https://vevak.lepotager.org/retours/.'
+                    : 'Accès au questionnaire suspendu.';
             }
             $rows = vv_get_testers();
         }
@@ -209,13 +169,6 @@ function e(string $value): string
   <h1>Demandes de test Google Play</h1>
   <p class="admin-meta">Connecté via la protection du dossier <code>/test/</code> : <?= e($authenticatedUser) ?>. <?= count($rows) ?> inscription(s).</p>
   <?php if ($notice !== ''): ?><p class="admin-notice" role="status"><?= e($notice) ?></p><?php endif; ?>
-  <?php if (($inviteLink ?? '') !== ''): ?>
-    <div class="admin-invite" role="status">
-      <strong>Lien d’activation à envoyer au testeur</strong>
-      <input type="text" readonly value="<?= e($inviteLink) ?>" onclick="this.select()">
-      <small>Usage unique, valable 14 jours. Un nouveau lien invalide le précédent.</small>
-    </div>
-  <?php endif; ?>
   <div class="admin-actions">
     <a class="button primary" href="?export=play">Exporter pour Google Play</a>
     <a class="button secondary" href="?export=spreadsheet">Exporter pour tableur</a>
@@ -224,7 +177,7 @@ function e(string $value): string
     <a class="button secondary" href="../retours/">Voir l’espace retours</a>
   </div>
   <p class="admin-meta"><strong>Export Google Play :</strong> un e-mail par ligne, aucun en-tête, aucune virgule et aucun BOM UTF-8. L’export « tableur » ajoute le téléphone, Android, la SIM et l’état du questionnaire ; il ne doit pas être importé dans Play Console.</p>
-  <p class="admin-meta"><strong>Espace retours :</strong> une inscription publique n’ouvre pas automatiquement l’accès. Active « Autoriser les retours » uniquement pour les personnes réellement retenues. Elles créeront ensuite elles-mêmes leur mot de passe sur <code>/retours/</code>.</p>
+  <p class="admin-meta"><strong>Espace retours :</strong> une inscription publique n’ouvre pas automatiquement l’accès. Active « Autoriser les retours » uniquement pour les personnes réellement retenues. Elles recevront un code à usage unique par e-mail pour se connecter sur <code>/retours/</code>.</p>
 
   <div class="admin-table-wrap">
     <table class="admin-table">
@@ -236,7 +189,6 @@ function e(string $value): string
         <?php
           $feedbackConsent = !empty($row['feedback_consent']);
           $feedbackEnabled = !empty($row['feedback_enabled']);
-          $feedbackAccount = vv_feedback_account_exists((string) $row['email']);
           $feedbackData = vv_feedback_get_answers((string) $row['email']);
           $feedbackSubmittedAt = (string) ($feedbackData['submitted_at'] ?? '');
           $feedbackUpdatedAt = (string) ($feedbackData['updated_at'] ?? '');
@@ -247,7 +199,7 @@ function e(string $value): string
           <td><?= e((string) ($row['android_version'] ?? '—')) ?><br><small><?= e((string) ($row['sim_setup'] ?? '—')) ?></small></td>
           <td>
             <strong><?= $feedbackConsent ? 'Accord ✓' : 'Pas d’accord' ?></strong><br>
-            <small><?= $feedbackEnabled ? 'Accès autorisé' : 'Accès non autorisé' ?> · <?= $feedbackAccount ? 'mot de passe créé' : 'pas encore de mot de passe' ?></small><br>
+            <small><?= $feedbackEnabled ? 'Accès autorisé' : 'Accès non autorisé' ?> · connexion par code e-mail</small><br>
             <small><?php if ($feedbackSubmittedAt !== ''): ?>questionnaire envoyé le <?= e($feedbackSubmittedAt) ?><?php elseif ($feedbackUpdatedAt !== ''): ?>brouillon sauvegardé le <?= e($feedbackUpdatedAt) ?><?php else: ?>aucune réponse pour l’instant<?php endif; ?></small>
           </td>
           <td><small>Créée : <?= e((string) ($row['created_at'] ?? '')) ?><br>Dernière demande : <?= e((string) ($row['last_requested_at'] ?? '')) ?></small></td>
@@ -258,22 +210,6 @@ function e(string $value): string
                 <input type="hidden" name="action" value="<?= $feedbackEnabled ? 'disable_feedback' : 'enable_feedback' ?>">
                 <input type="hidden" name="key" value="<?= e((string) $row['key']) ?>">
                 <button class="button secondary" type="submit"><?= $feedbackEnabled ? 'Suspendre les retours' : 'Autoriser les retours' ?></button>
-              </form>
-            <?php endif; ?>
-            <?php if ($feedbackEnabled && !$feedbackAccount): ?>
-              <form method="post" class="delete-form">
-                <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-                <input type="hidden" name="action" value="new_feedback_invite">
-                <input type="hidden" name="key" value="<?= e((string) $row['key']) ?>">
-                <button class="button secondary" type="submit">Nouveau lien d’activation</button>
-              </form>
-            <?php endif; ?>
-            <?php if ($feedbackAccount): ?>
-              <form method="post" class="delete-form" onsubmit="return confirm('Réinitialiser le mot de passe de ce testeur ? Un nouveau lien d’activation sera créé.');">
-                <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-                <input type="hidden" name="action" value="reset_feedback_password">
-                <input type="hidden" name="key" value="<?= e((string) $row['key']) ?>">
-                <button class="button secondary" type="submit">Réinitialiser le mot de passe</button>
               </form>
             <?php endif; ?>
             <form method="post" class="delete-form" onsubmit="return confirm('Supprimer cette inscription et ses retours ?');">

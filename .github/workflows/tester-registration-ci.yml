@@ -9,7 +9,7 @@ on:
       - 'test/admin-testers.php'
       - 'retours/**'
       - 'confidentialite/testeurs-google-play.html'
-      - 'TESTER_REGISTRATION.md'
+      - 'ops/test-feedback-code.php'
       - '.github/workflows/tester-registration-ci.yml'
   push:
     branches: [main]
@@ -20,7 +20,7 @@ on:
       - 'test/admin-testers.php'
       - 'retours/**'
       - 'confidentialite/testeurs-google-play.html'
-      - 'TESTER_REGISTRATION.md'
+      - 'ops/test-feedback-code.php'
       - '.github/workflows/tester-registration-ci.yml'
 
 permissions:
@@ -55,8 +55,8 @@ jobs:
           ! grep -q 'VeVak-beta.apk' index.html
           ! grep -q 'VeVak-beta.apk' en/index.html
           grep -q 'REMOTE_USER' test/admin-testers.php
-          grep -q 'VEVAK_FEEDBACK_INVITE_TTL' assets/tester-storage.php
-          grep -q 'feedback_invite_hash' assets/tester-storage.php
+          grep -q 'VEVAK_FEEDBACK_CODE_TTL' assets/tester-storage.php
+          grep -q 'autocomplete="one-time-code"' retours/index.php
           grep -q 'name="referrer" content="no-referrer"' retours/index.php
           grep -q 'Confidentialité des demandes de test' confidentialite/testeurs-google-play.html
 
@@ -64,32 +64,7 @@ jobs:
         run: |
           tmpdir="$(mktemp -d)"
           export VEVAK_TESTERS_STORAGE_DIR="$tmpdir"
-          php -r '
-            require "assets/tester-storage.php";
-            vv_register_tester("tester+ci@proton.me", "Pixel 8a", "Android 15", "single", true);
-            vv_register_tester("tester+ci@proton.me", "Pixel 8a", "Android 15", "single", true);
-            $rows = vv_get_testers();
-            if (count($rows) !== 1) { fwrite(STDERR, "duplicate failure\n"); exit(1); }
-            if ($rows[0]["email"] !== "tester+ci@proton.me") { fwrite(STDERR, "email altered\n"); exit(1); }
-            if (empty($rows[0]["feedback_consent"])) { fwrite(STDERR, "feedback consent missing\n"); exit(1); }
-            vv_set_feedback_enabled($rows[0]["key"], true);
-            $invite = vv_feedback_issue_invite($rows[0]["key"]);
-            if ($invite === null) { fwrite(STDERR, "invite creation failure\n"); exit(1); }
-            if (vv_feedback_invite_email($invite) !== "tester+ci@proton.me") { fwrite(STDERR, "invite binding failure\n"); exit(1); }
-            $wrong = vv_feedback_create_account("tester+ci@proton.me", "un-mot-de-passe-test-2026", str_repeat("a", 64));
-            if (!empty($wrong["ok"])) { fwrite(STDERR, "invalid invite accepted\n"); exit(1); }
-            $created = vv_feedback_create_account("tester+ci@proton.me", "un-mot-de-passe-test-2026", $invite);
-            if (empty($created["ok"])) { fwrite(STDERR, "account creation failure\n"); exit(1); }
-            if (vv_feedback_invite_email($invite) !== null) { fwrite(STDERR, "invite replay remained valid\n"); exit(1); }
-            if (!vv_feedback_verify_password("tester+ci@proton.me", "un-mot-de-passe-test-2026")) { fwrite(STDERR, "password verify failure\n"); exit(1); }
-            vv_feedback_save_answers("tester+ci@proton.me", ["q1_launch" => "very_clear", "comment_q1_launch" => "RAS"], true);
-            $feedback = vv_feedback_get_answers("tester+ci@proton.me");
-            if (($feedback["answers"]["q1_launch"] ?? "") !== "very_clear") { fwrite(STDERR, "feedback save failure\n"); exit(1); }
-            if (!vv_delete_tester($rows[0]["key"])) { fwrite(STDERR, "delete failure\n"); exit(1); }
-            if (vv_feedback_account_exists("tester+ci@proton.me")) { fwrite(STDERR, "feedback account cleanup failure\n"); exit(1); }
-            if (vv_feedback_get_answers("tester+ci@proton.me") !== []) { fwrite(STDERR, "feedback answer cleanup failure\n"); exit(1); }
-            if (count(vv_get_testers()) !== 0) { fwrite(STDERR, "cleanup failure\n"); exit(1); }
-          '
+          php ops/test-feedback-code.php
           rm -rf "$tmpdir"
 
       - name: HTTP behaviour without external messages

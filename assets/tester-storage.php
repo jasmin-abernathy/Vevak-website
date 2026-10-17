@@ -9,7 +9,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
 const VEVAK_TESTER_CONSENT_VERSION = 'google-play-tester-v2-2026-09-27';
 const VEVAK_TESTER_RATE_LIMIT = 8;
 const VEVAK_TESTER_RATE_WINDOW = 3600;
-const VEVAK_FEEDBACK_INVITE_TTL = 14 * 24 * 3600;
+const VEVAK_FEEDBACK_CODE_TTL = 600;
 
 function vv_private_dir(): string
 {
@@ -79,17 +79,19 @@ function vv_feedback_rate_file(): string
 function vv_rate_secret(): string
 {
     $path = vv_private_dir() . '/tester-rate-secret';
-    if (!is_file($path)) {
-        $secret = bin2hex(random_bytes(32));
-        if (@file_put_contents($path, $secret, LOCK_EX) === false) {
-            throw new RuntimeException('Unable to initialise the rate-limit secret.');
+    $handle = @fopen($path, 'c+');
+    if ($handle === false) { throw new RuntimeException('Unable to open the rate-limit secret.'); }
+    @chmod($path, 0600);
+    try {
+        if (!flock($handle, LOCK_EX)) { throw new RuntimeException('Unable to lock the rate-limit secret.'); }
+        $secret = trim((string) stream_get_contents($handle));
+        if ($secret === '') {
+            $secret = bin2hex(random_bytes(32));
+            if (fwrite($handle, $secret) !== strlen($secret)) { throw new RuntimeException('Unable to initialise the rate-limit secret.'); }
+            fflush($handle);
         }
-        @chmod($path, 0600);
-    }
-    $secret = trim((string) @file_get_contents($path));
-    if (strlen($secret) < 32) {
-        throw new RuntimeException('Invalid rate-limit secret.');
-    }
+        if (strlen($secret) < 32) { throw new RuntimeException('Invalid rate-limit secret.'); }
+    } finally { fclose($handle); }
     return $secret;
 }
 
@@ -183,8 +185,7 @@ function vv_register_tester(
                 : ($existing['feedback_consent_at'] ?? ''),
             'feedback_enabled' => (bool) ($existing['feedback_enabled'] ?? false),
             'feedback_enabled_at' => $existing['feedback_enabled_at'] ?? '',
-            'feedback_invite_hash' => $existing['feedback_invite_hash'] ?? '',
-            'feedback_invite_created_at' => (int) ($existing['feedback_invite_created_at'] ?? 0),
+            'feedback_code' => $existing['feedback_code'] ?? [],
             'created_at' => $existing['created_at'] ?? $now,
             'last_requested_at' => $now,
             'consent_version' => VEVAK_TESTER_CONSENT_VERSION,
@@ -219,8 +220,7 @@ function vv_set_feedback_enabled(string $key, bool $enabled): bool
         $data['testers'][$key]['feedback_enabled'] = $enabled;
         $data['testers'][$key]['feedback_enabled_at'] = $enabled ? gmdate('Y-m-d\TH:i:s\Z') : '';
         if (!$enabled) {
-            $data['testers'][$key]['feedback_invite_hash'] = '';
-            $data['testers'][$key]['feedback_invite_created_at'] = 0;
+            unset($data['testers'][$key]['feedback_code']);
         }
         $updated = true;
     });
@@ -264,201 +264,107 @@ function vv_delete_tester(string $key): bool
     return $deleted;
 }
 
-function vv_feedback_issue_invite(string $key): ?string
+/** Limits are independent per IP and address, including unknown addresses. */
+function vv_feedback_code_rate_limit(string $ip, string $email, string $action): bool
 {
-    $token = bin2hex(random_bytes(32));
-    $hash = hash('sha256', $token);
-    $createdAt = time();
-    $issued = false;
-
-    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $hash, $createdAt, &$issued): void {
-        $row = $data['testers'][$key] ?? null;
-        if (
-            !is_array($row)
-            || empty($row['feedback_consent'])
-            || empty($row['feedback_enabled'])
-        ) {
-            return;
-        }
-
-        $data['testers'][$key]['feedback_invite_hash'] = $hash;
-        $data['testers'][$key]['feedback_invite_created_at'] = $createdAt;
-        $issued = true;
-    });
-
-    return $issued ? $token : null;
-}
-
-function vv_feedback_invite_email(string $token): ?string
-{
-    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
-        return null;
-    }
-
-    $candidate = hash('sha256', $token);
-    $now = time();
-
-    return vv_with_json_file(vv_data_file(), ['testers' => []], false, function ($data) use ($candidate, $now): ?string {
-        foreach (($data['testers'] ?? []) as $row) {
-            if (!is_array($row) || empty($row['email']) || empty($row['feedback_invite_hash'])) {
-                continue;
-            }
-            $createdAt = (int) ($row['feedback_invite_created_at'] ?? 0);
-            if ($createdAt <= 0 || ($createdAt + VEVAK_FEEDBACK_INVITE_TTL) < $now) {
-                continue;
-            }
-            if (hash_equals((string) $row['feedback_invite_hash'], $candidate)) {
-                return (string) $row['email'];
+    $secret = vv_rate_secret();
+    $keys = [
+        hash_hmac('sha256', $action . '|ip|' . $ip, $secret) => $action === 'send' ? 20 : 40,
+        hash_hmac('sha256', $action . '|email|' . vv_normalize_email_key($email), $secret) => $action === 'send' ? 5 : 10,
+    ];
+    return vv_with_json_file(vv_feedback_rate_file(), ['clients' => []], true, function (&$data) use ($keys): bool {
+        $now = time();
+        foreach (($data['clients'] ?? []) as $key => $entry) {
+            if ((int) ($entry['window_start'] ?? 0) <= $now - 900) {
+                unset($data['clients'][$key]);
             }
         }
-        return null;
+        $allowed = true;
+        foreach ($keys as $key => $limit) {
+            $entry = $data['clients'][$key] ?? ['window_start' => $now, 'hits' => 0];
+            $entry['hits']++;
+            if ($entry['hits'] > $limit) { $allowed = false; }
+            $data['clients'][$key] = $entry;
+        }
+        return $allowed;
     });
 }
 
-function vv_feedback_consume_invite(string $email, string $token): bool
+function vv_feedback_mail_code(string $email, string $code): bool
 {
-    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || preg_match('/[\r\n]/', $email)) {
         return false;
     }
+    $body = "Bonjour,\n\nTon code de connexion VeVak est : " . $code
+        . "\n\nIl est valable 10 minutes et ne peut être utilisé qu’une fois."
+        . "\nSaisis-le sur https://vevak.lepotager.org/retours/"
+        . "\n\nNe communique ce code à personne. Si tu n’as pas demandé ce code, ignore ce message.\n\nVeVak — Le Potager du Web\n";
+    return mail($email, 'VeVak - ton code de connexion', $body, [
+        'From' => 'VeVak <contact@lepotager.org>',
+        'Reply-To' => 'contact@lepotager.org',
+        'MIME-Version' => '1.0',
+        'Content-Type' => 'text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding' => '8bit',
+    ], '-fcontact@lepotager.org');
+}
 
+/** No code or membership status is returned to the browser. Sender injection is for CLI tests only. */
+function vv_feedback_request_code(string $email, string $ip, ?callable $sender = null): void
+{
+    if (strlen($email) > 254 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        throw new RuntimeException('Vérifie ton adresse e-mail.');
+    }
+    if (!vv_feedback_code_rate_limit($ip, $email, 'send')) {
+        throw new RuntimeException('Trop de demandes. Attends 15 minutes avant de réessayer.');
+    }
     $key = vv_normalize_email_key($email);
-    $candidate = hash('sha256', $token);
-    $consumed = false;
-    $now = time();
-
-    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $candidate, $now, &$consumed): void {
+    $secret = vv_rate_secret();
+    $send = $sender ?? 'vv_feedback_mail_code';
+    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $secret, $send): void {
         $row = $data['testers'][$key] ?? null;
-        if (
-            !is_array($row)
-            || empty($row['feedback_consent'])
-            || empty($row['feedback_enabled'])
-            || empty($row['feedback_invite_hash'])
-        ) {
+        if (!is_array($row) || empty($row['feedback_consent']) || empty($row['feedback_enabled'])) { return; }
+        $now = time();
+        if ((int) ($row['feedback_code']['sent_at'] ?? 0) > $now - 60) { return; }
+        $code = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        // Keep the previous code if the mail server refuses this message.
+        try { $sent = $send((string) $row['email'], $code); }
+        catch (Throwable $error) { $sent = false; }
+        if (!$sent) {
+            error_log('VeVak: login code mail transport failed.');
             return;
         }
-
-        $createdAt = (int) ($row['feedback_invite_created_at'] ?? 0);
-        if ($createdAt <= 0 || ($createdAt + VEVAK_FEEDBACK_INVITE_TTL) < $now) {
-            return;
-        }
-        if (!hash_equals((string) $row['feedback_invite_hash'], $candidate)) {
-            return;
-        }
-
-        $data['testers'][$key]['feedback_invite_hash'] = '';
-        $data['testers'][$key]['feedback_invite_created_at'] = 0;
-        $consumed = true;
-    });
-
-    return $consumed;
-}
-
-function vv_feedback_clear_invite(string $key): void
-{
-    vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key): void {
-        if (!isset($data['testers'][$key]) || !is_array($data['testers'][$key])) {
-            return;
-        }
-        $data['testers'][$key]['feedback_invite_hash'] = '';
-        $data['testers'][$key]['feedback_invite_created_at'] = 0;
-    });
-}
-
-function vv_feedback_account_exists(string $email): bool
-{
-    $key = vv_normalize_email_key($email);
-    return vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], false, function ($data) use ($key): bool {
-        $row = $data['accounts'][$key] ?? null;
-        return is_array($row) && !empty($row['password_hash']);
-    });
-}
-
-function vv_feedback_create_account(string $email, string $password, string $inviteToken): array
-{
-    $tester = vv_get_tester($email);
-    if (
-        $tester === null
-        || empty($tester['feedback_consent'])
-        || empty($tester['feedback_enabled'])
-    ) {
-        return ['ok' => false, 'reason' => 'not_allowed'];
-    }
-
-    if (strlen($password) < 12) {
-        return ['ok' => false, 'reason' => 'weak'];
-    }
-    if (strlen($password) > 256) {
-        return ['ok' => false, 'reason' => 'too_long'];
-    }
-
-    $expectedEmail = vv_feedback_invite_email($inviteToken);
-    if ($expectedEmail === null || !hash_equals(vv_normalize_email_key($expectedEmail), vv_normalize_email_key($email))) {
-        return ['ok' => false, 'reason' => 'invite'];
-    }
-
-    $key = vv_normalize_email_key($email);
-    $created = false;
-
-    vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], true, function (&$data) use ($key, $password, &$created): void {
-        if (!isset($data['accounts']) || !is_array($data['accounts'])) {
-            $data['accounts'] = [];
-        }
-        if (isset($data['accounts'][$key]) && is_array($data['accounts'][$key]) && !empty($data['accounts'][$key]['password_hash'])) {
-            return;
-        }
-
-        $data['accounts'][$key] = [
-            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
-            'created_at' => gmdate('Y-m-d\TH:i:s\Z'),
-            'updated_at' => gmdate('Y-m-d\TH:i:s\Z'),
+        $data['testers'][$key]['feedback_code'] = [
+            'hash' => hash_hmac('sha256', $key . '|' . $code, $secret),
+            'expires_at' => $now + VEVAK_FEEDBACK_CODE_TTL,
+            'sent_at' => $now,
+            'attempts' => 0,
         ];
-        $created = true;
     });
-
-    if (!$created) {
-        return ['ok' => false, 'reason' => 'exists'];
-    }
-
-    if (!vv_feedback_consume_invite($email, $inviteToken)) {
-        vv_feedback_reset_password($email);
-        return ['ok' => false, 'reason' => 'invite'];
-    }
-
-    return ['ok' => true, 'reason' => null];
 }
 
-function vv_feedback_verify_password(string $email, string $password): bool
+function vv_feedback_verify_code(string $email, string $code, string $ip): bool
 {
-    $tester = vv_get_tester($email);
-    if (
-        $tester === null
-        || empty($tester['feedback_consent'])
-        || empty($tester['feedback_enabled'])
-    ) {
-        return false;
-    }
-
+    if (!vv_feedback_code_rate_limit($ip, $email, 'verify')) { return false; }
     $key = vv_normalize_email_key($email);
-    return vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], false, function ($data) use ($key, $password): bool {
-        $row = $data['accounts'][$key] ?? null;
-        if (!is_array($row) || empty($row['password_hash'])) {
+    $secret = vv_rate_secret();
+    return vv_with_json_file(vv_data_file(), ['testers' => []], true, function (&$data) use ($key, $code, $secret): bool {
+        $row = $data['testers'][$key] ?? null;
+        if (!is_array($row) || empty($row['feedback_consent']) || empty($row['feedback_enabled'])) { return false; }
+        $challenge = $row['feedback_code'] ?? [];
+        if (empty($challenge['hash']) || (int) ($challenge['expires_at'] ?? 0) <= time()
+            || (int) ($challenge['attempts'] ?? 0) >= 5) {
+            unset($data['testers'][$key]['feedback_code']);
             return false;
         }
-        return password_verify($password, (string) $row['password_hash']);
-    });
-}
-
-function vv_feedback_reset_password(string $email): bool
-{
-    $key = vv_normalize_email_key($email);
-    $deleted = false;
-    vv_with_json_file(vv_feedback_accounts_file(), ['accounts' => []], true, function (&$data) use ($key, &$deleted): void {
-        if (isset($data['accounts'][$key])) {
-            unset($data['accounts'][$key]);
-            $deleted = true;
+        $data['testers'][$key]['feedback_code']['attempts']++;
+        if (!preg_match('/^[0-9]{8}$/D', $code)
+            || !hash_equals($challenge['hash'], hash_hmac('sha256', $key . '|' . $code, $secret))) {
+            return false;
         }
+        // Verification and consumption share the same exclusive lock (no replay race).
+        unset($data['testers'][$key]['feedback_code']);
+        return true;
     });
-    return $deleted;
 }
 
 function vv_feedback_get_answers(string $email): array
@@ -530,36 +436,6 @@ function vv_delete_feedback_data(string $email): void
             unset($data['responses'][$key]);
         }
     });
-}
-
-function vv_feedback_rate_limit(string $ip, string $email): bool
-{
-    $identity = strtolower(trim($ip)) . '|' . vv_normalize_email_key($email);
-    $fingerprint = hash_hmac('sha256', $identity, vv_rate_secret());
-    $now = time();
-    $allowed = true;
-
-    vv_with_json_file(vv_feedback_rate_file(), ['clients' => []], true, function (&$data) use ($fingerprint, $now, &$allowed): void {
-        if (!isset($data['clients']) || !is_array($data['clients'])) {
-            $data['clients'] = [];
-        }
-        foreach ($data['clients'] as $hash => $entry) {
-            $start = (int) ($entry['window_start'] ?? 0);
-            if ($start < $now - 1800) {
-                unset($data['clients'][$hash]);
-            }
-        }
-
-        $entry = $data['clients'][$fingerprint] ?? ['window_start' => $now, 'hits' => 0];
-        if ((int) $entry['window_start'] <= $now - 900) {
-            $entry = ['window_start' => $now, 'hits' => 0];
-        }
-        $entry['hits'] = (int) $entry['hits'] + 1;
-        $allowed = $entry['hits'] <= 10;
-        $data['clients'][$fingerprint] = $entry;
-    });
-
-    return $allowed;
 }
 
 function vv_rate_limit(string $ip): bool
