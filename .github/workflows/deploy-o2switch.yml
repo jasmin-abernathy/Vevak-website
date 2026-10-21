@@ -95,9 +95,8 @@ jobs:
           test -f .deploy/en/index.html
           test -f .deploy/confidentialite/index.html
           test -f .deploy/soutenir/index.html
-          test -f .deploy/test/index.html
-          test -f .deploy/test/test.css
-          test -f .deploy/test/test.js
+          # /test/ is reserved for the protected tester administration, not a public test page.
+          test -f .deploy/test/admin-testers.php
           test -f .deploy/retours/index.php
           test -f .deploy/robots.txt
           test -f .deploy/sitemap.xml

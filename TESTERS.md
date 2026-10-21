@@ -1,18 +1,32 @@
-# Checklist publication espace testeurs
+# Testeurs VeVak — Google Play
 
-1. Publier le dossier `test/` sur `vevak.lepotager.org`.
-2. Activer HTTPS sur le sous-domaine.
-3. Dans cPanel → **Confidentialité du répertoire**, protéger le dossier `test/` avec un utilisateur et un mot de passe.
-4. Pousser les changements Android sur `main` dans `jasmin-abernathy/vevak`.
-5. Lancer volontairement le workflow `Android CI` sur `main`, puis attendre la réussite des tests FOSS/Play, builds, lints et vérifications de confidentialité/écoconception.
-6. Vérifier que la release GitHub roulante `beta` contient une APK `VeVak-x.y.z-foss-beta-xxxxxxx.apk` et son fichier `.sha256`.
-7. Vérifier que le bouton de `/test/` détecte cette version et télécharge bien l'APK affichée par :
-   `https://github.com/jasmin-abernathy/vevak/releases/tag/beta`
-8. Vérifier en navigation privée que `/test/` demande toujours les identifiants côté serveur.
-9. Envoyer aux testeurs uniquement l'URL HTTPS de `/test/` et les identifiants par un canal privé.
+Le recrutement pour le test fermé Google Play passe désormais uniquement par
+[le formulaire public de l’accueil](https://vevak.lepotager.org/#devenir-testeur).
 
-La distribution de l'APK de test est désormais **100 % GitHub** : aucun dépôt manuel sur Google Drive ni dans `test/files/` n'est nécessaire.
+Le formulaire recueille l’adresse du compte Google Play, le modèle de téléphone,
+la version Android et la configuration SIM. Il enregistre la candidature dans
+le système déjà existant ; il n’ouvre pas automatiquement l’accès au test.
 
-La page `/test/` peut rester privée, mais l'APK publiée dans la release GitHub `beta` appartient au dépôt public et est donc publiquement téléchargeable.
+## Inscription et suivi
 
-Détails : voir `TESTING.md`.
+1. Le candidat remplit le formulaire sur l’accueil.
+2. L’administrateur retrouve la demande dans
+   `https://vevak.lepotager.org/test/admin-testers.php` (accès cPanel protégé).
+3. L’administrateur ajoute l’adresse du compte Google au test fermé dans Google Play Console,
+   puis envoie à la personne le lien d’adhésion au test.
+4. La personne s’inscrit au programme et installe VeVak depuis Google Play.
+5. Pour satisfaire à la condition habituelle de Google Play pour l’accès à la production,
+   un minimum de douze testeurs doit rester inscrit au test fermé pendant quatorze jours
+   consécutifs. Cela ne signifie pas utiliser l’application tous les jours.
+6. Les testeurs peuvent communiquer leurs retours via
+   `https://vevak.lepotager.org/retours/` après autorisation de leur accès.
+
+## Ancienne page supprimée
+
+La page d’installation d’APK et sa checklist autrefois publiées sur `/test/`
+ont été supprimées. Le dossier `test/` reste présent pour l’administration
+privée et d’éventuelles ressources techniques encore utilisées : **ne pas enlever
+sa protection cPanel**.
+
+Consulter [TESTER_REGISTRATION.md](TESTER_REGISTRATION.md) pour l’administration,
+les exports Play Console et les procédures de suivi.
