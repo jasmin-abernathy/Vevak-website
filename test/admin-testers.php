@@ -73,7 +73,7 @@ try {
         ];
         $commentKeys = array_map(static fn(string $key): string => 'comment_' . $key, $answerKeys);
         $headers = array_merge(
-            ['email','updated_at','submitted_at','device_model','android_version','sim_setup'],
+            ['email','updated_at','submitted_at','device_model','android_version','sim_setup','tested_variant','tested_version','tested_revision'],
             $answerKeys,
             $commentKeys
         );
@@ -90,6 +90,9 @@ try {
                 vv_admin_spreadsheet_safe_cell((string) ($tester['device_model'] ?? '')),
                 vv_admin_spreadsheet_safe_cell((string) ($tester['android_version'] ?? '')),
                 vv_admin_spreadsheet_safe_cell((string) ($tester['sim_setup'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($answers['tested_variant'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($answers['tested_version'] ?? '')),
+                vv_admin_spreadsheet_safe_cell((string) ($answers['tested_revision'] ?? '')),
             ];
             foreach (array_merge($answerKeys, $commentKeys) as $key) {
                 $values[] = vv_admin_spreadsheet_safe_cell((string) ($answers[$key] ?? ''));
@@ -200,6 +203,7 @@ function e(string $value): string
           <td>
             <strong><?= $feedbackConsent ? 'Accord ✓' : 'Pas d’accord' ?></strong><br>
             <small><?= $feedbackEnabled ? 'Accès autorisé' : 'Accès non autorisé' ?> · connexion par code e-mail</small><br>
+            <small>Version testée : <?= e(match ((string) ($feedbackData['answers']['tested_variant'] ?? '')) { 'foss' => 'FOSS', 'play' => 'Google Play', 'unknown' => 'Non identifiée', default => 'Non renseignée' }) ?><?= !empty($feedbackData['answers']['tested_version']) ? ' · ' . e((string) $feedbackData['answers']['tested_version']) : '' ?></small><br>
             <small><?php if ($feedbackSubmittedAt !== ''): ?>questionnaire envoyé le <?= e($feedbackSubmittedAt) ?><?php elseif ($feedbackUpdatedAt !== ''): ?>brouillon sauvegardé le <?= e($feedbackUpdatedAt) ?><?php else: ?>aucune réponse pour l’instant<?php endif; ?></small>
           </td>
           <td><small>Créée : <?= e((string) ($row['created_at'] ?? '')) ?><br>Dernière demande : <?= e((string) ($row['last_requested_at'] ?? '')) ?></small></td>
