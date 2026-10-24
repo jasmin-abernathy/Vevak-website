@@ -72,8 +72,12 @@ for ($i = 0; $i < 20; $i++) { vv_feedback_request_code('unknown-' . $i . '@examp
 $limited = false;
 try { vv_feedback_request_code('unknown-last@example.org', 'same-ip', $send); } catch (RuntimeException $error) { $limited = true; }
 check($limited, 'IP send limit missing');
-vv_feedback_save_answers($email, ['q1_launch' => 'very_clear'], true);
-check(vv_feedback_get_answers($email)['answers']['q1_launch'] === 'very_clear', 'Answers not saved');
+vv_feedback_save_answers($email, ['q1_launch' => 'very_clear', 'tested_variant' => 'foss', 'tested_version' => '0.3.15', 'tested_revision' => 'a1b2c3d4e5f6'], true);
+$storedAnswers = vv_feedback_get_answers($email)['answers'] ?? [];
+check(($storedAnswers['q1_launch'] ?? '') === 'very_clear', 'Answers not saved');
+check(($storedAnswers['tested_variant'] ?? '') === 'foss', 'FOSS variant not saved');
+check(($storedAnswers['tested_version'] ?? '') === '0.3.15', 'Tested version not saved');
+check(($storedAnswers['tested_revision'] ?? '') === 'a1b2c3d4e5f6', 'Build revision not saved');
 check(vv_delete_tester($email), 'Delete failed');
 check(vv_get_testers() === [] && vv_feedback_get_answers($email) === [], 'Private data not deleted');
 echo "Feedback codes: authorization, delivery stub, replay, expiry, resend, attempts, limits, revocation, answers OK.\n";
