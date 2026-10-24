@@ -116,6 +116,14 @@
   });
 
   root.querySelector('[data-feedback-finish]')?.addEventListener('click', async () => {
+    const testedVariant = form.querySelector('input[name="tested_variant"]:checked');
+    if (!testedVariant) {
+      saveState.textContent = 'Indique la version testée, ou choisis « Je ne sais pas ».';
+      const buildSection = form.querySelector('.feedback-tested-build');
+      buildSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      buildSection?.querySelector('input[name="tested_variant"]')?.focus();
+      return;
+    }
     const missing = steps.findIndex((step) => answerFor(step) === '');
     if (missing >= 0) {
       saveState.textContent = 'Il reste au moins une question sans réponse.';

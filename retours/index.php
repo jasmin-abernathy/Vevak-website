@@ -270,7 +270,26 @@ try {
             $answers[$key] = $value;
         }
 
+        // Record which distribution was actually tested; do not infer it from registration.
+        $testedVariant = trim((string) ($_POST['tested_variant'] ?? ''));
+        if (!in_array($testedVariant, ['', 'foss', 'play', 'unknown'], true)) {
+            throw new RuntimeException('La version testée n’est pas reconnue.');
+        }
+        $testedVersion = trim((string) ($_POST['tested_version'] ?? ''));
+        $testedRevision = trim((string) ($_POST['tested_revision'] ?? ''));
+        if (strlen($testedVersion) > 32 || ($testedVersion !== '' && !preg_match('/\\A[0-9A-Za-z.+_-]+\\z/D', $testedVersion))) {
+            throw new RuntimeException('Le numéro de version est invalide.');
+        }
+        if ($testedRevision !== '' && !preg_match('/\\A(?:[a-fA-F0-9]{7,40}|local)\\z/D', $testedRevision)) {
+            throw new RuntimeException('La révision doit être un identifiant Git (7 à 40 caractères hexadécimaux) ou « local ».');
+        }
         $submitted = (string) ($_POST['submitted'] ?? '') === '1';
+        if ($submitted && $testedVariant === '') {
+            throw new RuntimeException('Indique la variante réellement testée, ou choisis « Je ne sais pas ».');
+        }
+        $answers['tested_variant'] = $testedVariant;
+        $answers['tested_version'] = $testedVersion;
+        $answers['tested_revision'] = $testedRevision;
         vv_feedback_save_answers($loggedEmail, $answers, $submitted);
 
         if (vf_json_request()) {
@@ -448,6 +467,28 @@ $totalQuestions = count($questions);
             <input type="hidden" name="_csrf" value="<?= vf_e(vf_csrf()) ?>">
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="submitted" value="0">
+
+            <fieldset class="feedback-tested-build" aria-describedby="tested-build-help">
+              <legend>Quelle version de VeVak as-tu testée ?</legend>
+              <p id="tested-build-help">Renseigne la version réellement installée sur ton téléphone, pas simplement ton inscription au panel Google Play. L’information figure dans les réglages de VeVak.</p>
+              <div class="feedback-tested-choices">
+                <?php foreach (['foss' => 'FOSS (APK GitHub)', 'play' => 'Google Play', 'unknown' => 'Je ne sais pas'] as $variant => $label): ?>
+                  <label class="feedback-tested-option">
+                    <input type="radio" name="tested_variant" value="<?= vf_e($variant) ?>" <?= ($answers['tested_variant'] ?? '') === $variant ? 'checked' : '' ?>>
+                    <span><?= vf_e($label) ?></span>
+                  </label>
+                <?php endforeach; ?>
+              </div>
+              <div class="feedback-tested-details">
+                <label for="tested-version">Numéro de version <small>(facultatif)</small>
+                  <input id="tested-version" name="tested_version" type="text" maxlength="32" autocomplete="off" placeholder="ex. 0.3.15" value="<?= vf_e((string) ($answers['tested_version'] ?? '')) ?>">
+                </label>
+                <label for="tested-revision">Révision du build <small>(facultatif)</small>
+                  <input id="tested-revision" name="tested_revision" type="text" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ex. a1b2c3d4e5f6" value="<?= vf_e((string) ($answers['tested_revision'] ?? '')) ?>">
+                </label>
+              </div>
+              <p class="feedback-tested-note">Si tu ne connais pas ces informations, tu peux laisser les deux derniers champs vides. Le choix « FOSS » ne doit être coché que pour une APK de la variante libre.</p>
+            </fieldset>
 
             <?php
             vf_question(1, $totalQuestions, 'q1_launch', 'comment_q1_launch',

@@ -118,7 +118,8 @@ Le questionnaire reprend le principe des questionnaires Jardinier/TDAH :
 - choix simples avec possibilité `Non testé` lorsque pertinent ;
 - sauvegarde automatique ;
 - reprise après déconnexion/reconnexion ;
-- **un commentaire libre facultatif pour chaque question**.
+- **un commentaire libre facultatif pour chaque question** ;
+- une identification de la version réellement testée : **FOSS (APK GitHub)**, **Google Play** ou **Je ne sais pas**, plus numéro de version et révision du build facultatifs. La variante est demandée avant l'envoi final, pas pour les sauvegardes automatiques.
 
 Les commentaires ne doivent contenir aucune donnée sensible (coordonnées GPS, numéros, phrase-clé, SSID/BSSID ou identité d'un contact).
 
@@ -131,6 +132,7 @@ Il contient :
 - e-mail du testeur ;
 - modèle / Android / SIM ;
 - dates de mise à jour et d'envoi ;
+- `tested_variant`, `tested_version` et `tested_revision` pour distinguer les APK FOSS de Google Play ;
 - réponse à chaque question ;
 - commentaire libre associé à chaque question.
 
