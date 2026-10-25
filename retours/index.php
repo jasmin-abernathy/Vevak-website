@@ -345,7 +345,18 @@ $totalQuestions = count($questions);
   <title>Retours testeurs — VeVak</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css?v=20260918-a11y-v2">
-  <link rel="stylesheet" href="./retours.css?v=20261017-code">
+  <?php
+    // Le contenu est volontairement intégré à la page : sur le portail
+    // privé, on ne dépend plus du cache ni de la route HTTP vers retours.css.
+    $feedbackCss = @file_get_contents(__DIR__ . '/retours.css');
+    if ($feedbackCss === false || $feedbackCss === '') {
+        error_log('VeVak retours: local responsive stylesheet unavailable.');
+        // Repli autonome afin de préserver la saisie et l'accessibilité
+        // même si un déploiement ne copie pas le fichier CSS.
+        $feedbackCss = '.feedback-page{overflow-x:clip}.feedback-auth-shell{width:min(100% - 2rem,640px);margin:1.5rem auto}.feedback-auth-card{padding:1.25rem;border-radius:16px;border:1px solid #c9d8d1;background:#fffdf7}.feedback-auth-card h1{font-size:clamp(1.9rem,7vw,2.6rem);max-width:none}.feedback-auth-card .lead-small{font-size:1rem}.feedback-auth-box{padding:1rem;border:1px solid #c9d8d1;border-radius:12px}.feedback-auth-box h2{font-size:1.3rem}.feedback-auth-box form,.feedback-auth-box label{display:flex;flex-direction:column;gap:.6rem;min-width:0}.feedback-auth-box input{width:100%;min-width:0;min-height:48px;font-size:16px}.feedback-auth-box button{width:100%;margin:.6rem 0}.feedback-auth-box form+form{margin-top:1rem}.feedback-warning{overflow-wrap:anywhere}.feedback-shell{width:min(100% - 2rem,1040px);margin:auto}.feedback-layout,.feedback-intro-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}.feedback-panel,.feedback-nav{padding:1rem;border:1px solid #d1ddd7;border-radius:12px;background:#fffdf7}.feedback-intro h1{font-size:clamp(2rem,7vw,3rem)}.feedback-question h2{font-size:clamp(1.5rem,5vw,2rem)}.feedback-choices,.feedback-tested-details{display:grid;grid-template-columns:1fr;gap:.5rem}.feedback-choice label{display:block;padding:.8rem;background:#f3efe5}.feedback-question[hidden],.feedback-done[hidden]{display:none}.feedback-question textarea{width:100%}.feedback-actions{display:flex;flex-wrap:wrap;gap:.5rem}.feedback-tested-choices{display:flex;flex-wrap:wrap;gap:.5rem}';
+    }
+  ?>
+  <style id="vevak-retours-responsive"><?= $feedbackCss ?></style>
   <script defer src="../assets/site.js?v=20260918-a11y-v2"></script>
   <?php if ($loggedEmail !== ''): ?><script defer src="./retours.js?v=20260927"></script><?php endif; ?>
 </head>
