@@ -4,7 +4,7 @@ Le formulaire public est intégré à l’accueil :
 
 `https://vevak.lepotager.org/#devenir-testeur`
 
-Il collecte l’adresse e-mail du compte Google utilisé dans Google Play, le modèle du téléphone, la version Android, la configuration SIM et l’accord explicite à participer au questionnaire de retour si la personne est retenue. Il n’inscrit pas automatiquement la personne dans Play Console. Lors d’une **nouvelle candidature**, une notification sans données personnelles du candidat est envoyée à l’adresse d’administration du site (par défaut `contact@lepotager.org`). Aucune notification n’est envoyée pour une inscription déjà existante. L’inscription est conservée même si le transport du message échoue.
+Il collecte l’adresse e-mail du compte Google utilisé dans Google Play, le modèle du téléphone, la version Android, la configuration SIM et l’accord explicite à participer au questionnaire de retour si la personne est retenue. Il n’inscrit pas automatiquement la personne dans Play Console. Lors d’une **nouvelle candidature**, une notification sans données personnelles du candidat est envoyée à l’adresse d’administration du site (par défaut `contact@lepotager.org`). Aucune notification n’est envoyée pour une inscription déjà existante. L’inscription est conservée même si le transport du message échoue. À ce jour, aucun accusé de réception par e-mail n'est envoyé automatiquement à la personne candidate : seule une confirmation à l'écran est présentée ; la prise de contact après sélection reste manuelle.
 
 ## Stockage
 
