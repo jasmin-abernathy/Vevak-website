@@ -89,7 +89,15 @@ fi
 COMMIT="$(git -C "$REPO" rev-parse HEAD)"
 
 log "Contrôles locaux avant déploiement..."
-for php_file in   "$REPO/assets/tester-storage.php"   "$REPO/assets/tester-submit.php"   "$REPO/test/admin-testers.php"   "$REPO/retours/index.php"; do
+for php_file in \
+  "$REPO/assets/tester-storage.php" \
+  "$REPO/assets/tester-submit.php" \
+  "$REPO/test/auth.php" \
+  "$REPO/test/login.php" \
+  "$REPO/test/index.php" \
+  "$REPO/test/admin-testers.php" \
+  "$REPO/ops/test-admin-auth.php" \
+  "$REPO/retours/index.php"; do
   [[ -f "$php_file" ]] || fail "Fichier PHP attendu introuvable: $php_file"
   php -l "$php_file" >/dev/null || fail "Syntaxe PHP invalide: $php_file"
 done
@@ -106,6 +114,14 @@ if ! VEVAK_TESTERS_STORAGE_DIR="$SELFTEST_DIR" php "$REPO/ops/test-feedback-code
   fail "Auto-test du portail testeurs en échec."
 fi
 rm -rf "$SELFTEST_DIR"
+
+AUTH_SELFTEST_DIR="$(mktemp -d "$HOME/.cache/vevak-admin-selftest.XXXXXX")"
+chmod 700 "$AUTH_SELFTEST_DIR"
+if ! VEVAK_TESTERS_STORAGE_DIR="$AUTH_SELFTEST_DIR" php "$REPO/ops/test-admin-auth.php"; then
+  rm -rf "$AUTH_SELFTEST_DIR"
+  fail "Auto-test de la double authentification administrateur en échec."
+fi
+rm -rf "$AUTH_SELFTEST_DIR"
 log "Contrôles locaux: OK"
 
 if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
