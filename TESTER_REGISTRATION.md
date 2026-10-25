@@ -4,7 +4,7 @@ Le formulaire public est intégré à l’accueil :
 
 `https://vevak.lepotager.org/#devenir-testeur`
 
-Il collecte l’adresse e-mail du compte Google utilisé dans Google Play, le modèle du téléphone, la version Android, la configuration SIM et l’accord explicite à participer au questionnaire de retour si la personne est retenue. Il n’inscrit pas automatiquement la personne dans Play Console et n’envoie aucun e-mail.
+Il collecte l’adresse e-mail du compte Google utilisé dans Google Play, le modèle du téléphone, la version Android, la configuration SIM et l’accord explicite à participer au questionnaire de retour si la personne est retenue. Il n’inscrit pas automatiquement la personne dans Play Console. Lors d’une **nouvelle candidature**, une notification sans données personnelles du candidat est envoyée à l’adresse d’administration du site (par défaut `contact@lepotager.org`). Aucune notification n’est envoyée pour une inscription déjà existante. L’inscription est conservée même si le transport du message échoue.
 
 ## Stockage
 
@@ -19,6 +19,12 @@ Le répertoire contient :
 - `tester-rate-secret` : secret local servant à pseudonymiser l’adresse IP avant stockage dans le fichier de limitation.
 
 Aucun de ces fichiers ne doit être ajouté à Git, copié dans le document root ou servi par le site. Si l’hébergement ne fournit pas une variable `HOME` correcte, définir `VEVAK_TESTERS_STORAGE_DIR` vers un répertoire privé hors du document root.
+
+## Notifications d'inscription
+
+Les nouvelles candidatures déclenchent un message depuis `contact@lepotager.org` vers `contact@lepotager.org` par défaut, avec seulement un lien vers l'interface protégée. Le destinataire peut être configuré avec la variable serveur `VEVAK_TESTERS_NOTIFY_TO` (adresse unique valide). En cas d'échec de transport, PHP journalise une erreur sans e-mail du candidat. Un message accepté par sendmail ne garantit pas sa livraison : vérifier la boîte destinataire et les logs o2switch.
+
+La variable `VEVAK_TESTERS_NOTIFY_DISABLED=1` désactive explicitement cet envoi, uniquement à utiliser pour les tests sans e-mail externe. Les réinscriptions d'une adresse existante ne déclenchent pas de nouvel envoi. Les candidatures antérieures à la mise à jour ne sont pas notifiées rétroactivement et restent consultables dans l'administration.
 
 ## Administration
 
