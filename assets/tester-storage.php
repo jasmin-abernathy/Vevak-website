@@ -197,6 +197,43 @@ function vv_register_tester(
     return ['created' => $created, 'timestamp' => $now];
 }
 
+/** Warn the site owner about a new signup without emailing tester personal data. */
+function vv_notify_new_tester(?callable $sender = null): bool
+{
+    // Set to 1 only for CLI/CI tests that must never send a real message.
+    if (getenv('VEVAK_TESTERS_NOTIFY_DISABLED') === '1') {
+        return true;
+    }
+
+    $configured = getenv('VEVAK_TESTERS_NOTIFY_TO');
+    $recipient = trim($configured === false ? 'contact@lepotager.org' : $configured);
+    if ($recipient === '' || strlen($recipient) > 254
+        || filter_var($recipient, FILTER_VALIDATE_EMAIL) === false
+        || preg_match('/[\r\n]/', $recipient)) {
+        error_log('VeVak tester signup notification: invalid recipient configuration.');
+        return false;
+    }
+
+    $subject = 'VeVak - nouvelle inscription aux tests';
+    $body = "Une nouvelle candidature au test Google Play de VeVak a ete enregistree.\n\n"
+        . "Pour consulter les demandes et exporter les adresses :\n"
+        . "https://vevak.lepotager.org/test/admin-testers.php\n\n"
+        . "Cet e-mail ne contient aucune donnee personnelle de testeur.\n"
+        . "VeVak - Le Potager du Web\n";
+
+    // Injectable mailer is limited to CLI tests; public requests always use sendmail.
+    if ($sender !== null) {
+        return PHP_SAPI === 'cli' && (bool) $sender($recipient, $subject, $body);
+    }
+
+    return @mail($recipient, $subject, $body, [
+        'From' => 'VeVak <contact@lepotager.org>',
+        'Reply-To' => 'contact@lepotager.org',
+        'MIME-Version' => '1.0',
+        'Content-Type' => 'text/plain; charset=UTF-8',
+    ], '-fcontact@lepotager.org');
+}
+
 function vv_get_tester(string $email): ?array
 {
     $key = vv_normalize_email_key($email);
