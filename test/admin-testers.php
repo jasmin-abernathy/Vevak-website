@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/auth.php';
+require_once dirname(__DIR__) . '/assets/tester-receipts.php';
 vv_admin_session_start();
 vv_admin_require();
 $authenticatedUser = vv_admin_email();
@@ -115,6 +116,23 @@ try {
                 $csrf = vv_admin_csrf();
                 $notice = 'Mot de passe changé. Les autres sessions et codes en attente ont été révoqués.';
             }
+        } elseif ($action === 'send_receipts') {
+            if (($_POST['confirm_receipts'] ?? '') !== '1') {
+                $notice = 'Confirme explicitement l’envoi des e-mails avant de continuer.';
+            } else {
+                $scope = (string) ($_POST['receipt_scope'] ?? '');
+                $postedKeys = $_POST['recipient_keys'] ?? [];
+                if (!is_array($postedKeys)) {
+                    throw new InvalidArgumentException('Sélection de candidatures invalide.');
+                }
+                $results = vv_receipt_send_batch($scope, $postedKeys);
+                $notice = 'Confirmations confiées au serveur de messagerie : ' . $results['accepted']
+                    . ' ; échecs : ' . $results['failed']
+                    . ' ; déjà traitées ou ignorées : ' . $results['skipped']
+                    . ' ; candidatures encore à confirmer : ' . $results['remaining']
+                    . '. La réception finale des messages ne peut pas être garantie.';
+                $rows = vv_get_testers();
+            }
         } elseif ($action === 'delete') {
             $key = (string) ($_POST['key'] ?? '');
             $notice = vv_delete_tester($key)
@@ -150,6 +168,8 @@ try {
     $notice = $error->getMessage();
 }
 
+$receiptPending = count(array_filter($rows, 'vv_receipt_is_pending'));
+
 function e(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -164,7 +184,7 @@ function e(string $value): string
   <title>Testeurs Google Play — VeVak</title>
   <link rel="stylesheet" href="../assets/styles.css">
   <style>
-    .admin-wrap{width:min(1100px,calc(100% - 2rem));margin:2rem auto 4rem}.admin-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0 1.5rem}.admin-invite{display:grid;gap:.45rem;margin:1rem 0;padding:1rem;border:1px solid #9fcab6;border-radius:.8rem;background:#eef8f3}.admin-invite input{width:100%;box-sizing:border-box;padding:.7rem;border:1px solid #c8d8d1;border-radius:.55rem;font:inherit}.admin-table-wrap{overflow-x:auto;border:1px solid #d8e3de;border-radius:1rem;background:#fff}.admin-table{width:100%;border-collapse:collapse;min-width:760px}.admin-table th,.admin-table td{padding:.8rem;border-bottom:1px solid #e6ece9;text-align:left;vertical-align:top}.admin-table th{background:#eef5f1;color:#17332c}.admin-table code{font-size:.82rem}.danger{border-color:#b24b43!important;color:#7a211b!important}.admin-notice{padding:.8rem 1rem;background:#eef5f1;border-radius:.7rem}.admin-meta{color:#526760}.delete-form{margin:0 0 .45rem}.admin-table td .button{white-space:nowrap}
+    .admin-wrap{width:min(1100px,calc(100% - 2rem));margin:2rem auto 4rem}.admin-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0 1.5rem}.admin-invite{display:grid;gap:.45rem;margin:1rem 0;padding:1rem;border:1px solid #9fcab6;border-radius:.8rem;background:#eef8f3}.admin-invite input{width:100%;box-sizing:border-box;padding:.7rem;border:1px solid #c8d8d1;border-radius:.55rem;font:inherit}.admin-table-wrap{overflow-x:auto;border:1px solid #d8e3de;border-radius:1rem;background:#fff}.admin-table{width:100%;border-collapse:collapse;min-width:760px}.admin-table th,.admin-table td{padding:.8rem;border-bottom:1px solid #e6ece9;text-align:left;vertical-align:top}.admin-table th{background:#eef5f1;color:#17332c}.admin-table code{font-size:.82rem}.danger{border-color:#b24b43!important;color:#7a211b!important}.admin-notice{padding:.8rem 1rem;background:#eef5f1;border-radius:.7rem}.admin-meta{color:#526760}.delete-form{margin:0 0 .45rem}.admin-table td .button{white-space:nowrap}.receipt-preview{margin:.75rem 0 1rem}.receipt-preview summary{cursor:pointer;font-weight:700}.receipt-preview pre{overflow-wrap:anywhere;white-space:pre-wrap;font:inherit;padding:1rem;background:#fff;border:1px solid #d8e3de;border-radius:.65rem;line-height:1.55}.receipt-send-form{display:flex;align-items:center;flex-wrap:wrap;gap:.8rem;margin-top:.6rem}.receipt-send-form .button{cursor:pointer}.receipt-consent{display:flex;align-items:flex-start;gap:.5rem;flex-basis:100%;font-weight:650}.receipt-consent input{margin-top:.27rem}.receipt-selection{display:block;white-space:nowrap}.receipt-selection input{margin-right:.35rem}.receipt-status{font-size:.83rem;color:#456258}.receipt-status.sent{color:#176349}
   </style>
 </head>
 <body>
@@ -188,12 +208,34 @@ function e(string $value): string
   <p class="admin-meta"><strong>Export Google Play :</strong> un e-mail par ligne, aucun en-tête, aucune virgule et aucun BOM UTF-8. L’export « tableur » ajoute le téléphone, Android, la SIM et l’état du questionnaire ; il ne doit pas être importé dans Play Console.</p>
   <p class="admin-meta"><strong>Espace retours :</strong> une inscription publique n’ouvre pas automatiquement l’accès. Active « Autoriser les retours » uniquement pour les personnes réellement retenues. Elles recevront un code à usage unique par e-mail pour se connecter sur <code>/retours/</code>.</p>
 
+  <section class="admin-invite" id="confirmer-inscriptions" aria-labelledby="receipt-title">
+    <h2 id="receipt-title">Confirmer la réception des inscriptions 📩</h2>
+    <p><strong><?= $receiptPending ?> candidature(s)</strong> n’ont pas encore reçu d’accusé de réception par e-mail.</p>
+    <p>Tu peux contacter toutes les candidatures en attente ou seulement certaines. Le message confirme leur inscription et annonce l’arrivée prochaine des instructions pour télécharger et tester VeVak. Il ne donne pas encore accès au test fermé.</p>
+    <details class="receipt-preview">
+      <summary>Prévisualiser l’e-mail envoyé</summary>
+      <p><strong>Objet :</strong> <?= e(vv_receipt_subject()) ?></p>
+      <pre><?= e(vv_receipt_body()) ?></pre>
+    </details>
+    <form id="receipt-send-form" method="post" class="receipt-send-form">
+      <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+      <input type="hidden" name="action" value="send_receipts">
+      <label class="receipt-consent">
+        <input type="checkbox" name="confirm_receipts" value="1" required>
+        Je confirme vouloir envoyer ces e-mails aux personnes concernées.
+      </label>
+      <button class="button primary" name="receipt_scope" value="pending" type="submit" <?= $receiptPending < 1 ? 'disabled' : '' ?>>Envoyer aux inscriptions en attente (20 max.)</button>
+      <button class="button secondary" name="receipt_scope" value="selected" type="submit" <?= $receiptPending < 1 ? 'disabled' : '' ?>>Envoyer aux personnes sélectionnées</button>
+    </form>
+    <p class="admin-meta">Un message individuel est envoyé à chaque adresse. Le statut « envoyé » signifie accepté par le serveur mail, pas nécessairement livré en boîte de réception. Les échecs peuvent être réessayés et les envois déjà acceptés sont exclus automatiquement. Pour plus de 20 candidatures, relance l’opération sur les inscriptions restantes.</p>
+  </section>
+
   <div class="admin-table-wrap">
     <table class="admin-table">
-      <thead><tr><th>E-mail</th><th>Appareil</th><th>Android / SIM</th><th>Retours</th><th>Dates</th><th>Action</th></tr></thead>
+      <thead><tr><th>E-mail</th><th>Confirmation</th><th>Appareil</th><th>Android / SIM</th><th>Retours</th><th>Dates</th><th>Action</th></tr></thead>
       <tbody>
       <?php if (!$rows): ?>
-        <tr><td colspan="6">Aucune demande enregistrée.</td></tr>
+        <tr><td colspan="7">Aucune demande enregistrée.</td></tr>
       <?php else: foreach ($rows as $row): ?>
         <?php
           $feedbackConsent = !empty($row['feedback_consent']);
@@ -204,6 +246,17 @@ function e(string $value): string
         ?>
         <tr>
           <td><?= e((string) $row['email']) ?><br><small><code><?= e((string) ($row['consent_version'] ?? '')) ?></code></small></td>
+          <td>
+            <?php if (vv_receipt_is_pending($row)): ?>
+              <label class="receipt-selection"><input form="receipt-send-form" type="checkbox" name="recipient_keys[]" value="<?= e((string) $row['key']) ?>">Sélectionner</label>
+              <small class="receipt-status">En attente</small>
+            <?php elseif (!empty($row['receipt_sent_at'])): ?>
+              <span class="receipt-status sent">✓ Accepté par le serveur mail</span>
+              <small><?= e((string) $row['receipt_sent_at']) ?> (UTC)</small>
+            <?php else: ?>
+              <span class="receipt-status">Envoi non disponible (consentement ou adresse à vérifier)</span>
+            <?php endif; ?>
+          </td>
           <td><?= e((string) ($row['device_model'] ?? '—')) ?></td>
           <td><?= e((string) ($row['android_version'] ?? '—')) ?><br><small><?= e((string) ($row['sim_setup'] ?? '—')) ?></small></td>
           <td>
