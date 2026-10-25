@@ -193,3 +193,12 @@ sous `~/.vevak-private/` avec droits restrictifs.
 
 Les précontrôles de déploiement exécutent `ops/test-admin-auth.php` sur des
 données temporaires ; ils ne vérifient pas la distribution réelle des e-mails.
+
+## Mise en page mobile de l'espace retours — octobre 2026
+
+Le portail `/retours/` utilise `retours/retours.css`, désormais **intégré directement dans la réponse HTML de `retours/index.php`**. Ce choix évite qu'un navigateur voie seulement `assets/styles.css` si la route ou le cache de `/retours/retours.css` pose problème. Si le fichier est absent sur disque, un style minimal est généré et une erreur est journalisée, mais le contrôle de déploiement refuse cette situation.
+
+Les contrôles de `ops/deploy-o2switch-pull.sh` vérifient que le CSS local et celui du DocumentRoot sont identiques, puis que le HTML de `/retours/` contient bien l'élément `vevak-retours-responsive` et les règles du formulaire. La CI vérifie aussi le rendu HTML du serveur PHP local.
+
+Points à vérifier visuellement après publication sur téléphone (360–400 px) : titre de connexion à taille normale, carte centrée avec marges, champ e-mail **au-dessus** du bouton pleine largeur, absence de défilement horizontal, puis navigation du questionnaire en colonnes sur mobile avec boutons de réponses et champs de version lisibles. Le portail reste accessible au clavier et respecte `prefers-reduced-motion`.
+
