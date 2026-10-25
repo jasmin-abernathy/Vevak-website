@@ -32,14 +32,36 @@ L’interface privée est :
 
 `https://vevak.lepotager.org/test/admin-testers.php`
 
-Elle réutilise la protection cPanel déjà appliquée au dossier `/test/`. Le script refuse aussi l’accès si le serveur ne lui transmet pas un utilisateur authentifié (`REMOTE_USER` ou `PHP_AUTH_USER`).
+L'interface est désormais protégée par **mot de passe puis code à 8 chiffres envoyé par e-mail** sur l'unique boîte administrateur fixée par le serveur. Il n'y a plus de dépendance PHP à `REMOTE_USER` ou `PHP_AUTH_USER`. L'entrée conviviale est `https://vevak.lepotager.org/test/` et la connexion se fait sur `/test/login.php`.
+
+**Attention :** la protection cPanel existante est gérée sur l'hébergement et n'est pas retirée par un commit Git. Après publication et vérification de la nouvelle connexion, désactiver l'ancienne « Confidentialité des répertoires » pour `/test/` dans cPanel, en veillant à ne pas supprimer d'autres protections nécessaires aux anciens fichiers. Vérifier qu'un visiteur non connecté est redirigé depuis l'administration et depuis chaque export vers la page de connexion, sans fuite de CSV.
 
 L’interface permet :
 
 - de consulter les demandes ;
 - de supprimer une inscription individuellement avec protection CSRF ;
 - d’exporter une liste pour Google Play ;
-- d’exporter une version destinée à un tableur.
+- d’exporter une version destinée à un tableur ;
+- de se déconnecter et de **modifier son mot de passe** en confirmant le mot de passe précédent.
+
+### Première activation et sécurité du compte
+
+- La boîte unique est déterminée par `VEVAK_ADMIN_EMAIL` (ou, par défaut, `contact@lepotager.org`). Il faut impérativement pouvoir recevoir ses messages avant de désactiver cPanel.
+- Première visite sur `/test/` : **Recevoir mon code d'activation**, puis saisir le code e-mail et choisir un mot de passe d'au moins 12 caractères (72 octets maximum). Un visiteur ne peut pas choisir librement l'adresse administrateur.
+- Connexions suivantes : mot de passe, puis code à usage unique valide 10 minutes ; cinq erreurs maximum par code, avec limitation des demandes ; la session expire après 30 minutes d'inactivité ou 12 h au plus.
+- « Mot de passe oublié ? » permet de le réinitialiser uniquement depuis la boîte administrateur via un code temporaire. L'option dans l'espace connecté demande le mot de passe actuel.
+- Les empreintes du mot de passe, des codes et les données de contrôle sont conservées sous `~/.vevak-private/admin-auth.json` et `admin-auth-rates.json`, jamais dans Git ou le répertoire public. Le changement de mot de passe révoque toutes les autres sessions. Les mails utilisent le transport local PHP/sendmail o2switch ; contrôler sa délivrabilité.
+- Les tests automatisés utilisent un transport e-mail simulé et un stockage temporaire, sans envoyer d'e-mail réel.
+
+### Passage depuis cPanel
+
+1. Laisser temporairement en place la protection cPanel et synchroniser les nouveaux fichiers.
+2. Vérifier les tests du dépôt et l'existence de `/test/login.php` sous l'ancienne protection.
+3. Configurer/vérifier le destinataire `VEVAK_ADMIN_EMAIL`, notamment la réception depuis `contact@lepotager.org`.
+4. Retirer **uniquement** la protection cPanel du dossier `/test/` dans cPanel, puis activer le compte avec le code envoyé par e-mail.
+5. Contrôler à partir d'une navigation privée les redirections de `/test/admin-testers.php` et de `?export=play`, et s'assurer que `/test/files/` et les anciens chemins ne contiennent pas de données privées exposées.
+
+Il ne faut pas copier les inscriptions, les codes, les secrets ou les anciens mots de passe dans Git pour effectuer cette transition.
 
 ### Export Google Play
 
@@ -93,7 +115,7 @@ URL :
 
 `https://vevak.lepotager.org/retours/`
 
-Le fonctionnement est distinct de la protection cPanel de `/test/` :
+Le fonctionnement est distinct de l'authentification administrateur de `/test/` :
 
 1. la personne s'inscrit sur le formulaire public et accepte le questionnaire ;
 2. Jasmin la retient comme testeur ;
