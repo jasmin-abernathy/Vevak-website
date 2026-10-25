@@ -40,6 +40,30 @@ check_http() {
   log "Contrôle HTTP: OK"
 }
 
+check_feedback_styles() {
+  # La page du questionnaire intègre le CSS depuis le fichier local.
+  # Si le CSS est absent, une mise en page minimale existe, mais
+  # on refuse ce déploiement pour ne pas laisser passer la régression.
+  local stylesheet="$LIVE/retours/retours.css"
+  [[ -s "$stylesheet" ]] || fail "Styles retours absents du DocumentRoot."
+  cmp -s "$REPO/retours/retours.css" "$stylesheet" || fail "Les styles retours publics ne correspondent pas au dépôt."
+  if command -v curl >/dev/null 2>&1; then
+    local tmp
+    tmp="$(mktemp "$HOME/.cache/vevak-retours-check.XXXXXX")"
+    if ! curl -fsSL --max-time 20 -o "$tmp" "$SITE_URL/retours/"; then
+      rm -f "$tmp"
+      fail "Impossible de lire la page publique /retours/."
+    fi
+    if ! grep -Fq 'id="vevak-retours-responsive"' "$tmp" ||
+       ! grep -Fq '.feedback-page .feedback-auth-box form' "$tmp"; then
+      rm -f "$tmp"
+      fail "La page retours ne contient pas les styles responsive attendus."
+    fi
+    rm -f "$tmp"
+  fi
+  log "Styles de la page retours : CSS présent et intégré au HTML."
+}
+
 check_press_pdf() {
   # Vérifier la copie locale ET le PDF effectivement servi, pas seulement un HTTP 200.
   local filename="vevak-communique-presse-2026-10-11-v2.pdf"
@@ -136,6 +160,7 @@ log "Contrôles locaux: OK"
 
 if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
   check_http
+  check_feedback_styles
   check_press_pdf
   log "Aucun nouveau commit."
   exit 0
@@ -158,6 +183,7 @@ log "Déploiement sécurisé vers $LIVE..."
 rsync -a --delete-delay   --backup --backup-dir="$BACKUP_DIR"   --exclude='.htaccess'   --exclude='.htpasswd'   --exclude='.well-known/'   --exclude='api/'   --exclude='cgi-bin/'   --exclude='test/files/'   "$STAGE/" "$LIVE/"
 
 check_http
+check_feedback_styles
 check_press_pdf
 
 printf '%s\n' "$COMMIT" > "$STATE.tmp"
