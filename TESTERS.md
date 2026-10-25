@@ -11,7 +11,7 @@ le système déjà existant ; il n’ouvre pas automatiquement l’accès au tes
 
 1. Le candidat remplit le formulaire sur l’accueil.
 2. L’administrateur retrouve la demande dans
-   `https://vevak.lepotager.org/test/admin-testers.php` (accès cPanel protégé).
+   `https://vevak.lepotager.org/test/admin-testers.php` (accès protégé par mot de passe et code e-mail).
 3. L’administrateur ajoute l’adresse du compte Google au test fermé dans Google Play Console,
    puis envoie à la personne le lien d’adhésion au test.
 4. La personne s’inscrit au programme et installe VeVak depuis Google Play.
@@ -24,9 +24,12 @@ le système déjà existant ; il n’ouvre pas automatiquement l’accès au tes
 ## Ancienne page supprimée
 
 La page d’installation d’APK et sa checklist autrefois publiées sur `/test/`
-ont été supprimées. Le dossier `test/` reste présent pour l’administration
-privée et d’éventuelles ressources techniques encore utilisées : **ne pas enlever
-sa protection cPanel**.
+ont été supprimées. `/test/` devient le point d'accès à l'administration avec
+mot de passe et code de connexion par e-mail.
+
+La protection cPanel existante doit être désactivée **manuellement, après déploiement
+de la nouvelle authentification**, en conservant les autres protections utiles du serveur.
+Voir [TESTER_REGISTRATION.md](TESTER_REGISTRATION.md).
 
 Consulter [TESTER_REGISTRATION.md](TESTER_REGISTRATION.md) pour l’administration,
 les exports Play Console et les procédures de suivi.
