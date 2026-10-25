@@ -44,6 +44,21 @@ L’interface permet :
 - d’exporter une version destinée à un tableur ;
 - de se déconnecter et de **modifier son mot de passe** en confirmant le mot de passe précédent.
 
+### Confirmer manuellement les inscriptions déjà reçues
+
+L’administration `/test/admin-testers.php` comporte une section **« Confirmer la réception des inscriptions »** au-dessus du tableau :
+
+- ouvrir l’aperçu du message, qui indique que la candidature est enregistrée et que les instructions pour télécharger et tester l’application seront transmises ultérieurement lorsque l’accès sera prêt ;
+- cocher la confirmation explicite de l’envoi ;
+- choisir **« Envoyer aux inscriptions en attente »** pour les 20 premières candidatures non encore averties (ordre de création), ou cocher certaines lignes dans le tableau et utiliser **« Envoyer aux personnes sélectionnées »** ;
+- le site expédie un message indépendant par adresse depuis `contact@lepotager.org`, sans dévoiler d’autres destinataires ;
+- après acceptation par le transport PHP/mail, `testers.json` mémorise `receipt_sent_at` et `receipt_version`. La ligne indique la date UTC. Les adresses déjà traitées sont ignorées, même en cas de double clic ou de nouvelle inscription du même compte ;
+- si un envoi échoue, le destinataire reste en attente pour une nouvelle tentative. Le bilan affiche les envois acceptés, les échecs et le nombre restant, mais l’acceptation par sendmail **ne prouve pas** la livraison en boîte de réception.
+
+L’outil **n’envoie aucun mail automatiquement lors d’une nouvelle candidature** et n’envoie aucun accusé rétroactif tant que l’administrateur n’a pas explicitement lancé l’opération. Les messages sont réservés aux adresses d’inscriptions avec consentement enregistré. Aucun service de mailing tiers ni donnée de contact publiée dans Git.
+
+Le traitement est limité à **20 candidatures par action** afin de limiter les blocages en hébergement mutualisé. Pour poursuivre, relancer l’envoi sur les candidatures restant en attente ; ne pas supprimer le fichier privé entre deux envois. L’envoi et son historique sont couverts par `ops/test-tester-receipts.php` avec un expéditeur simulé en CI et avant déploiement. La livraison réelle doit être contrôlée séparément par un envoi volontaire et les journaux de l’hébergeur.
+
 ### Première activation et sécurité du compte
 
 - La boîte unique est déterminée par `VEVAK_ADMIN_EMAIL` (ou, par défaut, `contact@lepotager.org`). Il faut impérativement pouvoir recevoir ses messages avant de désactiver cPanel.
