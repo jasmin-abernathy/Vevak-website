@@ -1,27 +1,11 @@
 <?php
 declare(strict_types=1);
 
-$authenticatedUser = trim((string) ($_SERVER['REMOTE_USER'] ?? $_SERVER['PHP_AUTH_USER'] ?? ''));
-if ($authenticatedUser === '') {
-    http_response_code(403);
-    header('Content-Type: text/plain; charset=utf-8');
-    echo "Accès administrateur refusé. La protection cPanel du dossier /test/ doit être active.\n";
-    exit;
-}
-
-require dirname(__DIR__) . '/assets/tester-storage.php';
-
-session_start([
-    'cookie_httponly' => true,
-    'cookie_secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
-    'cookie_samesite' => 'Strict',
-    'use_strict_mode' => true,
-]);
-
-if (empty($_SESSION['vevak_testers_csrf'])) {
-    $_SESSION['vevak_testers_csrf'] = bin2hex(random_bytes(24));
-}
-$csrf = (string) $_SESSION['vevak_testers_csrf'];
+require __DIR__ . '/auth.php';
+vv_admin_session_start();
+vv_admin_require();
+$authenticatedUser = vv_admin_email();
+$csrf = vv_admin_csrf();
 
 function vv_admin_spreadsheet_safe_cell(string $value): string
 {
@@ -114,7 +98,24 @@ try {
             throw new RuntimeException('Jeton de sécurité invalide. Recharge la page puis réessaie.');
         }
         $action = (string) ($_POST['action'] ?? '');
-        if ($action === 'delete') {
+        if ($action === 'logout') {
+            vv_admin_logout();
+            header('Location: /test/login.php', true, 303);
+            exit;
+        } elseif ($action === 'change_password') {
+            $current = (string) ($_POST['current_password'] ?? '');
+            $next = (string) ($_POST['new_password'] ?? '');
+            $confirm = (string) ($_POST['confirm_password'] ?? '');
+            if (!vv_admin_password_valid($next) || !hash_equals($next, $confirm)) {
+                $notice = 'Le nouveau mot de passe doit compter 12 à 72 octets et être confirmé.';
+            } elseif (!vv_admin_change_password($current, $next)) {
+                $notice = 'Mot de passe actuel incorrect ou nouveau mot de passe identique.';
+            } else {
+                vv_admin_logged_in();
+                $csrf = vv_admin_csrf();
+                $notice = 'Mot de passe changé. Les autres sessions et codes en attente ont été révoqués.';
+            }
+        } elseif ($action === 'delete') {
             $key = (string) ($_POST['key'] ?? '');
             $notice = vv_delete_tester($key)
                 ? 'Inscription, compte de retours et réponses associées supprimés.'
@@ -170,9 +171,14 @@ function e(string $value): string
 <main class="admin-wrap">
   <p class="kicker">VeVak · administration privée</p>
   <h1>Demandes de test Google Play</h1>
-  <p class="admin-meta">Connecté via la protection du dossier <code>/test/</code> : <?= e($authenticatedUser) ?>. <?= count($rows) ?> inscription(s).</p>
+  <p class="admin-meta">Connecté avec mot de passe et code e-mail : <?= e($authenticatedUser) ?>. <?= count($rows) ?> inscription(s).</p>
   <?php if ($notice !== ''): ?><p class="admin-notice" role="status"><?= e($notice) ?></p><?php endif; ?>
   <div class="admin-actions">
+    <form method="post">
+      <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+      <input type="hidden" name="action" value="logout">
+      <button class="button secondary" type="submit">Se déconnecter</button>
+    </form>
     <a class="button primary" href="?export=play">Exporter pour Google Play</a>
     <a class="button secondary" href="?export=spreadsheet">Exporter pour tableur</a>
     <a class="button secondary" href="?export=feedback">Exporter les réponses</a>
@@ -228,6 +234,21 @@ function e(string $value): string
       </tbody>
     </table>
   </div>
+  <section class="admin-invite" aria-labelledby="password-heading" style="max-width:600px;margin-top:2rem">
+    <h2 id="password-heading">Modifier mon mot de passe</h2>
+    <p>Ton nouveau mot de passe doit contenir au moins 12 caractères (72 octets maximum). Les autres sessions sont révoquées après modification.</p>
+    <form method="post" autocomplete="on">
+      <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+      <input type="hidden" name="action" value="change_password">
+      <label for="current_password">Mot de passe actuel</label>
+      <input type="password" id="current_password" name="current_password" autocomplete="current-password" required>
+      <label for="new_password">Nouveau mot de passe</label>
+      <input type="password" id="new_password" name="new_password" autocomplete="new-password" minlength="12" required>
+      <label for="confirm_password">Confirmer le nouveau mot de passe</label>
+      <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="12" required>
+      <button class="button primary" type="submit">Enregistrer mon nouveau mot de passe</button>
+    </form>
+  </section>
 </main>
 </body>
 </html>
