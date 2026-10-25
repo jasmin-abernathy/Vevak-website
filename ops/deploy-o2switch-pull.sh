@@ -92,11 +92,13 @@ log "Contrôles locaux avant déploiement..."
 for php_file in \
   "$REPO/assets/tester-storage.php" \
   "$REPO/assets/tester-submit.php" \
+  "$REPO/assets/tester-receipts.php" \
   "$REPO/test/auth.php" \
   "$REPO/test/login.php" \
   "$REPO/test/index.php" \
   "$REPO/test/admin-testers.php" \
   "$REPO/ops/test-admin-auth.php" \
+  "$REPO/ops/test-tester-receipts.php" \
   "$REPO/retours/index.php"; do
   [[ -f "$php_file" ]] || fail "Fichier PHP attendu introuvable: $php_file"
   php -l "$php_file" >/dev/null || fail "Syntaxe PHP invalide: $php_file"
@@ -122,6 +124,14 @@ if ! VEVAK_TESTERS_STORAGE_DIR="$AUTH_SELFTEST_DIR" php "$REPO/ops/test-admin-au
   fail "Auto-test de la double authentification administrateur en échec."
 fi
 rm -rf "$AUTH_SELFTEST_DIR"
+
+RECEIPT_SELFTEST_DIR="$(mktemp -d "$HOME/.cache/vevak-receipt-selftest.XXXXXX")"
+chmod 700 "$RECEIPT_SELFTEST_DIR"
+if ! VEVAK_TESTERS_STORAGE_DIR="$RECEIPT_SELFTEST_DIR" php "$REPO/ops/test-tester-receipts.php"; then
+  rm -rf "$RECEIPT_SELFTEST_DIR"
+  fail "Auto-test des confirmations d'inscription en échec."
+fi
+rm -rf "$RECEIPT_SELFTEST_DIR"
 log "Contrôles locaux: OK"
 
 if [[ -f "$STATE" ]] && grep -Fqx "$COMMIT" "$STATE"; then
