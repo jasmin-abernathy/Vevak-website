@@ -71,6 +71,7 @@ jobs:
         run: |
           tmpdir="$(mktemp -d)"
           export VEVAK_TESTERS_STORAGE_DIR="$tmpdir"
+          export VEVAK_TESTERS_NOTIFY_DISABLED=1
           php -S 127.0.0.1:8099 -t . >/tmp/vevak-php.log 2>&1 &
           server_pid=$!
           trap 'kill $server_pid 2>/dev/null || true; rm -rf "$tmpdir"' EXIT
