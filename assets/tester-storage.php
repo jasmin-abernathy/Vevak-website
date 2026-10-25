@@ -187,6 +187,9 @@ function vv_register_tester(
             'feedback_enabled_at' => $existing['feedback_enabled_at'] ?? '',
             'feedback_code' => $existing['feedback_code'] ?? [],
             'created_at' => $existing['created_at'] ?? $now,
+            // Keep manual acknowledgement status when someone submits again.
+            'receipt_sent_at' => $existing['receipt_sent_at'] ?? '',
+            'receipt_version' => $existing['receipt_version'] ?? '',
             'last_requested_at' => $now,
             'consent_version' => VEVAK_TESTER_CONSENT_VERSION,
         ];
