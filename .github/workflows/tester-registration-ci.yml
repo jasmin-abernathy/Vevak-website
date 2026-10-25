@@ -71,6 +71,10 @@ jobs:
           grep -q 'VEVAK_FEEDBACK_CODE_TTL' assets/tester-storage.php
           grep -q 'autocomplete="one-time-code"' retours/index.php
           grep -q 'name="referrer" content="no-referrer"' retours/index.php
+          test -s retours/retours.css
+          grep -q 'vevak-retours-responsive' retours/index.php
+          grep -Fq '.feedback-page .feedback-auth-box form' retours/retours.css
+          grep -Fq '.feedback-page .feedback-auth-card h1' retours/retours.css
           grep -q 'Confidentialité des demandes de test' confidentialite/testeurs-google-play.html
 
       - name: Storage, duplicate and delete test
@@ -125,6 +129,13 @@ jobs:
           code=$(curl -sS -o /tmp/login.html -w '%{http_code}' http://127.0.0.1:8099/test/login.php)
           test "$code" = '200'
           grep -q 'Activer mon accès' /tmp/login.html
+
+          # Make sure the returned HTML directly includes mobile styles.
+          code=$(curl -sS -o /tmp/retours.html -w '%{http_code}' http://127.0.0.1:8099/retours/)
+          test "$code" = '200'
+          grep -Fq 'id="vevak-retours-responsive"' /tmp/retours.html
+          grep -Fq '.feedback-page .feedback-auth-box form' /tmp/retours.html
+          grep -Fq 'Questionnaire de retour' /tmp/retours.html
           code=$(curl -sS -D /tmp/export-headers.txt -o /tmp/export.txt -w '%{http_code}' 'http://127.0.0.1:8099/test/admin-testers.php?export=play')
           test "$code" = '303'
           grep -qi 'Location: /test/login.php' /tmp/export-headers.txt
