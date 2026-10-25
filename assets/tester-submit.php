@@ -152,7 +152,17 @@ try {
         vv_reply(VEVAK_TESTER_MISSING_FEEDBACK_CONSENT, 422, false, $email, $consent, $deviceModel, $androidVersion, $simSetup, false);
     }
 
-    vv_register_tester($email, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
+    $registration = vv_register_tester($email, $deviceModel, $androidVersion, $simSetup, $feedbackConsent);
+    if ($registration['created']) {
+        try {
+            if (!vv_notify_new_tester()) {
+                error_log('VeVak tester signup notification: mail transport did not accept the message.');
+            }
+        } catch (Throwable $notificationError) {
+            // The signup is already safely saved: never tell the visitor it failed.
+            error_log('VeVak tester signup notification failed: ' . get_class($notificationError));
+        }
+    }
     vv_reply(VEVAK_TESTER_SUCCESS, 200, true);
 } catch (Throwable $error) {
     error_log('VeVak tester registration storage error: ' . get_class($error));
