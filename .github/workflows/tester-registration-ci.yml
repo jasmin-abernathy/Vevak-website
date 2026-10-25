@@ -11,6 +11,7 @@ on:
       - 'confidentialite/testeurs-google-play.html'
       - 'ops/test-feedback-code.php'
       - 'ops/test-admin-auth.php'
+      - 'ops/test-tester-receipts.php'
       - '.github/workflows/tester-registration-ci.yml'
   push:
     branches: [main]
@@ -23,6 +24,7 @@ on:
       - 'confidentialite/testeurs-google-play.html'
       - 'ops/test-feedback-code.php'
       - 'ops/test-admin-auth.php'
+      - 'ops/test-tester-receipts.php'
       - '.github/workflows/tester-registration-ci.yml'
 
 permissions:
@@ -39,11 +41,13 @@ jobs:
         run: |
           php -l assets/tester-storage.php
           php -l assets/tester-submit.php
+          php -l assets/tester-receipts.php
           php -l test/auth.php
           php -l test/login.php
           php -l test/index.php
           php -l test/admin-testers.php
           php -l ops/test-admin-auth.php
+          php -l ops/test-tester-receipts.php
           php -l retours/index.php
           node --check assets/tester-form.js
           node --check retours/retours.js
@@ -61,6 +65,8 @@ jobs:
           ! grep -q 'VeVak-beta.apk' index.html
           ! grep -q 'VeVak-beta.apk' en/index.html
           grep -q 'vv_admin_require' test/admin-testers.php
+          grep -q 'send_receipts' test/admin-testers.php
+          grep -q 'confirm_receipts' test/admin-testers.php
           grep -q 'vv_admin_session_start' test/login.php
           grep -q 'VEVAK_FEEDBACK_CODE_TTL' assets/tester-storage.php
           grep -q 'autocomplete="one-time-code"' retours/index.php
@@ -73,6 +79,9 @@ jobs:
           export VEVAK_TESTERS_STORAGE_DIR="$tmpdir"
           php ops/test-feedback-code.php
           rm -rf "$tmpdir"
+          receipt_dir="$(mktemp -d)"
+          VEVAK_TESTERS_STORAGE_DIR="$receipt_dir" php ops/test-tester-receipts.php
+          rm -rf "$receipt_dir"
           admindir="$(mktemp -d)"
           VEVAK_TESTERS_STORAGE_DIR="$admindir" php ops/test-admin-auth.php
           rm -rf "$admindir"
