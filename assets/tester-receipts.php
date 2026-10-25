@@ -18,7 +18,7 @@ const VEVAK_RECEIPT_VERSION = 'tester-received-2026-10';
 
 function vv_receipt_subject(): string
 {
-    return 'VeVak — ton inscription aux tests est bien enregistrée';
+    return 'VeVak - confirmation de ton inscription aux tests';
 }
 
 function vv_receipt_body(): string
