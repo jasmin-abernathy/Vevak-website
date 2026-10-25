@@ -16,9 +16,21 @@ function fresh_window(string $email): void {
 }
 vv_feedback_request_code('unknown@example.org', 'test-ip', $send);
 check($sent === [], 'Unknown address received a code');
-vv_register_tester($email, 'Pixel', 'Android', 'single', true);
-vv_register_tester($email, 'Pixel', 'Android', 'single', true);
+$firstRegistration = vv_register_tester($email, 'Pixel', 'Android', 'single', true);
+$duplicateRegistration = vv_register_tester($email, 'Pixel', 'Android', 'single', true);
+check($firstRegistration['created'] && !$duplicateRegistration['created'], 'New versus duplicate signup status');
 check(count(vv_get_testers()) === 1, 'Duplicate registration');
+
+$adminNotices = [];
+$adminSender = function (string $to, string $subject, string $body) use (&$adminNotices): bool {
+    $adminNotices[] = [$to, $subject, $body];
+    return true;
+};
+check(vv_notify_new_tester($adminSender), 'Admin notification stub failed');
+check(count($adminNotices) === 1, 'Missing admin notification');
+check($adminNotices[0][0] === (getenv('VEVAK_TESTERS_NOTIFY_TO') ?: 'contact@lepotager.org'), 'Wrong admin notification recipient');
+check(str_contains($adminNotices[0][2], '/test/admin-testers.php'), 'Admin link missing');
+check(!str_contains($adminNotices[0][2], $email), 'Tester email leaked in admin notification');
 vv_feedback_request_code($email, 'test-ip', $send);
 check($sent === [], 'Unapproved address received a code');
 vv_set_feedback_enabled($email, true);
