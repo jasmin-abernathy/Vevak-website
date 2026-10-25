@@ -12,13 +12,14 @@ le système déjà existant ; il n’ouvre pas automatiquement l’accès au tes
 1. Le candidat remplit le formulaire sur l’accueil.
 2. L’administrateur retrouve la demande dans
    `https://vevak.lepotager.org/test/admin-testers.php` (accès protégé par mot de passe et code e-mail).
-3. L’administrateur ajoute l’adresse du compte Google au test fermé dans Google Play Console,
+3. L’administrateur peut envoyer manuellement un accusé de réception depuis l’interface, pour une sélection de candidats ou les 20 premiers non encore informés. Ce message confirme l’enregistrement de la demande sans donner accès immédiatement au test.
+4. L’administrateur ajoute l’adresse du compte Google au test fermé dans Google Play Console,
    puis envoie à la personne le lien d’adhésion au test.
-4. La personne s’inscrit au programme et installe VeVak depuis Google Play.
-5. Pour satisfaire à la condition habituelle de Google Play pour l’accès à la production,
+5. La personne s’inscrit au programme et installe VeVak depuis Google Play.
+6. Pour satisfaire à la condition habituelle de Google Play pour l’accès à la production,
    un minimum de douze testeurs doit rester inscrit au test fermé pendant quatorze jours
    consécutifs. Cela ne signifie pas utiliser l’application tous les jours.
-6. Les testeurs peuvent communiquer leurs retours via
+7. Les testeurs peuvent communiquer leurs retours via
    `https://vevak.lepotager.org/retours/` après autorisation de leur accès.
 
 ## Ancienne page supprimée
