@@ -165,3 +165,31 @@ Si la page `/presse/` n'apparaît pas malgré des modifications habituelles du s
 Un nouveau chemin `assets/vevak-communique-presse-2026-10-11-v2.pdf` reprend exactement le PDF éditorial de 107 233 octets (blob Git `9f3a37281ebdc49063db24ef8da80730a7bb0c4a`). La page `presse/index.html` pointe désormais vers ce nouveau nom pour éviter toute ancienne copie en cache de l'URL précédente. L'ancien nom reste disponible pour compatibilité mais n'est plus la cible affichée.
 
 Le script de déploiement vérifie maintenant que le PDF dans le DocumentRoot a les mêmes octets que celui du dépôt, puis que la réponse HTTP publique correspond aussi, y compris lorsqu'aucun nouveau commit n'est détecté. En cas de divergence, consulter `~/logs/vevak-deploy.log` : la cause n'est plus imputée aveuglément à la synchronisation ; il peut s'agir du cache ou d'une copie concurrente.
+
+
+## Migration de l'authentification de /test/ — octobre 2026
+
+L'espace administrateur est désormais défendu par un mot de passe et un code
+unique reçu sur la boîte `VEVAK_ADMIN_EMAIL` (par défaut `contact@lepotager.org`).
+Le dossier `/test/` redirige vers `/test/login.php` ; les exports et les opérations
+administratives exigent une session authentifiée.
+
+La nouvelle fonctionnalité est versionnée, **mais elle ne peut pas annuler à elle seule
+la protection cPanel** existante : `.htaccess` et `.htpasswd` sont volontairement
+exclus de la synchronisation. Une fois les fichiers déployés et leur présence
+vérifiée, aller dans cPanel « Confidentialité des répertoires » et désactiver la
+protection Basic Auth du dossier `/test/` uniquement. Si des directives
+`AuthType`/`Require valid-user` résiduelles subsistent, les retirer avec soin
+sans toucher aux autres directives de sécurité. Vérifier la non-exposition du
+sous-répertoire `/test/files/` et de ses anciens contenus.
+
+Avant la bascule, vérifier que les codes émis depuis `contact@lepotager.org`
+arrivent bien dans la boîte administrateur. Lors du premier accès, demander un code
+d'activation et choisir le mot de passe. Vérifier avec une fenêtre privée que
+`/test/admin-testers.php` et `?export=play` sont inaccessibles sans session.
+Ne jamais enregistrer de mot de passe, code, JSON d'authentification ou candidat
+dans Git : les fichiers `admin-auth.json` et `admin-auth-rates.json` vivent
+sous `~/.vevak-private/` avec droits restrictifs.
+
+Les précontrôles de déploiement exécutent `ops/test-admin-auth.php` sur des
+données temporaires ; ils ne vérifient pas la distribution réelle des e-mails.
