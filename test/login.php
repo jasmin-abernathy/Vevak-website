@@ -103,7 +103,7 @@ function h(string $value): string { return htmlspecialchars($value, ENT_QUOTES |
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Connexion administrateur — VeVak</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261029-eye">
   <style>
     .auth-page{min-height:100vh;display:grid;place-items:center;padding:2rem 1rem;background:#f3f8f5;color:#17332c}
     .auth-card{width:min(100%,480px);padding:clamp(1.5rem,5vw,2.5rem);border:1px solid #d4e6df;border-radius:1.2rem;background:white;box-shadow:0 14px 40px rgba(13,53,36,.07)}
