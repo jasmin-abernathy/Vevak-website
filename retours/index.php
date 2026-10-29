@@ -344,7 +344,7 @@ $totalQuestions = count($questions);
   <meta name="referrer" content="no-referrer">
   <title>Retours testeurs — VeVak</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../assets/styles.css?v=20260918-a11y-v2">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261029-eye">
   <?php
     // Le contenu est volontairement intégré à la page : sur le portail
     // privé, on ne dépend plus du cache ni de la route HTTP vers retours.css.
@@ -357,7 +357,7 @@ $totalQuestions = count($questions);
     }
   ?>
   <style id="vevak-retours-responsive"><?= $feedbackCss ?></style>
-  <script defer src="../assets/site.js?v=20260918-a11y-v2"></script>
+  <script defer src="../assets/site.js?v=20261029-eye"></script>
   <?php if ($loggedEmail !== ''): ?><script defer src="./retours.js?v=20260927"></script><?php endif; ?>
 </head>
 <body class="feedback-page">
