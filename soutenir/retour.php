@@ -48,7 +48,7 @@ $message = $details['kind'] === 'success'
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title><?= contribution_escape($title) ?> — VeVak</title>
-  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261029-eye">
   <link rel="stylesheet" href="../assets/support.css">
 </head>
 <body>
