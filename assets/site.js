@@ -31,12 +31,7 @@
     accessibility.setAttribute('aria-label', fallbackLabel);
     accessibility.setAttribute('title', accessibility.getAttribute('title') || fallbackLabel);
     accessibility.innerHTML = `
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <circle cx="12" cy="5.4" r="1.65"></circle>
-        <path d="M5.6 9.25c1.85 1 4.02 1.5 6.4 1.5s4.55-.5 6.4-1.5"></path>
-        <path d="M12 10.75v3.1"></path>
-        <path d="M9.15 19.25 12 13.85l2.85 5.4"></path>
-      </svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>1426
       <span class="header-visually-hidden" data-a11y-label>${fallbackLabel}</span>`;
   }
 
