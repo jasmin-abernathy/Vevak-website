@@ -172,7 +172,8 @@ trap 'rm -rf "$STAGE"' EXIT
 
 for path in index.html .nojekyll robots.txt sitemap.xml assets en confidentialite soutenir test retours presse; do
   [[ -e "$REPO/$path" ]] || continue
-  rsync -a "$REPO/$path" "$STAGE/"
+  # The public source can be created under umask 077; never publish 0600 files.
+  rsync -a --chmod=D755,F644 "$REPO/$path" "$STAGE/"
 done
 
 STAMP="$(date '+%Y%m%d-%H%M%S')"
@@ -180,7 +181,7 @@ BACKUP_DIR="$BACKUP_ROOT/$STAMP"
 mkdir -p "$BACKUP_DIR"
 
 log "Déploiement sécurisé vers $LIVE..."
-rsync -a --delete-delay   --backup --backup-dir="$BACKUP_DIR"   --exclude='.htaccess'   --exclude='.htpasswd'   --exclude='.well-known/'   --exclude='api/'   --exclude='cgi-bin/'   --exclude='test/files/'   "$STAGE/" "$LIVE/"
+rsync -a --chmod=D755,F644 --delete-delay   --backup --backup-dir="$BACKUP_DIR"   --exclude='.htaccess'   --exclude='.htpasswd'   --exclude='.well-known/'   --exclude='api/'   --exclude='cgi-bin/'   --exclude='test/files/'   "$STAGE/" "$LIVE/"
 
 check_http
 check_feedback_styles
