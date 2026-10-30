@@ -183,6 +183,13 @@ mkdir -p "$BACKUP_DIR"
 log "Déploiement sécurisé vers $LIVE..."
 rsync -a --chmod=D755,F644 --delete-delay   --backup --backup-dir="$BACKUP_DIR"   --exclude='.htaccess'   --exclude='.htpasswd'   --exclude='.well-known/'   --exclude='api/'   --exclude='cgi-bin/'   --exclude='test/files/'   "$STAGE/" "$LIVE/"
 
+
+# rsync's quick-check can retain restrictive permissions on unchanged live
+# files. Normalize only public static assets; preserve private tester storage,
+# PHP handlers and access-control files exactly as configured.
+find "$LIVE" -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' -o -name '*.svg' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' -o -name '*.ico' -o -name '*.pdf' \) \
+  -not -path "$LIVE/test/files/*" -exec chmod 0644 {} +
+
 check_http
 check_feedback_styles
 check_press_pdf
