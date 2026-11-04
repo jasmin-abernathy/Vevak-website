@@ -170,7 +170,7 @@ STAGE="$(mktemp -d "$HOME/.cache/vevak-stage.XXXXXX")"
 chmod 755 "$STAGE"
 trap 'rm -rf "$STAGE"' EXIT
 
-for path in index.html .nojekyll robots.txt sitemap.xml assets en confidentialite soutenir test retours presse; do
+for path in index.html .nojekyll robots.txt sitemap.xml googlee9c2402d1261c69c.html assets en confidentialite soutenir test retours presse; do
   [[ -e "$REPO/$path" ]] || continue
   # The public source can be created under umask 077; never publish 0600 files.
   rsync -a --chmod=D755,F644 "$REPO/$path" "$STAGE/"
