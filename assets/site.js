@@ -58,16 +58,9 @@
     });
   });
 
-  // Keep French as the canonical root, but help English-speaking first-time visitors.
-  if (current === 'fr' && location.pathname.endsWith('/') && !location.pathname.includes('/en/')) {
-    let saved = null;
-    try { saved = localStorage.getItem(key); } catch (_) {}
-    const browser = (navigator.language || '').toLowerCase();
-    if (!saved && browser.startsWith('en')) {
-      location.replace('./en/');
-      return;
-    }
-  }
+  // Ne pas rediriger automatiquement selon navigator.language :
+  // la racine est la page canonique française, /en/ est la version anglaise.
+  // Le changement de langue reste un choix explicite dans l'interface.
 
   // Keep Google Play tester registration available as the public testing path.
   if (current === 'fr') {
